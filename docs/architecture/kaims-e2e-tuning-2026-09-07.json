@@ -1,0 +1,55 @@
+{
+  "scope": "KaiMS end-to-end tuning; local deployment",
+  "runtime": {
+    "running_services": 68,
+    "one_shot_jobs": 2,
+    "recent_core_service_error_matches": 0,
+    "ready_messages": 0,
+    "dead_letter_messages": 0,
+    "in_flight_messages_at_sample": 1,
+    "resolution_queue_followup": {
+      "ready": 0,
+      "unacknowledged": 0,
+      "dead_letter": 0
+    }
+  },
+  "detail_response": {
+    "before_bytes": 4082359,
+    "after_bytes": 1604925,
+    "reduction_percent": 60.7,
+    "before_ms": [
+      462,
+      478,
+      583,
+      444,
+      429
+    ],
+    "after_ms": [
+      562,
+      614,
+      582,
+      516,
+      246
+    ],
+    "note": "Small sequential samples on a shared live stack; no latency improvement claim."
+  },
+  "validation": {
+    "lifecycle_tests_passed": 130,
+    "command_contract_tests_passed": 9,
+    "production_startup_tests_passed": 2,
+    "visible_batch_closures": 99,
+    "total_visible_history": 135,
+    "recovery_checks": 6,
+    "recorded_samples_in_expanded_check": 11
+  },
+  "remaining_alerts": [
+    "Intentional httpbin /status/503 availability and network alerts",
+    "ParaBank public endpoint latency",
+    "No connected SSE clients over monitoring window",
+    "Low request throughput"
+  ],
+  "limits": [
+    "No new live failure was injected or remediated in this run. Lifecycle transitions were tested in regression fixtures; persisted closure evidence was checked live.",
+    "No recovery thresholds or retention policies changed."
+  ]
+}

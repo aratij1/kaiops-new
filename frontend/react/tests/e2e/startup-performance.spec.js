@@ -23,6 +23,8 @@ test("KaiMS starts without runtime errors and reaches an interactive login promp
 
 test("hashed production assets are compressed and immutable", async ({ request }) => {
   const index = await request.get("/");
+  expect(index.headers()["clear-site-data"]).toBeUndefined();
+  expect(index.headers()["cache-control"]).toContain("no-store");
   const html = await index.text();
   const assetPath = html.match(/<script[^>]+src="([^"]*\/assets\/[^"]+\.js)"/)?.[1];
   expect(assetPath).toBeTruthy();

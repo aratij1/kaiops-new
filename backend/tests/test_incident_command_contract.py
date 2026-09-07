@@ -139,3 +139,42 @@ def test_command_workspace_revision_changes_with_lifecycle_version() -> None:
     )
 
     assert first.revision != second.revision
+
+
+def test_command_deduplicates_projection_without_changing_source_evidence():
+    import copy
+    context = {"metadata": {"evidence": [{"id": "e1", "value": "x" * 10000}]}}
+    recommendation = {"root_cause": "Recorded hypothesis"}
+    incident = {
+        "incident_id": "incident-1", "context": context,
+        "recommendation": recommendation,
+        "projection_payload": {
+            "context": copy.deepcopy(context), "context_metadata": copy.deepcopy(context["metadata"]),
+            "recommendation": copy.deepcopy(recommendation), "status": "closed",
+            "incident_lifecycle": {"assessment_id": "assessment-1"},
+        },
+    }
+    original = copy.deepcopy(incident)
+    command = build_incident_command_workspace(
+        incident_id="incident-1", incident=incident, operations={"incident_id": "incident-1"},
+    )
+    assert incident == original
+    assert command.incident["context"] == context
+    assert command.incident["recommendation"] == recommendation
+    assert command.incident["projection_payload"] == {
+        "status": "closed", "incident_lifecycle": {"assessment_id": "assessment-1"},
+    }
+
+
+def test_command_preserves_distinct_and_projection_only_evidence():
+    incident = {
+        "incident_id": "incident-1", "context": {"metadata": {"version": 2}},
+        "projection_payload": {
+            "context": {"metadata": {"version": 1}}, "context_metadata": {"version": 1},
+            "recommendation": {"root_cause": "Historical hypothesis"},
+        },
+    }
+    command = build_incident_command_workspace(
+        incident_id="incident-1", incident=incident, operations={"incident_id": "incident-1"},
+    )
+    assert command.incident == incident

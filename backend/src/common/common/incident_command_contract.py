@@ -90,6 +90,25 @@ class IncidentCommandWorkspace(BaseModel):
 def build_incident_command_workspace(
     *, incident_id: str, incident: dict[str, Any], operations: dict[str, Any]
 ) -> IncidentCommandWorkspace:
+    # The command page reads canonical top-level context/recommendation. Older
+    # lifecycle projections also embed identical copies (including metadata).
+    # Remove only exact duplicates from this read model, never stored evidence
+    # or distinct historical projections; avoid copying multi-MB nested values.
+    projection = incident.get("projection_payload")
+    if isinstance(projection, dict):
+        projection = dict(projection)
+        for key in ("context", "recommendation"):
+            if key in incident and key in projection and projection[key] == incident[key]:
+                projection.pop(key)
+        context_value = incident.get("context")
+        if (
+            isinstance(context_value, dict)
+            and "metadata" in context_value
+            and "context_metadata" in projection
+            and projection["context_metadata"] == context_value["metadata"]
+        ):
+            projection.pop("context_metadata")
+        incident = {**incident, "projection_payload": projection}
     normalized_incident_id = str(incident_id or "").strip()
     workspace = operations.get("investigation_workspace")
     workspace = workspace if isinstance(workspace, dict) else {}
