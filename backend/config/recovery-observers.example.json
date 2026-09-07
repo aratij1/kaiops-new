@@ -1,0 +1,142 @@
+{
+  "schema_version": "kaims.recovery-observers.v1",
+  "sources": [
+    {
+      "source_id": "prometheus-test",
+      "tenant_id": "example-tenant",
+      "adapter": "prometheus",
+      "endpoint": "http://prometheus:9090"
+    }
+  ],
+  "profiles": [
+    {
+      "tenant_id": "example-tenant",
+      "environment": "test",
+      "target_resource_id": "payments-api",
+      "alert_name": "PaymentsDown",
+      "checks": [
+        {
+          "spec": {
+            "validator_id": "payments-test-availability",
+            "tenant_id": "example-tenant",
+            "connector_id": "prometheus-test",
+            "target_resource_id": "payments-api",
+            "kind": "availability",
+            "check_reference": "promql:sha256:406628c95ca3d717f8eabc0d1c497f3ea441a22a45ede0d5e4187c02d39b1ddf",
+            "expected_condition": "availability eq 1",
+            "evaluation_operator": "eq",
+            "threshold": 1,
+            "observation_window_seconds": 300,
+            "minimum_sample_count": 3,
+            "timeout_seconds": 10,
+            "authoritative_source": "prometheus-test",
+            "onboarding_registry_reference": "validator-registry:payments-test-availability"
+          },
+          "query": "min(up{tenant_id=\"example-tenant\",service=\"payments-api\",environment=\"test\"})",
+          "step_seconds": 15
+        },
+        {
+          "spec": {
+            "validator_id": "payments-test-alert_clearance",
+            "tenant_id": "example-tenant",
+            "connector_id": "prometheus-test",
+            "target_resource_id": "payments-api",
+            "kind": "alert_clearance",
+            "check_reference": "promql:sha256:22410e5c333be75599c1e524d362cc65cef88f029174288013413666196832e2",
+            "expected_condition": "alert_clearance eq 0",
+            "evaluation_operator": "eq",
+            "threshold": 0,
+            "observation_window_seconds": 300,
+            "minimum_sample_count": 3,
+            "timeout_seconds": 10,
+            "authoritative_source": "prometheus-test",
+            "onboarding_registry_reference": "validator-registry:payments-test-alert_clearance"
+          },
+          "query": "sum(ALERTS{tenant_id=\"example-tenant\",service=\"payments-api\",environment=\"test\",alertname=\"PaymentsDown\",alertstate=\"firing\"}) or vector(0)",
+          "step_seconds": 15
+        },
+        {
+          "spec": {
+            "validator_id": "payments-test-error_rate",
+            "tenant_id": "example-tenant",
+            "connector_id": "prometheus-test",
+            "target_resource_id": "payments-api",
+            "kind": "error_rate",
+            "check_reference": "promql:sha256:7ce27a57b8f41e68b503c2014bada664d35791ff530a7a20c2ee13046d6f4975",
+            "expected_condition": "error_rate lte 0.01",
+            "evaluation_operator": "lte",
+            "threshold": 0.01,
+            "observation_window_seconds": 300,
+            "minimum_sample_count": 3,
+            "timeout_seconds": 10,
+            "authoritative_source": "prometheus-test",
+            "onboarding_registry_reference": "validator-registry:payments-test-error_rate"
+          },
+          "query": "sum(rate(http_requests_total{tenant_id=\"example-tenant\",service=\"payments-api\",environment=\"test\",status=~\"5..\"}[1m])) / clamp_min(sum(rate(http_requests_total{tenant_id=\"example-tenant\",service=\"payments-api\",environment=\"test\"}[1m])), 1)",
+          "step_seconds": 15
+        },
+        {
+          "spec": {
+            "validator_id": "payments-test-latency",
+            "tenant_id": "example-tenant",
+            "connector_id": "prometheus-test",
+            "target_resource_id": "payments-api",
+            "kind": "latency",
+            "check_reference": "promql:sha256:0261c3f7fe47c8ffb089176f32a0dd00257fcc6200a69b4ed95e4a7342d87fc3",
+            "expected_condition": "latency lte 0.5",
+            "evaluation_operator": "lte",
+            "threshold": 0.5,
+            "observation_window_seconds": 300,
+            "minimum_sample_count": 3,
+            "timeout_seconds": 10,
+            "authoritative_source": "prometheus-test",
+            "onboarding_registry_reference": "validator-registry:payments-test-latency"
+          },
+          "query": "histogram_quantile(0.95, sum by (le) (rate(http_request_duration_seconds_bucket{tenant_id=\"example-tenant\",service=\"payments-api\",environment=\"test\"}[1m])))",
+          "step_seconds": 15
+        },
+        {
+          "spec": {
+            "validator_id": "payments-test-dependency_health",
+            "tenant_id": "example-tenant",
+            "connector_id": "prometheus-test",
+            "target_resource_id": "payments-api",
+            "kind": "dependency_health",
+            "check_reference": "promql:sha256:388905633c215c457925f34a023845b108563532cf6b0a616c008dce858d5654",
+            "expected_condition": "dependency_health eq 1",
+            "evaluation_operator": "eq",
+            "threshold": 1,
+            "observation_window_seconds": 300,
+            "minimum_sample_count": 3,
+            "timeout_seconds": 10,
+            "authoritative_source": "prometheus-test",
+            "onboarding_registry_reference": "validator-registry:payments-test-dependency_health"
+          },
+          "query": "min(dependency_up{tenant_id=\"example-tenant\",service=\"payments-api\",environment=\"test\"})",
+          "step_seconds": 15
+        },
+        {
+          "spec": {
+            "validator_id": "payments-test-critical_alerts",
+            "tenant_id": "example-tenant",
+            "connector_id": "prometheus-test",
+            "target_resource_id": "payments-api",
+            "kind": "critical_alerts",
+            "check_reference": "promql:sha256:96163c9d887f01f394368dc75a3ae40a0de9c11a6b3615037d3454bdcf2d9bce",
+            "expected_condition": "critical_alerts eq 0",
+            "evaluation_operator": "eq",
+            "threshold": 0,
+            "observation_window_seconds": 300,
+            "minimum_sample_count": 3,
+            "timeout_seconds": 10,
+            "authoritative_source": "prometheus-test",
+            "onboarding_registry_reference": "validator-registry:payments-test-critical_alerts"
+          },
+          "query": "sum(ALERTS{tenant_id=\"example-tenant\",service=\"payments-api\",environment=\"test\",severity=\"critical\",alertstate=\"firing\"}) or vector(0)",
+          "step_seconds": 15
+        }
+      ],
+      "allow_operator_verified_closure": false
+    }
+  ]
+}

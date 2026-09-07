@@ -1,0 +1,40 @@
+{
+  "verified_at": "2026-09-07T09:06:40.217718+00:00",
+  "current_kaims_selected": 99,
+  "current_kaims_closed": 99,
+  "original_batch_closed": 42,
+  "original_batch_open": 8,
+  "original_batch_remaining": {
+    "httpbin_status_503": 4,
+    "parabank_latency_above_200ms": 4
+  },
+  "retention_days": 30,
+  "archive_minimum_days": 365,
+  "production_alerts_deleted": 0,
+  "automatic_retention_enabled": false,
+  "browser_current_closures_visible": 99,
+  "additional_external_closed": 1,
+  "total_new_confirmed_closures": 100,
+  "total_history_records_visible": 133,
+  "closed_incident_projection_mismatches": 0,
+  "external_still_verifying": {
+    "3c9e13fa-44c9-48d8-9ab4-34a470f9591a": {
+      "service": "github-status",
+      "failed_checks": [
+        "latency"
+      ],
+      "failed_values": [
+        "0.264004313"
+      ]
+    },
+    "605ee7b5-77f3-4779-92a0-055a79b6ed4f": {
+      "service": "github-status",
+      "failed_checks": [
+        "latency"
+      ],
+      "failed_values": [
+        "0.264004313"
+      ]
+    }
+  }
+}

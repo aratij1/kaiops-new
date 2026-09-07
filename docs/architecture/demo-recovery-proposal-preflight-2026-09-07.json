@@ -1,0 +1,498 @@
+{
+  "checked_at": "2026-09-07T05:21:19.956853+00:00",
+  "kind": "read_only_instant_preflight_not_closure_authority",
+  "active_registry_changed": false,
+  "profiles": [
+    {
+      "target": "robot-shop-redis",
+      "alert_names": [
+        "RobotShopServiceDown"
+      ],
+      "allowed_incidents": [
+        "8ae0a513-3579-4ab6-8c0c-064080618857",
+        "144d4e97-b71b-4961-bc4b-a4b85f35a0f2",
+        "8d7674c2-e1f9-4c25-ac24-ad7a0c193f5d",
+        "159bb131-6330-4d07-947b-6e5c54e801be"
+      ],
+      "checks": [
+        {
+          "kind": "availability",
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-availability",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "alert_clearance",
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-alert_clearance",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "error_rate",
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-error_rate",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "latency",
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-latency",
+          "value": 0.006173072,
+          "operator": "lte",
+          "threshold": 2.0,
+          "passed": true
+        },
+        {
+          "kind": "dependency_health",
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-dependency_health",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "critical_alerts",
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-critical_alerts",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "target": "robot-shop-mysql",
+      "alert_names": [
+        "RobotShopServiceDown"
+      ],
+      "allowed_incidents": [
+        "1a26fb32-0de5-4f03-b08a-20d6b89c8fc4",
+        "b8d23ba1-9015-4d1b-afd2-486da4c8655c",
+        "6861588c-4dd4-4625-b496-c4679b9280ba"
+      ],
+      "checks": [
+        {
+          "kind": "availability",
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-availability",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "alert_clearance",
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-alert_clearance",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "error_rate",
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-error_rate",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "latency",
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-latency",
+          "value": 0.016578427,
+          "operator": "lte",
+          "threshold": 2.0,
+          "passed": true
+        },
+        {
+          "kind": "dependency_health",
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-dependency_health",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "critical_alerts",
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-critical_alerts",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "target": "robot-shop-mongodb",
+      "alert_names": [
+        "RobotShopServiceDown"
+      ],
+      "allowed_incidents": [
+        "94d16482-72d2-4209-a45b-ee3fa45d52da",
+        "f49363e8-eb41-46a8-bd66-f8e9eb525ed7",
+        "0638d6ef-4a7e-423f-aebb-364f2353fa56"
+      ],
+      "checks": [
+        {
+          "kind": "availability",
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-availability",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "alert_clearance",
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-alert_clearance",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "error_rate",
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-error_rate",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "latency",
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-latency",
+          "value": 0.061492115,
+          "operator": "lte",
+          "threshold": 2.0,
+          "passed": true
+        },
+        {
+          "kind": "dependency_health",
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-dependency_health",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "critical_alerts",
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-critical_alerts",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "target": "robot-shop-rabbitmq",
+      "alert_names": [
+        "RobotShopServiceDown"
+      ],
+      "allowed_incidents": [
+        "512fe8c0-0914-4e56-b276-04e9be24c0d9",
+        "abc0a588-9617-44ab-8db3-06dbb4e5f2c5",
+        "c0cc4aef-7cb8-475e-a143-32bbbde92719"
+      ],
+      "checks": [
+        {
+          "kind": "availability",
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-availability",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "alert_clearance",
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-alert_clearance",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "error_rate",
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-error_rate",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "latency",
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-latency",
+          "value": 0.0124658,
+          "operator": "lte",
+          "threshold": 2.0,
+          "passed": true
+        },
+        {
+          "kind": "dependency_health",
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-dependency_health",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "critical_alerts",
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-critical_alerts",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "target": "robot-shop-cart",
+      "alert_names": [
+        "RobotShopServiceDown"
+      ],
+      "allowed_incidents": [
+        "69b1118a-7be3-4536-86ac-bc891df1bfc7",
+        "d11b7456-8382-42e6-bc4c-bc9cb1d428a4",
+        "8bd182fe-4ab4-430b-9afb-f65708c85b6c"
+      ],
+      "checks": [
+        {
+          "kind": "availability",
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-availability",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "alert_clearance",
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-alert_clearance",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "error_rate",
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-error_rate",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "latency",
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-latency",
+          "value": 0.003537692,
+          "operator": "lte",
+          "threshold": 2.0,
+          "passed": true
+        },
+        {
+          "kind": "dependency_health",
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-dependency_health",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "critical_alerts",
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-critical_alerts",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "target": "robot-shop-payment",
+      "alert_names": [
+        "RobotShopServiceDown"
+      ],
+      "allowed_incidents": [
+        "c10d39a5-cd6d-43e2-89ee-741cdbdcd778",
+        "31cf7879-fffb-48f6-a887-015213348f28",
+        "e271a12b-ce0f-4ba9-9546-f15a5f43e2f6"
+      ],
+      "checks": [
+        {
+          "kind": "availability",
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-availability",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "alert_clearance",
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-alert_clearance",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "error_rate",
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-error_rate",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "latency",
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-latency",
+          "value": 0.002871967,
+          "operator": "lte",
+          "threshold": 2.0,
+          "passed": true
+        },
+        {
+          "kind": "dependency_health",
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-dependency_health",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "critical_alerts",
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-critical_alerts",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "target": "ob-paymentservice",
+      "alert_names": [
+        "OnlineBoutiquePaymentServiceDown"
+      ],
+      "allowed_incidents": [
+        "d44522fc-7c8d-46ac-9d6a-2484851d1b2a",
+        "1725aaf9-f358-4569-9a09-7504a76ea563",
+        "e6b23087-9cdf-4eeb-9e09-bb0cb2ab229a"
+      ],
+      "checks": [
+        {
+          "kind": "availability",
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-availability",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "alert_clearance",
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-alert_clearance",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "error_rate",
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-error_rate",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "latency",
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-latency",
+          "value": 0.001029459,
+          "operator": "lte",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "dependency_health",
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-dependency_health",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "critical_alerts",
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-critical_alerts",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "target": "blackbox",
+      "alert_names": [
+        "OnlineBoutiqueFrontendDown",
+        "HighNetworkLatency",
+        "HighNetworkPacketLoss"
+      ],
+      "allowed_incidents": [
+        "abb9dbe5-3335-4937-9e23-aaf11d14d7cf",
+        "f4c2ab59-496f-453f-ac67-5a390992224d",
+        "9eb6f6f8-e4b3-4966-b369-a5c99c09f8fa"
+      ],
+      "checks": [
+        {
+          "kind": "availability",
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-availability",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "alert_clearance",
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-alert_clearance",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "error_rate",
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-error_rate",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        },
+        {
+          "kind": "latency",
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-latency",
+          "value": 0.002390919,
+          "operator": "lte",
+          "threshold": 0.2,
+          "passed": true
+        },
+        {
+          "kind": "dependency_health",
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-dependency_health",
+          "value": 1.0,
+          "operator": "eq",
+          "threshold": 1.0,
+          "passed": true
+        },
+        {
+          "kind": "critical_alerts",
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-critical_alerts",
+          "value": 0.0,
+          "operator": "eq",
+          "threshold": 0.0,
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

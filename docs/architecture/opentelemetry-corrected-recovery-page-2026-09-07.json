@@ -1,0 +1,13 @@
+{
+  "incidentId": "ac38a842-83cd-4a3b-baea-10888b611dc4",
+  "checks": 6,
+  "historicalInvestigationCollapsed": true,
+  "obsoleteControlsVisible": false,
+  "journey": [
+    "Detected",
+    "Recovery observed",
+    "Independently verified",
+    "Closed"
+  ],
+  "refreshOnFocus": true
+}

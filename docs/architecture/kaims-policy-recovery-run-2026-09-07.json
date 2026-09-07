@@ -1,0 +1,26 @@
+{
+  "6d716f52-c67d-41fa-ac55-7d73a120da37": {
+    "assessment_id": "e5cb3296-420c-4296-b217-20d2f644d610",
+    "status": "pending_stability",
+    "requested_at": "2026-09-07T07:41:07.472321+00:00",
+    "expires_at": "2026-09-07T08:41:07.472321+00:00",
+    "minimum_wait_seconds": 360,
+    "result": {
+      "assessment_id": "e5cb3296-420c-4296-b217-20d2f644d610",
+      "status": "closed",
+      "report_id": "1ec119a5-89ae-5fc0-9204-e60e1edcfe29"
+    }
+  },
+  "5371bbae-8597-45ed-b322-3c223f64db5d": {
+    "assessment_id": "d66a5709-3216-4e00-b9fd-39b28c1aa4ac",
+    "status": "pending_stability",
+    "requested_at": "2026-09-07T07:41:08.508142+00:00",
+    "expires_at": "2026-09-07T08:41:08.508142+00:00",
+    "minimum_wait_seconds": 360,
+    "result": {
+      "assessment_id": "d66a5709-3216-4e00-b9fd-39b28c1aa4ac",
+      "status": "closed",
+      "report_id": "e0cd86d4-95bb-5415-adbc-285bf58c2383"
+    }
+  }
+}

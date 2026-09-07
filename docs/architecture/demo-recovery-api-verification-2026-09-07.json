@@ -1,0 +1,1097 @@
+{
+  "0638d6ef-4a7e-423f-aebb-364f2353fa56": {
+    "status": "investigating",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "diagnostic_only",
+      "control": {
+        "conflicts": [],
+        "auto_close": false,
+        "disposition": "investigate",
+        "reason_code": "no_corrective_capability",
+        "initial_state": "diagnostic_only",
+        "schema_version": "kaims.resolution-control.v1",
+        "approval_required": false,
+        "execution_allowed": false,
+        "watch_only_authorized": false
+      },
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:34:38.699528+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:34:38.699528+00:00",
+      "validation": {},
+      "incident_id": "0638d6ef-4a7e-423f-aebb-364f2353fa56",
+      "reason_code": "no_corrective_capability",
+      "state_version": 1,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:4f6df4a3d54a99b8c1275cec51b6c115053bba97ded5ddaf2f91ee89671f2d72",
+      "permitted_actions": [
+        "regenerate_plan",
+        "escalate",
+        "operator_close"
+      ],
+      "recommendation_id": "f8289ab4-668e-5f80-8369-c455c58233e4"
+    }
+  },
+  "144d4e97-b71b-4961-bc4b-a4b85f35a0f2": {
+    "status": "investigating",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "diagnostic_only",
+      "control": {
+        "conflicts": [],
+        "auto_close": false,
+        "disposition": "investigate",
+        "reason_code": "no_corrective_capability",
+        "initial_state": "diagnostic_only",
+        "schema_version": "kaims.resolution-control.v1",
+        "approval_required": false,
+        "execution_allowed": false,
+        "watch_only_authorized": false
+      },
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:34:52.589082+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:34:52.589082+00:00",
+      "validation": {},
+      "incident_id": "144d4e97-b71b-4961-bc4b-a4b85f35a0f2",
+      "reason_code": "no_corrective_capability",
+      "state_version": 1,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:2ef53e59c42b663af147db9c6be58173b1d7675fcdba4761fdb1d9a698348c3b",
+      "permitted_actions": [
+        "regenerate_plan",
+        "escalate",
+        "operator_close"
+      ],
+      "recommendation_id": "c5515e32-44a4-50ad-8b05-3619cbf69bfa"
+    }
+  },
+  "159bb131-6330-4d07-947b-6e5c54e801be": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:34:11.785024+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:34:11.818427+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-redis-RobotShopServiceDown-latency": true,
+          "robot-shop-redis-RobotShopServiceDown-error_rate": true,
+          "robot-shop-redis-RobotShopServiceDown-availability": true,
+          "robot-shop-redis-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-redis-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-redis-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "c14808a5-1f6e-4616-b903-210e534c8881",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "b817e51e95904d9f9540212aa6a9fe3b",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "159bb131-6330-4d07-947b-6e5c54e801be",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "c80e863d-e642-564a-a097-c3a6e4d234c6",
+      "last_transition_actor": "operator"
+    }
+  },
+  "1725aaf9-f358-4569-9a09-7504a76ea563": {
+    "status": "investigating",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "diagnostic_only",
+      "control": {
+        "conflicts": [],
+        "auto_close": false,
+        "disposition": "investigate",
+        "reason_code": "no_corrective_capability",
+        "initial_state": "diagnostic_only",
+        "schema_version": "kaims.resolution-control.v1",
+        "approval_required": false,
+        "execution_allowed": false,
+        "watch_only_authorized": false
+      },
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:36:11.990068+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:36:11.990068+00:00",
+      "validation": {},
+      "incident_id": "1725aaf9-f358-4569-9a09-7504a76ea563",
+      "reason_code": "no_corrective_capability",
+      "state_version": 1,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:51377840836d2c6e0030eeb4db793eaed898dc648a82add9f96ab0ba6d550091",
+      "permitted_actions": [
+        "regenerate_plan",
+        "escalate",
+        "operator_close"
+      ],
+      "recommendation_id": "a4c18469-f729-59fb-9f1d-80149e85b60a"
+    }
+  },
+  "1a26fb32-0de5-4f03-b08a-20d6b89c8fc4": {
+    "status": "investigating",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "diagnostic_only",
+      "control": {
+        "conflicts": [],
+        "auto_close": false,
+        "disposition": "investigate",
+        "reason_code": "no_corrective_capability",
+        "initial_state": "diagnostic_only",
+        "schema_version": "kaims.resolution-control.v1",
+        "approval_required": false,
+        "execution_allowed": false,
+        "watch_only_authorized": false
+      },
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:05.111833+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:05.111833+00:00",
+      "validation": {},
+      "incident_id": "1a26fb32-0de5-4f03-b08a-20d6b89c8fc4",
+      "reason_code": "no_corrective_capability",
+      "state_version": 1,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:37a16b0ca25e24e31f5a37bd99625c712155b8bc21db04e3631449ac15ac0daa",
+      "permitted_actions": [
+        "regenerate_plan",
+        "escalate",
+        "operator_close"
+      ],
+      "recommendation_id": "3627940d-9967-5edf-9a4d-cdaec6396afd"
+    }
+  },
+  "31cf7879-fffb-48f6-a887-015213348f28": {
+    "status": "investigating",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "diagnostic_only",
+      "control": {
+        "conflicts": [],
+        "auto_close": false,
+        "disposition": "investigate",
+        "reason_code": "no_corrective_capability",
+        "initial_state": "diagnostic_only",
+        "schema_version": "kaims.resolution-control.v1",
+        "approval_required": false,
+        "execution_allowed": false,
+        "watch_only_authorized": false
+      },
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:01.172881+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:01.172881+00:00",
+      "validation": {},
+      "incident_id": "31cf7879-fffb-48f6-a887-015213348f28",
+      "reason_code": "no_corrective_capability",
+      "state_version": 1,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:f6d3fc3810de2c68d2ba80b43c941dec7a55910a4434cb95d1cebc05401b5a5c",
+      "permitted_actions": [
+        "regenerate_plan",
+        "escalate",
+        "operator_close"
+      ],
+      "recommendation_id": "4a09cd12-4519-5975-b873-6419e646e0cf"
+    }
+  },
+  "512fe8c0-0914-4e56-b276-04e9be24c0d9": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:34:12.893574+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:34:12.918508+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-rabbitmq-RobotShopServiceDown-latency": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-error_rate": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-availability": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "b4bf559a-afeb-427c-8e81-dadc1ed1def5",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "88dfa214f22a4b30942f4ee7dcc2b66d",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "512fe8c0-0914-4e56-b276-04e9be24c0d9",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "47aabccc-5d2c-531d-93a4-945a31a7cef0",
+      "last_transition_actor": "operator"
+    }
+  },
+  "6861588c-4dd4-4625-b496-c4679b9280ba": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:34:13.336963+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:34:13.366762+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-mysql-RobotShopServiceDown-latency": true,
+          "robot-shop-mysql-RobotShopServiceDown-error_rate": true,
+          "robot-shop-mysql-RobotShopServiceDown-availability": true,
+          "robot-shop-mysql-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-mysql-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-mysql-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "73d3be6f-98a2-4549-a798-42ba9e940150",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "1a11b799ee3f49349d7f6239238e602a",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "6861588c-4dd4-4625-b496-c4679b9280ba",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "1d63d4f4-51f9-5584-8c40-0e7af9e13ac9",
+      "last_transition_actor": "operator"
+    }
+  },
+  "69b1118a-7be3-4536-86ac-bc891df1bfc7": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:34:12.469313+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:34:12.523575+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-cart-RobotShopServiceDown-latency": true,
+          "robot-shop-cart-RobotShopServiceDown-error_rate": true,
+          "robot-shop-cart-RobotShopServiceDown-availability": true,
+          "robot-shop-cart-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-cart-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-cart-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "1ba0d07b-787b-4ece-b05f-518440b81a93",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "32cbba110e654116b6e67844ef85d413",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "69b1118a-7be3-4536-86ac-bc891df1bfc7",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "3bf1fd65-9ae7-5922-af91-dfffdad28a1e",
+      "last_transition_actor": "operator"
+    }
+  },
+  "8ae0a513-3579-4ab6-8c0c-064080618857": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:01.795164+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:01.814845+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-redis-RobotShopServiceDown-latency": true,
+          "robot-shop-redis-RobotShopServiceDown-error_rate": true,
+          "robot-shop-redis-RobotShopServiceDown-availability": true,
+          "robot-shop-redis-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-redis-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-redis-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "3fd40141-1301-4439-9e9c-767daa5867f6",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "47108e3b92b047d38a6bacb9faeaf725",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "8ae0a513-3579-4ab6-8c0c-064080618857",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "f9362a77-439f-5cd4-abcb-dc390a0c702d",
+      "last_transition_actor": "operator"
+    }
+  },
+  "8bd182fe-4ab4-430b-9afb-f65708c85b6c": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:02.580084+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:02.601001+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-cart-RobotShopServiceDown-latency": true,
+          "robot-shop-cart-RobotShopServiceDown-error_rate": true,
+          "robot-shop-cart-RobotShopServiceDown-availability": true,
+          "robot-shop-cart-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-cart-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-cart-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "140009d2-ca04-4e30-af96-8ba83daf92de",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "50fe0753466c4a3cbba8093a6e9e2b81",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "8bd182fe-4ab4-430b-9afb-f65708c85b6c",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "f3505fe1-d338-5560-ab11-1216184efe4d",
+      "last_transition_actor": "operator"
+    }
+  },
+  "8d7674c2-e1f9-4c25-ac24-ad7a0c193f5d": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:02.113501+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:02.149274+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-redis-RobotShopServiceDown-latency": true,
+          "robot-shop-redis-RobotShopServiceDown-error_rate": true,
+          "robot-shop-redis-RobotShopServiceDown-availability": true,
+          "robot-shop-redis-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-redis-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-redis-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "8a3a2bec-b860-4422-b57b-02c29c5045db",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "97fc284085294880bb45ce66a6790fcd",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "8d7674c2-e1f9-4c25-ac24-ad7a0c193f5d",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "b46766a9-38d5-5b08-a3e5-e4e42cc5726a",
+      "last_transition_actor": "operator"
+    }
+  },
+  "94d16482-72d2-4209-a45b-ee3fa45d52da": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:03.377866+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:03.402197+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-mongodb-RobotShopServiceDown-latency": true,
+          "robot-shop-mongodb-RobotShopServiceDown-error_rate": true,
+          "robot-shop-mongodb-RobotShopServiceDown-availability": true,
+          "robot-shop-mongodb-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-mongodb-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-mongodb-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "46713a0e-f118-4e29-a7b3-d60b122a9bb2",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "5a24f1b13421459baf6789aed6c3560f",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "94d16482-72d2-4209-a45b-ee3fa45d52da",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "a1986633-da45-50ba-8e92-037bfa9e8fd6",
+      "last_transition_actor": "operator"
+    }
+  },
+  "9eb6f6f8-e4b3-4966-b369-a5c99c09f8fa": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:02.963939+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:02.994376+00:00",
+      "validation": {
+        "checks": {
+          "blackbox-OnlineBoutiqueFrontendDown-latency": true,
+          "blackbox-OnlineBoutiqueFrontendDown-error_rate": true,
+          "blackbox-OnlineBoutiqueFrontendDown-availability": true,
+          "blackbox-OnlineBoutiqueFrontendDown-alert_clearance": true,
+          "blackbox-OnlineBoutiqueFrontendDown-critical_alerts": true,
+          "blackbox-OnlineBoutiqueFrontendDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "367e9cd4-41f4-4861-91a2-b09698936520",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "4446722b328d40439378ea8440df0cf5",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "9eb6f6f8-e4b3-4966-b369-a5c99c09f8fa",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "8754b822-356d-5016-a393-d597bcf42c32",
+      "last_transition_actor": "operator"
+    }
+  },
+  "abb9dbe5-3335-4937-9e23-aaf11d14d7cf": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:03.698525+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:03.721017+00:00",
+      "validation": {
+        "checks": {
+          "blackbox-OnlineBoutiqueFrontendDown-latency": true,
+          "blackbox-OnlineBoutiqueFrontendDown-error_rate": true,
+          "blackbox-OnlineBoutiqueFrontendDown-availability": true,
+          "blackbox-OnlineBoutiqueFrontendDown-alert_clearance": true,
+          "blackbox-OnlineBoutiqueFrontendDown-critical_alerts": true,
+          "blackbox-OnlineBoutiqueFrontendDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "89596485-e2d7-4f26-b2d6-1b68120fe85d",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "427c1f88fba541f29732dfe05c773193",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "abb9dbe5-3335-4937-9e23-aaf11d14d7cf",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "2f04a19f-1260-5853-a022-eff99164e0c5",
+      "last_transition_actor": "operator"
+    }
+  },
+  "abc0a588-9617-44ab-8db3-06dbb4e5f2c5": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:03.984620+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:04.005913+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-rabbitmq-RobotShopServiceDown-latency": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-error_rate": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-availability": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "05f14328-2a86-4697-afa9-da01afa1cf95",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "5b00a41538c94198acfb5aab973849ec",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "abc0a588-9617-44ab-8db3-06dbb4e5f2c5",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "a2b3410c-fe0b-5d25-bbd5-333453de1e40",
+      "last_transition_actor": "operator"
+    }
+  },
+  "b8d23ba1-9015-4d1b-afd2-486da4c8655c": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:04.326759+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:04.350455+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-mysql-RobotShopServiceDown-latency": true,
+          "robot-shop-mysql-RobotShopServiceDown-error_rate": true,
+          "robot-shop-mysql-RobotShopServiceDown-availability": true,
+          "robot-shop-mysql-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-mysql-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-mysql-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "51b1365f-f1fb-4d15-b952-a38cab399a1c",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "611e52b94f3442d9b5bbf033e20137f8",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "b8d23ba1-9015-4d1b-afd2-486da4c8655c",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "fea5ce8b-3078-5774-8af8-385bc1df2792",
+      "last_transition_actor": "operator"
+    }
+  },
+  "c0cc4aef-7cb8-475e-a143-32bbbde92719": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:04.576977+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:04.596870+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-rabbitmq-RobotShopServiceDown-latency": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-error_rate": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-availability": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-rabbitmq-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "62c0727a-a2cf-412f-b8ca-706fc499d2ad",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "d3507cd199a6473596e15b68488f2660",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "c0cc4aef-7cb8-475e-a143-32bbbde92719",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "e0f39eaa-74b5-5025-ad88-a27d3c73b642",
+      "last_transition_actor": "operator"
+    }
+  },
+  "c10d39a5-cd6d-43e2-89ee-741cdbdcd778": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:20.169446+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:20.200064+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-payment-RobotShopServiceDown-latency": true,
+          "robot-shop-payment-RobotShopServiceDown-error_rate": true,
+          "robot-shop-payment-RobotShopServiceDown-availability": true,
+          "robot-shop-payment-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-payment-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-payment-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "a4f4c003-5d7c-4093-8d1c-3c1fa3136f9c",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "8eacff5940194e8088e2cebf5ecd5d29",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "c10d39a5-cd6d-43e2-89ee-741cdbdcd778",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "b8459ca1-50bb-55ae-bcc2-0a908be933c1",
+      "last_transition_actor": "operator"
+    }
+  },
+  "d11b7456-8382-42e6-bc4c-bc9cb1d428a4": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:35:04.826420+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:35:04.847098+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-cart-RobotShopServiceDown-latency": true,
+          "robot-shop-cart-RobotShopServiceDown-error_rate": true,
+          "robot-shop-cart-RobotShopServiceDown-availability": true,
+          "robot-shop-cart-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-cart-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-cart-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "6a6ddf38-ff89-4d2d-a8a1-895e8577bf1f",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "58f9086f0c3448e5ba4218caee9d4979",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "d11b7456-8382-42e6-bc4c-bc9cb1d428a4",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "91ae1f81-98a2-5342-9153-9e709bb7884e",
+      "last_transition_actor": "operator"
+    }
+  },
+  "d44522fc-7c8d-46ac-9d6a-2484851d1b2a": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:34:44.705417+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:34:44.739470+00:00",
+      "validation": {
+        "checks": {
+          "ob-paymentservice-OnlineBoutiquePaymentServiceDown-latency": true,
+          "ob-paymentservice-OnlineBoutiquePaymentServiceDown-error_rate": true,
+          "ob-paymentservice-OnlineBoutiquePaymentServiceDown-availability": true,
+          "ob-paymentservice-OnlineBoutiquePaymentServiceDown-alert_clearance": true,
+          "ob-paymentservice-OnlineBoutiquePaymentServiceDown-critical_alerts": true,
+          "ob-paymentservice-OnlineBoutiquePaymentServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "f64095b2-d015-4c11-acc9-358571aca4f8",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "7403d1004a4d403ea1a23eec2f2cee38",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "d44522fc-7c8d-46ac-9d6a-2484851d1b2a",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "7bb41d91-926a-549d-9e4a-7de6155e5357",
+      "last_transition_actor": "operator"
+    }
+  },
+  "e271a12b-ce0f-4ba9-9546-f15a5f43e2f6": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:34:45.073129+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:34:45.096818+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-payment-RobotShopServiceDown-latency": true,
+          "robot-shop-payment-RobotShopServiceDown-error_rate": true,
+          "robot-shop-payment-RobotShopServiceDown-availability": true,
+          "robot-shop-payment-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-payment-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-payment-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "37b2b01a-93a8-4bae-81f0-35115dd6a814",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "a2f1138e5f2d453abcdc19c5b514b5ec",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "e271a12b-ce0f-4ba9-9546-f15a5f43e2f6",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "a88d63f3-de16-5336-870a-8c958061348e",
+      "last_transition_actor": "operator"
+    }
+  },
+  "e6b23087-9cdf-4eeb-9e09-bb0cb2ab229a": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:34:45.664277+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:34:45.684460+00:00",
+      "validation": {
+        "checks": {
+          "ob-paymentservice-OnlineBoutiquePaymentServiceDown-latency": true,
+          "ob-paymentservice-OnlineBoutiquePaymentServiceDown-error_rate": true,
+          "ob-paymentservice-OnlineBoutiquePaymentServiceDown-availability": true,
+          "ob-paymentservice-OnlineBoutiquePaymentServiceDown-alert_clearance": true,
+          "ob-paymentservice-OnlineBoutiquePaymentServiceDown-critical_alerts": true,
+          "ob-paymentservice-OnlineBoutiquePaymentServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "ac51b52f-6986-4cc4-add3-4204b05fd5d9",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "884b6b3f08654ae2bf91bd216b9865f4",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "e6b23087-9cdf-4eeb-9e09-bb0cb2ab229a",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "df1ddcea-6fcc-5f8e-a818-706df22d7ce2",
+      "last_transition_actor": "operator"
+    }
+  },
+  "f49363e8-eb41-46a8-bd66-f8e9eb525ed7": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:34:45.343657+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:34:45.365677+00:00",
+      "validation": {
+        "checks": {
+          "robot-shop-mongodb-RobotShopServiceDown-latency": true,
+          "robot-shop-mongodb-RobotShopServiceDown-error_rate": true,
+          "robot-shop-mongodb-RobotShopServiceDown-availability": true,
+          "robot-shop-mongodb-RobotShopServiceDown-alert_clearance": true,
+          "robot-shop-mongodb-RobotShopServiceDown-critical_alerts": true,
+          "robot-shop-mongodb-RobotShopServiceDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "0da25fd6-ad65-41c3-be0f-cba92344da5f",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "5d95d75a114d4033823f58339063e49a",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "f49363e8-eb41-46a8-bd66-f8e9eb525ed7",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "55d3d60e-6c5d-56b4-b2d5-77314d5fd7bd",
+      "last_transition_actor": "operator"
+    }
+  },
+  "f4c2ab59-496f-453f-ac67-5a390992224d": {
+    "status": "closed",
+    "keys": [],
+    "resolution_lifecycle": {
+      "state": "closed",
+      "control": {},
+      "approval": {},
+      "execution": {
+        "attempt": 0
+      },
+      "retryable": false,
+      "tenant_id": "default",
+      "created_at": "2026-09-07T05:34:45.942245+00:00",
+      "supersedes": null,
+      "updated_at": "2026-09-07T05:34:45.965657+00:00",
+      "validation": {
+        "checks": {
+          "blackbox-OnlineBoutiqueFrontendDown-latency": true,
+          "blackbox-OnlineBoutiqueFrontendDown-error_rate": true,
+          "blackbox-OnlineBoutiqueFrontendDown-availability": true,
+          "blackbox-OnlineBoutiqueFrontendDown-alert_clearance": true,
+          "blackbox-OnlineBoutiqueFrontendDown-critical_alerts": true,
+          "blackbox-OnlineBoutiqueFrontendDown-dependency_health": true
+        },
+        "passed": true,
+        "closure_kind": "observed_recovery",
+        "assessment_id": "aa7827ac-506a-42b0-9763-50634e35e33a",
+        "operator_identity": {
+          "actor_id": "unknown@kaiops.example.com",
+          "auth_jti": "d81f101be5d842a2b1567f369259b722",
+          "actor_role": "Administrator"
+        },
+        "administrative_disposition": false,
+        "corrective_execution_performed": false
+      },
+      "incident_id": "f4c2ab59-496f-453f-ac67-5a390992224d",
+      "reason_code": "operator_authorized_observed_recovery",
+      "state_version": 2,
+      "schema_version": "kaims.resolution-lifecycle.v4",
+      "plan_fingerprint": "sha256:44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "permitted_actions": [],
+      "recommendation_id": "9e231b94-989b-5ed6-9dc9-cba63e043081",
+      "last_transition_actor": "operator"
+    }
+  }
+}

@@ -1,0 +1,2129 @@
+{
+  "started_at": "2026-09-07T08:03:14.398875+00:00",
+  "status": "registry_changed",
+  "incidents": {
+    "24a1985b-a5d6-479f-8634-c4d6034fb6ba": {
+      "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+      "status": "pending_stability",
+      "requested_at": "2026-09-07T08:33:48.805598+00:00",
+      "expires_at": "2026-09-07T09:33:48.805598+00:00",
+      "minimum_wait_seconds": 360,
+      "result": {
+        "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+        "status": "blocked",
+        "observed_at": "2026-09-07T08:37:18.470417+00:00",
+        "checks": [
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+            "kind": "availability",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:4857e012bc9f3569374236925a6af0f52cfe6292c9780d93f7db51226d2e1a60"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:135528ec0ef7b04f4e014b3d0d08dcc3fb326433ef607468c0e4c6a94921a10b"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:e39c6103eefa9d0f7499cb890e01fca3c5b82d18de6681cfcf6e776768f211c3"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:99cdde322c4f46c928180429df3d599c473f58a9108ab0e886d4d4c5b46ece22"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:d0676488d297396ea1ee4b27834093ce2e232a367e1f7f84be06aadbfa65548e"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:af56df573319063815b3a8fc0bf1614371240c6aed1dc8302feb3fb4eec0c3d3"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+            "kind": "alert_clearance",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:d8ebff414a797f1c53f8dd8e4b95a8afbd1e7703516759b3d271940edd11603c"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:21bbf1309086b6c6d53a8067f3f08e786ec85515d1ffe23bedda1c0971eeca6e"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:d2faaa0054e9bcb5f4f81ea320a1706592b5ad81d7e6c8faf819da347170d031"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:6e8af1d71143b6384c2e8a8fe206d43128a57fa37625539503fa5fa50805fd22"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:c7289562f009725cf1eaab04b2d056cefe791f08ca1fbbdcc654f96ab69aef28"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:b68b8c1b076c5379056d6fabfaf081c325495f96755c23b39aab8716ea198721"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+            "kind": "error_rate",
+            "status": "failed",
+            "samples": [
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:337023108c64baefa6aae356a5dd0f4621e0c6096bd5eba0fec9bb1becdf35e4"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "1.0256988855781608",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:ed4c1ff21d7543b5f37e5264ae6882e1d9a00ecf6149e8dc03a347a578d7ee6a"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "2.0256971321508184",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:ffd0c3c5739ce3894982468aa41c2aed75ce2f552ff6c3f9d3a0f290d393a8b0"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "2.025698885578161",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:fcb5ebe9f8092c407e68e7ed98dd8a5735ff811432e3e93cd83846b3bc89e424"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "2.025698885578161",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:0d1624f448c41b74077e4fc95ae038b0e7173bd1963fe91de1ebad57bc5e827e"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "2.0256971321508184",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:06e762f7badff81d8bde777b1e66285563a81658678a5a133b39ea4e2bdb568f"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+            "kind": "latency",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0.003682945",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:4bc080fad12332bae942e357cf6f1012337b0d5794d503406e0a5315c3404866"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "0.003346712",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:9a53946796ed90795b917c0fab87527b5f10454e28866a729ad94e1283fc999a"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "0.004501353",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:8707634abc5251be49f90b58c75ca5e6929fa94172562648d0066957bff0431e"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "0.002907025",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:117a0d9f89c8a62edb86ad7d111beaba7ba542d72663d593b90e11f6e524d0cc"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "0.003475114",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:522c6da63ee2f4c81fcd2f15fd4dde93c86c424a15f2bf81d23b58925923d6be"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "0.003446173",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:b195d441b28cc222d59b6d44d36738de4baea10837d6b18aac85187060a692f1"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+            "kind": "dependency_health",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:9fe51a00b713063da8103972d3470cb1ab95ba5ad88d6f54dee5319317c47ba3"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:ab1f36fabf6e4b81a1de609932e011996b25ca0d90ad4e21cd5edb9422bb26d7"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:f77f4e1679b29abe3c27f12a2a96d9a43ad668f19268269d90b942146b12f63b"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:e2a84c7bb0c3d1009d7eefe11a13e3f2edd9ba4adb6ed7baed28e20f07740742"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:a27c17f33a648d425697b76d50001c6ed2ea0c5de4c999b9a8640e02340495cf"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:7ebdcbec6f596064fb3ad5abab1d7f185fd49855dc41d721e10fd4c365632d6c"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+            "kind": "critical_alerts",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:868ab2fed7e62a4dfec8f657dca6387d7597551a0e5e5f963dab775c6490a270"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:7c320c7e7c85b8427ca6d3d056f6c03ba3d57025ccdf0f21e62b324d5b078cc3"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:2c9317ac50517f0f43811995c4a23762241744dea78a63d94a3474d88a741f92"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:cde9f645f2b9ee9450106c985a84e5dda6f992510bc23baa0e8b94ff10693b36"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:981168003a00e61a248737670bf0bc0d46ce54f57b1d57327d083115cfa48ac6"
+              },
+              {
+                "assessment_id": "877f7c63-4763-4b64-a951-567133814a32",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:42e2e08cd17f837079a2b5587bab3826402229ae9caa2a5d1a5e5c00c538c35e"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "479adfb0-217b-4ab6-b00b-aa3142c4c3a6": {
+      "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+      "status": "pending_stability",
+      "requested_at": "2026-09-07T08:33:50.702030+00:00",
+      "expires_at": "2026-09-07T09:33:50.702030+00:00",
+      "minimum_wait_seconds": 360,
+      "result": {
+        "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+        "status": "blocked",
+        "observed_at": "2026-09-07T08:37:19.578372+00:00",
+        "checks": [
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+            "kind": "availability",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:b8d9c39b242fad3ba92737aec02c7917c600641005b0431edf690a34ee192255"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:494251f3c6d36c0427b07d477396f7996ee3682807005acb5d7ba150faee6828"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:95de030679a32dfe297b421ed34e14d05f0db455cded444586ac17cf5e8f60ad"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:37f27c904cc548c096ec00bbe503fbfc6e9160e48c8e8e5ad01cc2ede7dcccaa"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:d79417cc7fe50ff9013cbb6c174fb66369606f8987a59a22a90d893355fab9c0"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:7241cf04c9e0d9ba3a5608a8fa87e6a04ea034587efd43a494f806819ca6fe4c"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+            "kind": "alert_clearance",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:bed4a03509ce47d5ced7d6339d67da59fe9f38dde66acff5aecf8734888bccb1"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:7aa361368c2b2fbb976ba50c89f0233d0c17a20ca24a0652e77d4a7983c62f09"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:19939487dfe7da370087f671ec0dd0ddc29ec1b0a93e0cb2fc6089273ce9b953"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:89622aca3578bd8f258c7b6cea6f61bfd26150da63f71cc640fe7a42e3ae94c0"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:29f98379cb2bebe70ea7eb62c063081ec008c5d1f78c1fa5c4953e0755dab4a3"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:efc4cf69af6b70e088af9c6651ac30037a4ae746de8d0670fa2e201050404870"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+            "kind": "error_rate",
+            "status": "failed",
+            "samples": [
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:61fb0587be1940bd37cd6b3797384aaf6c0bb3f2200770cdbb1eac1d194097d5"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "1.0256988855781608",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:f8f64ae7ac6782360ba2d97c09cceafbe183037b672e7c28f66e7737e17299a5"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "2.0256971321508184",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:7243f8aa7edd697644608e26fba8a24d9144b6309793414699a5071653d29c07"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "2.025698885578161",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:07b80b0e9663c0fb295e4553142d91841cf81d7887f87011f310ce4893b11ea4"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "2.025698885578161",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:8f116a293de206b611054322af078986bd51058e583f5ea0330c4222f887d3f0"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "2.0256971321508184",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:7ee6153b1e834874dfcefb8b6c4d4e7dc35b0819ef2d5ba64f78ad8167ad2c5e"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+            "kind": "latency",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0.003682945",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:ad73c54e8182bbfa5a0e16f977fb8861194d6a8cad88b9b48954c8321559aefa"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "0.003346712",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:7c37f73df5ee5d72f400198dce7b50eda38c43f096f1a639afe487cf064b1822"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "0.004501353",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:e18d688748b96566a13e9a03a780800baf6ba943579d2ee5f131d13ebe732a89"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "0.002907025",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:aac56b25f957704547c978a308937df98494e652b7f714e5a6113a5d26c1f4e0"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "0.003475114",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:7700e4728336a3a55b541cbec60d9e587e29511822c29ae4773b81d12fb85a97"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "0.003446173",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:34de7e8b58062285a28e8612d5765d4087f20d1cfe85c0134b13ec34b041d880"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+            "kind": "dependency_health",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:e682a6ac8f60d9a21559b7e4f36d66f20fe79e9e938faf30c3e125cef33bb500"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:302f65d84516b14f71beabd57aedb5173d77b6e02ddbd89d2115c259e829824c"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:a91a822f8e3c1233d6d70d471da96ea037b190fc70a0719bf90c355b89d08b45"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:5c7cd1e78944cb08fa35202e275255bbaef87d2a51a708439f0acc683c7dc7d7"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:80c081c00ae558f5ac864d1e5fee97a79b977b239139230cc44a51dd6bd879bd"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:5aaadccc9aa4ae1554a50825660444c27bff2c7522a4c4c7fef7f7d5c3f0656c"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+            "kind": "critical_alerts",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:170d010329255ee9e57bf66eb35895e2ae2c4ebddeb872e1556be4fdc2a64e45"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:16b6c0d4ab89f5fcb6d5e7bfda372227fb1001ebde8a27adec078e2472173130"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:61ea956a2d75943e9919a869b218471d678ef83f56c5c3966fc45d718515d767"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:1963ca252c3a08ad43406a33dfaee47c5e3b689fddf4595a5a0d9d7a177faeab"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:6d031083fdddb4939710a1a104e50bc1c87033450efc3dd4aa8516d25709e80a"
+              },
+              {
+                "assessment_id": "1814eab3-800c-4186-a9db-16045a0605d0",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:bd70717ed7a468461e8669c6ca17ddd4cfe4daf6df2c11304ce84870b0f2da8c"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "c8a4d863-f394-49ed-bf9a-506b4c0d463b": {
+      "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+      "status": "pending_stability",
+      "requested_at": "2026-09-07T08:33:52.783148+00:00",
+      "expires_at": "2026-09-07T09:33:52.783148+00:00",
+      "minimum_wait_seconds": 360,
+      "result": {
+        "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+        "status": "blocked",
+        "observed_at": "2026-09-07T08:37:20.730640+00:00",
+        "checks": [
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+            "kind": "availability",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:950cd013af9bc9caaab76c64a38e6d055b3326b63cb385fcd7ae335281222ee0"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:7de81d0b32ef02cf567c53414a70ac6e4f841a58a6fd1a172abfcab8b418dfad"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:a8f9ed535646d920a83f909b274332a4bd394c2ee6cf7ad75a4c5a07cbe9c13e"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:9f543c6659703fa3c6273c0c0bae840d160ab9385cc8e24102d0795f7db98090"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:575ca5cbeeab5b1a0f274a93e024a82e4a53a7b3eb280d857d9f75739f2ddf8b"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:7db59e14232d54cf3732401321f4eb3e8233eacc5dbd1870fb6b7a611a35fd2b"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+            "kind": "alert_clearance",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:d1b888bfd332795705ea3bb9b47e2c9e04a6b4f42bf95fb430acd9e45359e754"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:bf019d1794d3b77b47f7ce0ae1d6448586664615b51732c51ca4e37c93436cf4"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:123c45d6d566a0a08a562bf2d07929da500d81fc35412924dba116f7bae6a791"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:04e163a8ed819bcdd6a4982dd3c6ab5a1e83b8cc3ef86b4f703fc97372d0f190"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:2d8d605392fc90461d3c051a1521c96da3883cc981cb489f5e734eafb975ddf1"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:264125b1395c31e16f13775b9055f86ab947afc0d4ae47028c4d723dfe1c6818"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+            "kind": "error_rate",
+            "status": "failed",
+            "samples": [
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:97e51cee8ca711153aab068084aee30bcbe78453da9f17c30d911dc472d455e4"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "1.0256988855781608",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:74d1f6183198a0be436796e2a97fb243ee92713e350272f143e80d02981bd9ed"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "2.0256971321508184",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:52bc6fbfe32aa5bd04a4e63f25a4b361c552db9f1610a2d525a497079516c604"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "2.025698885578161",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:e7f2da504e980931a45c6aa06738e6f88bd89e0c6c136b566bb61aefc624fe37"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "2.025698885578161",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:16d38a2477f8ee78d3c92749a9464e4eedc99c5d57f7ab219426ea30bc8f70d2"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "2.0256971321508184",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:9e9bdb7e28f4d0ebeb675cb6719965798e8f7e7716775b77626ba84899767602"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+            "kind": "latency",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0.003682945",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:8eeb6303c0fcf1d692e0a431114080d16ff5e9b15188d2ee301b27f0e18bd319"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "0.003346712",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:1b2e641c5db114fafda1bcc60ef96faebdeea152702c5f2021648f4565f65e97"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "0.004501353",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:bc5b8d6dcbcd9d1a0d1f15a9ef39193f08918b53f37ed18890bcf4bac4da5326"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "0.002907025",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:9dc1105b143f4d0de5c5978886a272208dc1aeb1c816639400beaa51b47a35f6"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "0.003475114",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:3cb4ef7033c799fda7939b0a5fcce0320c7417a05b9e5db6f1a7bd1c1732425f"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "0.003446173",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:ac9f7679b5fedfecd25177f865147de9e274bd888cf0805398e93e377cac5289"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+            "kind": "dependency_health",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:c0749157f6b26e8f0716961bfc09dce67a78c873a2b5ce9df9a910e5d240254b"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:d84e7e48b90f9c8e58fb2899b3cfcff947e112cc658fda045e935cd1fea7ee5d"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:3c2ce8812d2e5c8988ed524950f7f49421aba92500ad462028c6f455854cce1e"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:77875d794264181109b146a6ab2ab0021a79dc7686bf7dca4ab04f0290cb3f98"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:c1f61acb9f4cd139c16cc8e04a69f171805c0ff1d8c841916f3cd6ad100cca3e"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:320d56522768996374a33132fd4eb4d1ad0fd7893716c432c23448cf4202eea8"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+            "kind": "critical_alerts",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:d3f86f01878a16b77c185a245855777f81369a12756e17a473dbd80aaab90836"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:780e7427fda545c406ba0f0f21c8c530804b1d33887291c9b0774b0f37b45b0e"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:18e85cea58ff227e9e6a433d6de65b926f818c2cc8bdb0c7c05d58daf5f2d3ab"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:ba7842c9d4c363bbb7b29d8e097d90bb07f93c239e901fb81c1087e470592289"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:4d7d879b9f7c65a6e2b7341077d3ce1b49010bc512443d01828e976b8cbd06f3"
+              },
+              {
+                "assessment_id": "82003ddc-5736-4d08-99f7-6c05aca9e8f4",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:202f00f1f7919ee61458c1914a6001588a072f30da646cb1ad14802b36ef9508"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "e00ea76e-556a-4306-997e-02f65afa83d3": {
+      "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+      "status": "pending_stability",
+      "requested_at": "2026-09-07T08:33:54.918514+00:00",
+      "expires_at": "2026-09-07T09:33:54.918514+00:00",
+      "minimum_wait_seconds": 360,
+      "result": {
+        "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+        "status": "blocked",
+        "observed_at": "2026-09-07T08:37:21.679638+00:00",
+        "checks": [
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+            "kind": "availability",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:3cc021744c376df6107e1398eb18ddfd40414d96d803fd53d3e052565d0e9e13"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:ea3dcc5887614adaf60694089c4824f6d93af6ce49d9b25fd33835e32b5ca532"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:aecb64cae6ca451f0f0053b21f428e10590ed2db093646b63b0fe6fa967398b1"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:036cea79a90cec28633ae82f7ea4d614c5326825222940420f801debc107767e"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:33344166ab179d8f9bd199b3c656595bef069f58a8ae83df09299449ab4178ff"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:0c0065234a518af49c4e47216be36656dbf27f97bfe2f5636d7d54f00c2dc0d8"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+            "kind": "alert_clearance",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:d2bf8af8ff4a3d192b59ecba721ade25e57add1187797e855cb778be426ac8ce"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:e79c82f01f8fbed44965249d557cd266cccce493c67965465b9a75449977bc0e"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:872d5d4966f0f272d270eede5436032b5c8c3c7c855a5b0e80349af8a423fcf9"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:b93541a77d105659076ec9e91faa13718f901cfd5cbebc4dab342bf77fa1f700"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:5049ddfc34d5af392c57bd562608ac6a77ebc1f4085902dfc0797f222f28b08a"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:fbadb9ad5f4b1b383cbc26e2e474ad3977f471655f73ac8317eb57a8b6f102f5"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+            "kind": "error_rate",
+            "status": "failed",
+            "samples": [
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:d761a56f255b327aa314db3fb527389aceb10a2f95546085d6fe8d2ced4f5b42"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "1.0256988855781608",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:4c1c06d54477c5391d70e6a1a4a2e1df0f1cdd3ad312db60572641680cb9075a"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "2.0256971321508184",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:c421cc307aa61ed305184596ea2f234f4f18e072a9061ca9ee1fd5a96df9eea1"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "2.025698885578161",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:bdbe182f8ceefb847352bec5c3d66caf3c5c97811c92f287d89e0749177bf2ce"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "2.025698885578161",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:df60f9844367874db9332f1bfb74d61bac7bec8b3157b12de80e29d8fbf484ec"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "2.0256971321508184",
+                "expected_value": "0.0",
+                "passed": false,
+                "result_checksum": "sha256:13581392b771754f69d05dff3dc4c7523e638193eb4b8ad9ee2b9dc456eb35d5"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+            "kind": "latency",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0.003682945",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:4391e75ceee87c74b3a94d53086c502188f2afdd2a56cb3b8421da16ef5d4a53"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "0.003346712",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:b475bfac2aa7b6e787bb7bdccf398918b9a459d3341b2c1ccf301ea34ead3a3c"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "0.004501353",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:c8daa8f99595ad60f49b22c7e328f1033d7e5da882a469a9a5f0cf9d5586ec24"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "0.002907025",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:d4ad7bce77f98f182f4401561144bf3b1636bad88e7207feeb294937be507101"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "0.003475114",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:e91196749800678948dc22ed193482c10d0039a26a64d341cfd0950e79edc75b"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "0.003446173",
+                "expected_value": "1.5",
+                "passed": true,
+                "result_checksum": "sha256:0f59c2d2d2b3042ac67d2a36717c83ae09a2776893eaa26c281891858639a303"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+            "kind": "dependency_health",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:a626891ef95a958ef86857fd2b848504edd0f4816a84190c9005ba1a7cdca090"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:b234701ef146ce8fbae57421b401b49fc62258d472c5bd09c8ce13a950b1cadc"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:d2c8437a5801f921828069a96622b9e952009d41659d5f1e20d4d9d08761d0f4"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:f0566712c790e654988d6488fe63b6126ccbc8d48cf6f7442a26e59b0da83a18"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:fd7f44af36193d331918c915365e9d07c3c4cecbf5e80c39733d73f070eb8e71"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:582463c0bc9d3dc82ee9a72d532f5d1179f6f781cc245d34461c292fb2907320"
+              }
+            ]
+          },
+          {
+            "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+            "kind": "critical_alerts",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:34:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:aad0828679a5ec81c5e08aeb0997d55c84448311cd2a5916b208a7bf1f9b9e11"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:5f93bcc70e287c6bd2a9f814f113dfb1e65c8f1f594f9ea434bf9227d85273d1"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:35:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:b01ea87ac304ef31dad05cb5b06500e4470ab82c559c45909db1a0e71c22a855"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:3869e1bf6e612ad533e92011cf50637243e0bd4162572afe4cad043e6b0d523b"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:36:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:e9376d05c3e7ac4a7e78564391bcd8a470055dd6ecb8980fe2fe6b4b0eb2568d"
+              },
+              {
+                "assessment_id": "0dba39b4-c804-455c-99ef-81d2805a540c",
+                "profile_digest": "sha256:b5964640d5ebbeda1c5fcefc64a51a5c596cb39152f7c9bca0342665191fabca",
+                "phase": "post_assessment",
+                "validator_id": "kaiops-platform-KaiOpsDeadLettersIncreasing-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "kaiops-platform",
+                "observed_at": "2026-09-07T08:37:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:2feb4531470956166d4d4d4cc14813d9144bd1ad9996801f7b7d46eb98de3193"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "prerequisites": {
+    "availability": {
+      "passed": true,
+      "value": "1.0"
+    },
+    "alert_clearance": {
+      "passed": false,
+      "value": "1.0"
+    },
+    "error_rate": {
+      "passed": false,
+      "value": "2.025700639011498"
+    },
+    "latency": {
+      "passed": true,
+      "value": "0.003227466"
+    },
+    "dependency_health": {
+      "passed": true,
+      "value": "1.0"
+    },
+    "critical_alerts": {
+      "passed": false,
+      "value": "1.0"
+    }
+  },
+  "updated_at": "2026-09-07T08:37:51.799932+00:00"
+}

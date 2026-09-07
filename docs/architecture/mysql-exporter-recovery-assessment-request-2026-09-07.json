@@ -1,0 +1,22 @@
+{
+  "trace_id": "5246bb614e3949f5863600e236bc66eb",
+  "gateway": {
+    "path": "/incidents/4e0efeed-3c9c-47bc-ae9d-6e89e2212474/recovery-assessments",
+    "target_url": "http://closure-service:8000/incidents/4e0efeed-3c9c-47bc-ae9d-6e89e2212474/recovery-assessments",
+    "safety": {
+      "decision": "allow",
+      "score": 0.0,
+      "categories": [],
+      "reasons": [],
+      "provider": "local"
+    },
+    "latency_ms": 77.61
+  },
+  "data": {
+    "assessment_id": "b50218eb-0817-407f-b1d3-4713fde20c4c",
+    "status": "pending_stability",
+    "requested_at": "2026-09-07T04:28:59.579194+00:00",
+    "expires_at": "2026-09-07T05:28:59.579194+00:00",
+    "minimum_wait_seconds": 360
+  }
+}

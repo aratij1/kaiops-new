@@ -1,0 +1,266 @@
+{
+  "checked_at": "2026-09-07T08:08:36.142246+00:00",
+  "batch": [
+    {
+      "incident_id": "0638d6ef4a7e423faebb364f2353fa56",
+      "status": "closed"
+    },
+    {
+      "incident_id": "11bc6cb83f0a48b4acbe25f95bf2c909",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "144d4e97b71b4961bc4ba4b85f35a0f2",
+      "status": "closed"
+    },
+    {
+      "incident_id": "159bb13163304d07947b6e5c54e801be",
+      "status": "closed"
+    },
+    {
+      "incident_id": "1725aaf9f35845699a097504a76ea563",
+      "status": "closed"
+    },
+    {
+      "incident_id": "1a26fb320de54f03b08a20d6b89c8fc4",
+      "status": "closed"
+    },
+    {
+      "incident_id": "24a1985ba5d6479f8634c4d6034fb6ba",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "28316068c6ab4ac38d4bcaba8f92d638",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "31cf7879fffb48f6a887015213348f28",
+      "status": "closed"
+    },
+    {
+      "incident_id": "479adfb0217b4ab6b00baa3142c4c3a6",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "4e0efeed3c9c47bcae9d6e89e2212474",
+      "status": "closed"
+    },
+    {
+      "incident_id": "512fe8c009144e56b27604e9be24c0d9",
+      "status": "closed"
+    },
+    {
+      "incident_id": "5371bbae859745edb3223c223f64db5d",
+      "status": "closed"
+    },
+    {
+      "incident_id": "54287c29d9a04fddb77850429ed275fb",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "60bd1028a0b8468883fa3e1e06f3c59d",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "6861588c4dd44625b496c4679b9280ba",
+      "status": "closed"
+    },
+    {
+      "incident_id": "69b1118a7be3453686acbc891df1bfc7",
+      "status": "closed"
+    },
+    {
+      "incident_id": "6b9f4031366a4004b4e45a7d6dd720c2",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "6d716f52c67d41faac557d73a120da37",
+      "status": "closed"
+    },
+    {
+      "incident_id": "781593ae96854143b32bede0a5cb08f1",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "79cf85a7eacd4af6a8df9b555384092d",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "7aabfd5354a643e3a592df3c845715de",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "7b31041c09e449ee96f64924de77c43d",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "89433e20b9f148da88a59aa1a248eb06",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "8ae0a51335794ab68c0c064080618857",
+      "status": "closed"
+    },
+    {
+      "incident_id": "8bd182fe4ab4430b9afbf65708c85b6c",
+      "status": "closed"
+    },
+    {
+      "incident_id": "8d7674c2e1f94c25ac24ad7a0c193f5d",
+      "status": "closed"
+    },
+    {
+      "incident_id": "94d1648272d24209a45bee3fa45d52da",
+      "status": "closed"
+    },
+    {
+      "incident_id": "9a0694660f28436baac33e18294f261f",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "9afd408499cb487fb6baf926cd4f72fa",
+      "status": "closed"
+    },
+    {
+      "incident_id": "9eb6f6f8e4b34966b369a5c99c09f8fa",
+      "status": "closed"
+    },
+    {
+      "incident_id": "a09afa04d3a64eda929bd90c97dc8580",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "abb9dbe5333549379e23aaf11d14d7cf",
+      "status": "closed"
+    },
+    {
+      "incident_id": "abc0a588961744ab8db306dbb4e5f2c5",
+      "status": "closed"
+    },
+    {
+      "incident_id": "b8d23ba190154d1bafd2486da4c8655c",
+      "status": "closed"
+    },
+    {
+      "incident_id": "c0cc4aef7cb8475ea14332bbbde92719",
+      "status": "closed"
+    },
+    {
+      "incident_id": "c10d39a5cd6d43e289ee741cdbdcd778",
+      "status": "closed"
+    },
+    {
+      "incident_id": "c7b9adeade2e4b5dbd8d23eec519fccb",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "c8a4d863f39449edbf9a506b4c0d463b",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "d11b7456838242e6bc4cbc9cb1d428a4",
+      "status": "closed"
+    },
+    {
+      "incident_id": "d44522fc7c8d46ac9d6a2484851d1b2a",
+      "status": "closed"
+    },
+    {
+      "incident_id": "d79b78673572478a9ed402dd41828f70",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "dab25dd199e440db9f4cafed5b3092b3",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "e00ea76e556a4306997e02f65afa83d3",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "e271a12bce0f4ba99546f15a5f43e2f6",
+      "status": "closed"
+    },
+    {
+      "incident_id": "e324b73301114b0a8c12c36577f8d828",
+      "status": "closed"
+    },
+    {
+      "incident_id": "e6b230879cdf4eeb9e09bb0cb2ab229a",
+      "status": "closed"
+    },
+    {
+      "incident_id": "eb92736c43a4445d8f7c8fa4b63494b4",
+      "status": "investigating"
+    },
+    {
+      "incident_id": "f49363e8eb4146a8bd66f8e9eb525ed7",
+      "status": "closed"
+    },
+    {
+      "incident_id": "f4c2ab59496f453fac675a390992224d",
+      "status": "closed"
+    }
+  ],
+  "closed_count": 30,
+  "tests_passed": 152,
+  "observer_profiles": 35,
+  "gateway_p95": [
+    {
+      "metric": {},
+      "value": [
+        1788767291.832,
+        "0.9875"
+      ]
+    }
+  ],
+  "recent_deadletters": [],
+  "broker_ready_backlog": [
+    {
+      "metric": {},
+      "value": [
+        1788767291.871,
+        "452"
+      ]
+    }
+  ],
+  "observed_numeric_text_mysql_roundtrip_verified": true,
+  "metric_snapshot_note": "Metrics below were captured earlier at their embedded timestamps; closure counts were refreshed at checked_at.",
+  "platform_watcher": {
+    "started_at": "2026-09-07T08:03:14.398875+00:00",
+    "status": "waiting_for_prerequisites",
+    "incidents": {
+      "24a1985b-a5d6-479f-8634-c4d6034fb6ba": {},
+      "479adfb0-217b-4ab6-b00b-aa3142c4c3a6": {},
+      "c8a4d863-f394-49ed-bf9a-506b4c0d463b": {},
+      "e00ea76e-556a-4306-997e-02f65afa83d3": {}
+    },
+    "prerequisites": {
+      "availability": {
+        "passed": true,
+        "value": "1.0"
+      },
+      "alert_clearance": {
+        "passed": false,
+        "value": "1.0"
+      },
+      "error_rate": {
+        "passed": false,
+        "value": "107.03467546032512"
+      },
+      "latency": {
+        "passed": true,
+        "value": "0.004302143"
+      },
+      "dependency_health": {
+        "passed": true,
+        "value": "1.0"
+      },
+      "critical_alerts": {
+        "passed": false,
+        "value": "1.0"
+      }
+    },
+    "updated_at": "2026-09-07T08:08:14.983745+00:00"
+  }
+}

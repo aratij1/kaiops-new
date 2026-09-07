@@ -1,0 +1,6 @@
+{
+  "url": "http://localhost:8501/incidents/db1af5b2-310d-4698-97d7-fe4833556478",
+  "rowText": "ExternalApplicationUnavailable\ndb1af5b2-310d-4698-97d7-fe4833556478\n\t\nhttpbin-failure-lab\npublic-internet\n\tACTION REQUIRED\nconnector does not allow check_kaiops_triage_script_dry_run:script_execution; connector does not allow validate_service_recovery:verify_slo; Iterative investigation is inconclusive; corrective execution is not authorized.\n\tPending\t\nEvidence & Understanding\nAnalysis completed; resolution blocked\n\t07 Sept 2026, 11:00:57 IST\tView details",
+  "heading": "Incident inbox\ndb1af5b2-310d-4698-97d7-fe4833556478\nExternalApplicationUnavailable\n\nCustomer or business impact is not established by accepted evidence.\n\nWaiting For Human\nKai is working\nSEVERITY\nCritical\nAPPLICATION\nHttpbin-Failure-Lab\nENVIRONMENT\nPublic-Internet\nSERVICE\nHttpbin-Failure-Lab\nSTARTED\n7 Sept 2026, 05:30\nOWNER\nNot Provided By Backend",
+  "body": "KWhat would you like to understand?I use the KaiMS records your role can access. Recommendations remain subject to normal evidence and approval controls.Summarize what needs attention→Explain the lowest-confidence RCA→Show work waiting for approval→Which application needs setup?→Ask a follow-upSendAI output can be incomplete. Verify evidence before approval or execution."
+}

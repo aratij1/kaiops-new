@@ -1,0 +1,32 @@
+[
+  {
+    "incident_id": "3c9e13fa-44c9-48d8-9ab4-34a470f9591a",
+    "service": "github-status",
+    "environment": "public-internet",
+    "target": "https://www.githubstatus.com/api/v2/status.json",
+    "alert_family": [
+      "ExternalApplicationUnavailable",
+      "HighNetworkPacketLoss"
+    ]
+  },
+  {
+    "incident_id": "605ee7b5-77f3-4779-92a0-055a79b6ed4f",
+    "service": "github-status",
+    "environment": "public-internet",
+    "target": "https://www.githubstatus.com/api/v2/status.json",
+    "alert_family": [
+      "ExternalApplicationUnavailable",
+      "HighNetworkPacketLoss"
+    ]
+  },
+  {
+    "incident_id": "ac38a842-83cd-4a3b-baea-10888b611dc4",
+    "service": "opentelemetry-demo",
+    "environment": "public-internet",
+    "target": "https://opentelemetry.io/",
+    "alert_family": [
+      "ExternalApplicationUnavailable",
+      "HighNetworkPacketLoss"
+    ]
+  }
+]

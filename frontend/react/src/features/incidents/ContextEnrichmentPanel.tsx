@@ -1,0 +1,273 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CircleAlert, CircleCheck, RefreshCw, UserRound } from "lucide-react";
+import { routeJson } from "../../services/routeApi";
+import { formatUtcTimestamp } from "../../utils/presentation";
+
+export type EvidenceGap = { category: string; reason?: string };
+type Job = { connector_id: string; status: string; attempt?: number; attempt_count?: number; last_error_code?: string | null; last_error?: string | null };
+type HumanRequest = { request_id: string; expected_responder?: string | null; due_at?: string | null; status: string; assignment_failure_reason?: string | null };
+type Requirement = { requirement_id: string; rca_version?: number | null; category: string; question: string; reason?: string | null; acceptable_format?: string | null; suggested_source_reference?: string | null; status: string; created_at?: string | null; updated_at?: string | null; evidence_ids?: string[]; latest_job?: Job | null; active_human_request?: HumanRequest | null };
+type OperationsState = {
+  schema_version: "kaiops.operations-state.v1"; lifecycle_state: string; updated_at?: string | null;
+  context?: { snapshot_id?: string | null; version?: number; evidence_ids?: string[] };
+  investigation?: { rca_version?: number; snapshot_id?: string | null };
+  investigation_workspace?: {
+    binding?: { snapshot_id?: string | null; snapshot_version?: number; rca_version?: number };
+    rca?: { resolved_evidence_ids?: string[]; traceable_citation_count?: number; unresolved_evidence_ids?: string[] };
+    evidence?: Array<{ evidence_id?: string; accepted_for_rca?: boolean; citation?: string }>;
+    evidence_summary?: { latest_context_records?: number; bound_snapshot_records?: number; rca_bound_records?: number; traceable_citations?: number; unresolved_bindings?: number };
+  };
+  requirements?: Requirement[]; requirement_history?: Requirement[];
+};
+
+const TERMINAL_STATES = new Set(["CLOSED"]);
+
+function friendlyFailure(error: unknown) {
+  const message = String((error as Error)?.message || error || "");
+  if (/HTTP 404/.test(message)) return "Incident operations are unavailable for this release. Confirm the UI, gateway, and context service use the same version.";
+  if (/HTTP 401|HTTP 403/.test(message)) return "Your session is not authorized to view this incident's evidence lifecycle.";
+  if (/HTTP 502|HTTP 503|HTTP 504|network|fetch/i.test(message)) return "Incident operations are temporarily unavailable. KaiMS will retry automatically.";
+  return "Incident operations could not be loaded. Retry or contact the platform owner if the problem continues.";
+}
+
+function lifecycleLabel(state: string, evidenceCount = 0) {
+  if (state === "DETECTED" && evidenceCount > 0) return "Evidence recorded";
+  const labels: Record<string, string> = { DETECTED: "No evidence yet", REQUIREMENTS_IDENTIFIED: "Evidence required", COLLECTING: "Collecting", WAITING_FOR_HUMAN: "Waiting for human", COLLECTION_BLOCKED: "Blocked", INVESTIGATION_FAILED: "Failed", CONTEXT_READY: "Context ready", INVESTIGATING: "Investigating", RCA_READY: "RCA ready", CLOSED: "Closed" };
+  return labels[state] || state.replaceAll("_", " ").toLowerCase();
+}
+
+function actionableFailure(item: Requirement) {
+  if (item.latest_job?.last_error === "TRACE_NOT_FOUND_OR_EXPIRED") return "The incident's bound trace is no longer available in Jaeger. Provide an archived trace or another verified causal source.";
+  if (item.latest_job?.last_error === "NO_MATCHING_APPROVED_EVIDENCE") return item.category === "runbook"
+    ? "No approved runbook matched this incident. Review and approve a governed runbook, or provide a verified source."
+    : "No approved evidence matched this requirement. Provide a verified source or review the governed knowledge corpus.";
+  if (item.active_human_request?.status === "assignment_blocked") return "No authorized responder could be resolved. Assign an incident or service owner.";
+  if (item.active_human_request?.assignment_failure_reason) return "Human evidence assignment needs attention.";
+  if (item.latest_job?.last_error_code) return `Collection failed (${item.latest_job.last_error_code}). Review connector configuration and retry.`;
+  if (item.latest_job?.last_error) return "The connector could not collect this evidence. Review connector health and retry.";
+  return "";
+}
+
+export type ContextEnrichmentPanelProps = { incidentId: string; alertId?: string; accessToken: string; declaredGaps: EvidenceGap[]; proposedRcaDraft?: string; reviewRequestToken?: number; onIncidentRefresh: () => Promise<void> };
+
+export default function ContextEnrichmentPanel({ incidentId, alertId, accessToken, declaredGaps, proposedRcaDraft = "", reviewRequestToken = 0, onIncidentRefresh }: ContextEnrichmentPanelProps) {
+  const [state, setState] = useState<OperationsState | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [references, setReferences] = useState<Record<string, string>>({});
+  const [expandedRequirements, setExpandedRequirements] = useState<Set<string>>(new Set());
+  const [activeRequirementId, setActiveRequirementId] = useState("");
+  const [announcement, setAnnouncement] = useState("");
+  const inFlight = useRef(false);
+  const previousState = useRef("");
+  const previousProjection = useRef("");
+  const failureCount = useRef(0);
+  const incidentRefresh = useRef(onIncidentRefresh);
+  const panelRef = useRef<HTMLElement | null>(null);
+  const refreshButtonRef = useRef<HTMLButtonElement | null>(null);
+  const handledReviewRequest = useRef(0);
+  const headers = useMemo(() => ({ Authorization: `Bearer ${accessToken}` }), [accessToken]);
+
+  useEffect(() => { incidentRefresh.current = onIncidentRefresh; }, [onIncidentRefresh]);
+
+  const load = useCallback(async (manual = false) => {
+    if (!incidentId || !accessToken || inFlight.current) return;
+    inFlight.current = true;
+    if (manual) setLoading(true);
+    try {
+      const result = await routeJson<OperationsState>(`/api-gateway/incidents/${encodeURIComponent(incidentId)}/operations-state`, { headers, maxAttempts: 1, staleTimeMs: 0 });
+      setState(result); setError(""); failureCount.current = 0;
+      const projectionIdentity = JSON.stringify({
+        lifecycle: result.lifecycle_state,
+        snapshot: result.context?.snapshot_id || "",
+        contextVersion: result.context?.version || 0,
+        rcaVersion: result.investigation?.rca_version || 0,
+        investigationSnapshot: result.investigation?.snapshot_id || "",
+      });
+      if (previousProjection.current && previousProjection.current !== projectionIdentity) {
+        setAnnouncement(`Evidence lifecycle changed to ${lifecycleLabel(result.lifecycle_state, result.context?.evidence_ids?.length || 0)}.`);
+        void incidentRefresh.current();
+      }
+      previousState.current = result.lifecycle_state;
+      previousProjection.current = projectionIdentity;
+    } catch (reason) { failureCount.current += 1; setError(friendlyFailure(reason)); }
+    finally { inFlight.current = false; setLoading(false); }
+  }, [accessToken, headers, incidentId]);
+
+  useEffect(() => {
+    let cancelled = false; let timer: number | undefined;
+    previousState.current = ""; previousProjection.current = ""; failureCount.current = 0;
+    const poll = async () => {
+      if (cancelled) return;
+      if (!document.hidden) await load(false);
+      if (cancelled || TERMINAL_STATES.has(previousState.current)) return;
+      timer = window.setTimeout(() => void poll(), Math.min(3000 * (2 ** failureCount.current), 30_000));
+    };
+    void poll();
+    const resume = () => { if (!document.hidden && !inFlight.current) void load(false); };
+    document.addEventListener("visibilitychange", resume);
+    return () => { cancelled = true; if (timer) window.clearTimeout(timer); document.removeEventListener("visibilitychange", resume); };
+  }, [incidentId, load]);
+
+  const submit = async (requirementId: string) => {
+    const response = String(answers[requirementId] || "").trim();
+    const sourceReference = String(references[requirementId] || "").trim();
+    if (!response || !sourceReference) return;
+    setLoading(true); setError("");
+    try {
+      await routeJson(`/api-gateway/incidents/${encodeURIComponent(incidentId)}/context-gaps/${encodeURIComponent(requirementId)}/responses`, { method: "POST", headers, body: JSON.stringify({ response, source_reference: sourceReference }) });
+      setAnswers((current) => ({ ...current, [requirementId]: "" }));
+      setReferences((current) => ({ ...current, [requirementId]: "" }));
+      setAnnouncement("Human evidence was accepted. KaiMS will publish a new governed context snapshot and analysis.");
+      await load(true);
+      await incidentRefresh.current();
+    } catch (reason) { setError(friendlyFailure(reason)); setLoading(false); }
+  };
+
+  const current = state?.requirements || [];
+  const history = state?.requirement_history || [];
+  const rcaVersion = state?.investigation?.rca_version || 0;
+  const evidenceIds = state?.context?.evidence_ids || [];
+  const evidenceSummary = state?.investigation_workspace?.evidence_summary;
+  const latestContextCount = evidenceSummary?.latest_context_records ?? evidenceIds.length;
+  const boundSnapshotCount = evidenceSummary?.bound_snapshot_records ?? state?.investigation_workspace?.evidence?.length ?? 0;
+  const rcaBoundCount = evidenceSummary?.rca_bound_records ?? state?.investigation_workspace?.rca?.resolved_evidence_ids?.length ?? 0;
+  const citationCount = evidenceSummary?.traceable_citations ?? state?.investigation_workspace?.rca?.traceable_citation_count ?? 0;
+  const unresolvedBindings = evidenceSummary?.unresolved_bindings ?? state?.investigation_workspace?.rca?.unresolved_evidence_ids?.length ?? 0;
+
+  useEffect(() => {
+    if (!reviewRequestToken || reviewRequestToken === handledReviewRequest.current) return;
+    if (!current.length) {
+      handledReviewRequest.current = reviewRequestToken;
+      panelRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      refreshButtonRef.current?.focus();
+      setAnnouncement("No active evidence input was published for this RCA. Refresh evidence or rerun analysis to project the missing requirement.");
+      return;
+    }
+    const item = current.find((requirement) => ["pending", "assignment_blocked"].includes(String(requirement.active_human_request?.status || "")))
+      || current.find((requirement) => !["collected", "answered", "satisfied"].includes(requirement.status.toLowerCase()));
+    if (!item) {
+      handledReviewRequest.current = reviewRequestToken;
+      panelRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      refreshButtonRef.current?.focus();
+      setAnnouncement("All published evidence requirements are already complete. Rerun analysis to reconcile the remaining readiness checks.");
+      return;
+    }
+    handledReviewRequest.current = reviewRequestToken;
+    const gap = declaredGaps.find((candidate) => candidate.category.toLowerCase() === item.category.toLowerCase());
+    const draft = [
+      `Evidence requirement: ${item.question}`,
+      item.reason || gap?.reason ? `Why it is needed: ${item.reason || gap?.reason}` : "",
+      proposedRcaDraft ? `AI hypothesis to verify or correct: ${proposedRcaDraft}` : "",
+      "",
+      `Verified ${item.category.replaceAll("_", " ")} observation: `,
+    ].filter(Boolean).join("\n");
+    setAnswers((values) => values[item.requirement_id]?.trim() ? values : { ...values, [item.requirement_id]: draft });
+    if (item.suggested_source_reference) {
+      setReferences((values) => values[item.requirement_id]?.trim() ? values : { ...values, [item.requirement_id]: String(item.suggested_source_reference) });
+    }
+    panelRef.current?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => {
+      document.querySelector<HTMLTextAreaElement>(`[data-requirement-response="${item.requirement_id}"]`)?.focus();
+    }, 250);
+    setAnnouncement(`Review form opened for ${item.category.replaceAll("_", " ")} evidence.`);
+  }, [current, declaredGaps, proposedRcaDraft, reviewRequestToken]);
+
+  useEffect(() => {
+    if (!current.length) return;
+    setActiveRequirementId((value) => current.some((item) => item.requirement_id === value) ? value : current[0].requirement_id);
+    setExpandedRequirements((values) => values.size ? values : new Set([current[0].requirement_id]));
+    setAnswers((values) => {
+      const next = { ...values };
+      current.forEach((item) => {
+        if (!next[item.requirement_id]?.trim()) {
+          next[item.requirement_id] = [
+            `Evidence requirement: ${item.question}`,
+            item.reason ? `Why it is needed: ${item.reason}` : "",
+            proposedRcaDraft ? `AI hypothesis to verify or correct: ${proposedRcaDraft}` : "",
+            "",
+            `Verified ${item.category.replaceAll("_", " ")} observation: `,
+          ].filter(Boolean).join("\n");
+        }
+      });
+      return next;
+    });
+    setReferences((values) => {
+      const next = { ...values };
+      current.forEach((item) => {
+        if (!next[item.requirement_id]?.trim() && item.suggested_source_reference) {
+          next[item.requirement_id] = String(item.suggested_source_reference);
+        }
+      });
+      return next;
+    });
+  }, [current, proposedRcaDraft]);
+
+  const card = (item: Requirement, historical = false) => {
+    const request = item.active_human_request; const job = item.latest_job;
+    const complete = ["collected", "answered", "satisfied"].includes(item.status.toLowerCase());
+    const status = job?.status || request?.status || item.status; const failure = actionableFailure(item);
+    const recordedAt = item.updated_at || item.created_at;
+    return <article key={item.requirement_id} className={historical ? "is-historical" : undefined}>
+      <div className="context-enrichment-item-heading">
+        {complete ? <CircleCheck size={17} /> : request ? <UserRound size={17} /> : <RefreshCw size={17} />}
+        <div><strong>{item.category.replaceAll("_", " ")}</strong><p>{item.question}</p><small className="context-enrichment-version">{item.rca_version == null ? "RCA version unavailable" : `RCA v${item.rca_version}`}{recordedAt ? ` · updated ${formatUtcTimestamp(recordedAt)}` : ""}</small></div>
+        <span>{status.replaceAll("_", " ")}</span>
+      </div>
+      <div className="context-enrichment-study-brief">
+        <strong>What KaiMS needs to establish</strong>
+        <p>{item.question}</p>
+        <dl>
+          <div><dt>Why this matters</dt><dd>{item.reason || "Required to test and strengthen the current RCA hypothesis."}</dd></div>
+          <div><dt>Preferred source</dt><dd>{item.suggested_source_reference || `${item.category.replaceAll("_", " ")} dashboard, ticket, catalog, or another attributable source`}</dd></div>
+        </dl>
+      </div>
+      {job ? <small>Latest attempt {job.attempt_count || job.attempt || 1} · connector {job.connector_id} · {job.status.replaceAll("_", " ")}</small> : null}
+      {item.evidence_ids?.length ? <small className="context-enrichment-evidence">Accepted evidence ({item.evidence_ids.length}): {item.evidence_ids.join(", ")}</small> : null}
+      {failure ? <p className="context-enrichment-action" role="status">{failure}</p> : null}
+      {!historical && !complete && !job ? <p className="context-enrichment-action" role="status">KaiMS is searching the available MCP and governed knowledge sources. You can provide a verified observation below while discovery continues.</p> : null}
+      {!historical && !complete ? <details className="context-enrichment-response-shell" open={expandedRequirements.has(item.requirement_id)} onToggle={(event) => {
+        const open = event.currentTarget.open;
+        setExpandedRequirements((values) => { const next = new Set(values); if (open) next.add(item.requirement_id); else next.delete(item.requirement_id); return next; });
+      }}>
+        <summary><span>{request?.status === "assignment_blocked" ? "Provide evidence yourself" : "Review and provide evidence"}</span><small>{expandedRequirements.has(item.requirement_id) ? "Hide form" : "Open form"}</small></summary>
+        <div className="context-enrichment-response">
+        <small>{request?.status === "assignment_blocked" ? "Automated sources returned no attributable evidence and assignment failed. An authorized operator can provide the minimum verified observation here." : request ? `Assigned to ${request.expected_responder || "an authorized responder"}${request.due_at ? ` · due ${formatUtcTimestamp(request.due_at)}` : ""}` : "Automated discovery is still running. A verified user response may be submitted at any time."}</small>
+        <div className="context-enrichment-ai-draft"><div><strong>AI-generated editable draft</strong><p>KaiMS prepared this from the current incident and RCA. Update it with verified facts and cite their source.</p></div></div>
+        <textarea data-requirement-response={item.requirement_id} aria-label={`Response for ${item.category}`} value={answers[item.requirement_id] || ""} onChange={(event) => setAnswers((value) => ({ ...value, [item.requirement_id]: event.target.value }))} placeholder="State the verified factual observation. Remove any AI claim you could not confirm." />
+        <input aria-label={`Source reference for ${item.category}`} value={references[item.requirement_id] || ""} onChange={(event) => setReferences((value) => ({ ...value, [item.requirement_id]: event.target.value }))} placeholder="Source reference (ticket, dashboard, or catalog URL)" />
+        <button type="button" className="button-primary" disabled={loading || !String(answers[item.requirement_id] || "").trim() || !String(references[item.requirement_id] || "").trim()} onClick={() => void submit(item.requirement_id)}>Submit reviewed evidence and rerun RCA</button>
+        </div>
+      </details> : null}
+    </article>;
+  };
+
+  return <section ref={panelRef} className="context-enrichment-panel" aria-labelledby="context-enrichment-title">
+    <div className="sr-only" aria-live="polite">{announcement}</div>
+    <header><div><span className="discovery-eyebrow">Missing evidence</span><h3 id="context-enrichment-title">Automated evidence collection</h3><p>KaiMS searches fresh telemetry, traces, topology, changes, and governed knowledge first. Add a verified observation only when automation cannot establish the fact.</p></div><button ref={refreshButtonRef} type="button" className="button-secondary" onClick={() => void load(true)} disabled={loading}><RefreshCw size={15} className={loading ? "is-spinning" : ""} /> Reload status</button></header>
+    {announcement ? <p className="context-enrichment-action" role="status">{announcement}</p> : null}
+    {state ? <section className="context-evidence-ledger" aria-labelledby="evidence-ledger-title">
+      <div className="context-evidence-ledger-heading"><div><span>Evidence accounting</span><h4 id="evidence-ledger-title">Current RCA evidence funnel</h4></div><strong>{lifecycleLabel(state.lifecycle_state, latestContextCount)}</strong></div>
+      <ol>
+        <li><span>Latest context</span><strong>{latestContextCount}</strong><small>records in snapshot v{state.context?.version || 0}</small></li>
+        <li><span>RCA snapshot</span><strong>{boundSnapshotCount}</strong><small>records frozen for this analysis</small></li>
+        <li><span>RCA-referenced</span><strong>{rcaBoundCount}</strong><small>records explicitly cited by RCA v{rcaVersion || 0}</small></li>
+        <li><span>Traceable</span><strong>{citationCount}</strong><small>RCA citations with a verifiable source</small></li>
+      </ol>
+      {unresolvedBindings ? <p className="context-evidence-integrity" role="alert"><CircleAlert size={16} />{unresolvedBindings} RCA evidence binding{unresolvedBindings === 1 ? " does" : "s do"} not resolve inside the bound snapshot. Grounding remains blocked.</p> : null}
+      <footer><span>Latest: {state.context?.snapshot_id || "not published"}</span><span>RCA-bound: {state.investigation_workspace?.binding?.snapshot_id || state.investigation?.snapshot_id || "not bound"}</span><span>Updated {state.updated_at ? formatUtcTimestamp(state.updated_at) : "unavailable"}</span></footer>
+    </section> : null}
+    {error ? <p className="context-enrichment-error" role="alert"><CircleAlert size={17} />{error}</p> : null}
+    {!alertId && declaredGaps.length ? <p className="context-enrichment-error" role="status"><CircleAlert size={17} />Canonical alert binding is missing. Backend orchestration will regenerate analysis after a governed snapshot is committed.</p> : null}
+    {!error && state && !current.length ? <p className="context-enrichment-empty">{declaredGaps.length ? "Evidence requirements have not been projected yet. KaiMS will continue monitoring this incident." : "No unresolved evidence gaps are declared."}</p> : null}
+    {current.length ? <section className="context-enrichment-current" aria-labelledby="current-evidence-title"><div className="context-enrichment-group-heading"><div><span>Active evidence work</span><h4 id="current-evidence-title">{rcaVersion ? `Current RCA · v${rcaVersion}` : "Current investigation"}</h4></div><small>{current.length} requirement{current.length === 1 ? "" : "s"}</small></div>
+      <div className="context-enrichment-tabs" role="tablist" aria-label="Evidence collection tasks">{current.map((item) => <button key={item.requirement_id} type="button" role="tab" aria-selected={item.requirement_id === activeRequirementId} onClick={() => {
+        setActiveRequirementId(item.requirement_id);
+        setExpandedRequirements((values) => new Set([...values, item.requirement_id]));
+      }}><strong>{item.category.replaceAll("_", " ")}</strong><span>{(item.latest_job?.status || item.active_human_request?.status || item.status).replaceAll("_", " ")}</span></button>)}</div>
+      <div className="context-enrichment-list">{current.filter((item) => item.requirement_id === activeRequirementId).map((item) => card(item))}</div>
+    </section> : null}
+    {history.length ? <details className="context-enrichment-history"><summary>Previous RCA versions <span>{history.length} archived requirement{history.length === 1 ? "" : "s"}</span></summary><p>Retained for audit history. Responses can only be submitted against active backend-projected work.</p><div className="context-enrichment-list">{history.map((item) => card(item, true))}</div></details> : null}
+  </section>;
+}

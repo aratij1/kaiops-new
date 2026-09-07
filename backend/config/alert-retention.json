@@ -1,0 +1,10 @@
+{
+  "schema_version": "kaims.alert-retention.v1",
+  "tenant_id": "default",
+  "unlinked_live_days": 30,
+  "archive_minimum_days": 365,
+  "automatic_archive_deletion": false,
+  "preserve_incident_and_analysis_references": true,
+  "row_warning_threshold": 100000,
+  "batch_size": 500
+}

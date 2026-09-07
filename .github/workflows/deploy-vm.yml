@@ -1,0 +1,76 @@
+name: deploy-vm
+
+on:
+  push:
+    branches:
+      - main
+      - kaiops_pubsub
+      - kaiops_azure
+      - cursor/agentic-incident-platform-f631
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-vm-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.8.14"
+          enable-cache: true
+      - name: Enforce approved production RAG corpus
+        run: |
+          uv sync --frozen
+          uv run python scripts/validate-rag-metadata.py --rag-root backend/rag --strict --require-production-ready
+      - name: Deploy to VM over SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          port: ${{ secrets.VM_PORT || '22' }}
+          script_stop: true
+          envs: DEPLOY_BRANCH,DEPLOY_COMMIT
+          script: |
+            set -e
+
+            APP_DIR="${{ secrets.VM_APP_DIR }}"
+
+            if [ -z "$APP_DIR" ]; then
+              echo "VM_APP_DIR secret is required"
+              exit 1
+            fi
+
+            if [ -z "$DEPLOY_BRANCH" ] || [ -z "$DEPLOY_COMMIT" ]; then
+              echo "Deployment branch and commit are required"
+              exit 1
+            fi
+
+            cd "$APP_DIR"
+
+            git fetch origin
+            git checkout "$DEPLOY_BRANCH"
+            git pull --ff-only origin "$DEPLOY_BRANCH"
+
+            ACTUAL_COMMIT="$(git rev-parse HEAD)"
+            if [ "$ACTUAL_COMMIT" != "$DEPLOY_COMMIT" ]; then
+              echo "Revision mismatch: expected $DEPLOY_COMMIT, checked out $ACTUAL_COMMIT"
+              exit 1
+            fi
+
+            docker compose up -d --build --remove-orphans
+            docker image prune -f
+
+            # Basic post-deploy health probe
+            curl -fsS http://localhost:8010/healthz >/dev/null
+            echo "Deployment successful: $DEPLOY_BRANCH@$DEPLOY_COMMIT"
+        env:
+          DEPLOY_BRANCH: ${{ github.ref_name }}
+          DEPLOY_COMMIT: ${{ github.sha }}

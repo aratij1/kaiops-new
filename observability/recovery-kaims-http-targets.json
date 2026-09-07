@@ -1,0 +1,122 @@
+[
+  {
+    "targets": [
+      "http://api-gateway:8000/healthz"
+    ],
+    "labels": {
+      "tenant_id": "default",
+      "environment": "prod",
+      "service": "kaiops-api-gateway",
+      "application": "KaiMS",
+      "synthetic": "true"
+    }
+  },
+  {
+    "targets": [
+      "http://monitoring-adapter:8000/healthz"
+    ],
+    "labels": {
+      "tenant_id": "default",
+      "environment": "prod",
+      "service": "kaiops-monitoring-adapter",
+      "application": "KaiMS",
+      "synthetic": "true"
+    }
+  },
+  {
+    "targets": [
+      "http://alert-intelligence:8000/healthz"
+    ],
+    "labels": {
+      "tenant_id": "default",
+      "environment": "prod",
+      "service": "kaiops-alert-intelligence",
+      "application": "KaiMS",
+      "synthetic": "true"
+    }
+  },
+  {
+    "targets": [
+      "http://orchestrator:8000/healthz"
+    ],
+    "labels": {
+      "tenant_id": "default",
+      "environment": "prod",
+      "service": "kaiops-orchestrator",
+      "application": "KaiMS",
+      "synthetic": "true"
+    }
+  },
+  {
+    "targets": [
+      "http://context-agent:8000/healthz"
+    ],
+    "labels": {
+      "tenant_id": "default",
+      "environment": "prod",
+      "service": "kaiops-context-agent",
+      "application": "KaiMS",
+      "synthetic": "true"
+    }
+  },
+  {
+    "targets": [
+      "http://model-router:8000/healthz"
+    ],
+    "labels": {
+      "tenant_id": "default",
+      "environment": "prod",
+      "service": "kaiops-model-router",
+      "application": "KaiMS",
+      "synthetic": "true"
+    }
+  },
+  {
+    "targets": [
+      "http://resolution-agent:8000/healthz"
+    ],
+    "labels": {
+      "tenant_id": "default",
+      "environment": "prod",
+      "service": "kaiops-resolution-agent",
+      "application": "KaiMS",
+      "synthetic": "true"
+    }
+  },
+  {
+    "targets": [
+      "http://approval-service:8000/healthz"
+    ],
+    "labels": {
+      "tenant_id": "default",
+      "environment": "prod",
+      "service": "kaiops-approval-service",
+      "application": "KaiMS",
+      "synthetic": "true"
+    }
+  },
+  {
+    "targets": [
+      "http://remediation-engine:8000/healthz"
+    ],
+    "labels": {
+      "tenant_id": "default",
+      "environment": "prod",
+      "service": "kaiops-remediation-engine",
+      "application": "KaiMS",
+      "synthetic": "true"
+    }
+  },
+  {
+    "targets": [
+      "http://closure-service:8000/healthz"
+    ],
+    "labels": {
+      "tenant_id": "default",
+      "environment": "prod",
+      "service": "kaiops-closure-service",
+      "application": "KaiMS",
+      "synthetic": "true"
+    }
+  }
+]

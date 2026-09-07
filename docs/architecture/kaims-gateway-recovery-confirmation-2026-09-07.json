@@ -1,0 +1,50 @@
+{
+  "c7b9adea-de2e-4b5d-bd8d-23eec519fccb": {
+    "assessment_id": "e7537ab7-8e1f-4327-a975-573b69468da5",
+    "status": "pending_stability",
+    "requested_at": "2026-09-07T07:58:46.536290+00:00",
+    "expires_at": "2026-09-07T08:58:46.536290+00:00",
+    "minimum_wait_seconds": 360,
+    "result": {
+      "assessment_id": "e7537ab7-8e1f-4327-a975-573b69468da5",
+      "status": "superseded",
+      "report_id": null
+    }
+  },
+  "a09afa04-d3a6-4eda-929b-d90c97dc8580": {
+    "assessment_id": "774dffc8-e1db-4fbf-b718-a13cee4f55fa",
+    "status": "pending_stability",
+    "requested_at": "2026-09-07T07:58:47.514154+00:00",
+    "expires_at": "2026-09-07T08:58:47.514154+00:00",
+    "minimum_wait_seconds": 360,
+    "result": {
+      "assessment_id": "774dffc8-e1db-4fbf-b718-a13cee4f55fa",
+      "status": "superseded",
+      "report_id": null
+    }
+  },
+  "11bc6cb8-3f0a-48b4-acbe-25f95bf2c909": {
+    "assessment_id": "8c7b0298-665f-4521-b0f4-fe0ad16ec745",
+    "status": "pending_stability",
+    "requested_at": "2026-09-07T07:58:48.434908+00:00",
+    "expires_at": "2026-09-07T08:58:48.434908+00:00",
+    "minimum_wait_seconds": 360,
+    "result": {
+      "assessment_id": "8c7b0298-665f-4521-b0f4-fe0ad16ec745",
+      "status": "superseded",
+      "report_id": null
+    }
+  },
+  "60bd1028-a0b8-4688-83fa-3e1e06f3c59d": {
+    "assessment_id": "84b6e2f8-655f-4c92-9d38-3986afb64850",
+    "status": "pending_stability",
+    "requested_at": "2026-09-07T07:58:49.371721+00:00",
+    "expires_at": "2026-09-07T08:58:49.371721+00:00",
+    "minimum_wait_seconds": 360,
+    "result": {
+      "assessment_id": "84b6e2f8-655f-4c92-9d38-3986afb64850",
+      "status": "superseded",
+      "report_id": null
+    }
+  }
+}

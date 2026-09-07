@@ -1,0 +1,1614 @@
+{
+  "firing_alerts": [
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "ExternalApplicationUnavailable",
+        "alertstate": "firing",
+        "application": "httpbin-failure-lab",
+        "environment": "public-internet",
+        "external": "true",
+        "instance": "https://httpbin.org/status/503",
+        "job": "blackbox",
+        "project_name": "KaiOps",
+        "service": "httpbin-failure-lab",
+        "severity": "critical",
+        "source": "public-internet-blackbox",
+        "synthetic": "true"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "HighNetworkLatency",
+        "alertstate": "firing",
+        "application": "httpbin-failure-lab",
+        "environment": "public-internet",
+        "external": "true",
+        "instance": "https://httpbin.org/status/503",
+        "job": "blackbox",
+        "project_name": "KaiOps",
+        "service": "httpbin-failure-lab",
+        "severity": "warning",
+        "synthetic": "true"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "HighNetworkLatency",
+        "alertstate": "firing",
+        "instance": "http://ob-frontend:8080/_healthz",
+        "job": "blackbox",
+        "severity": "warning"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "HighNetworkPacketLoss",
+        "alertstate": "firing",
+        "application": "httpbin-failure-lab",
+        "environment": "public-internet",
+        "external": "true",
+        "instance": "https://httpbin.org/status/503",
+        "job": "blackbox",
+        "project_name": "KaiOps",
+        "service": "httpbin-failure-lab",
+        "severity": "critical",
+        "synthetic": "true"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "HighNetworkPacketLoss",
+        "alertstate": "firing",
+        "instance": "http://ob-frontend:8080/_healthz",
+        "job": "blackbox",
+        "severity": "critical"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "HighNetworkLatency",
+        "alertstate": "firing",
+        "application": "parabank-public-demo",
+        "environment": "public-demo",
+        "external": "true",
+        "instance": "https://parabank.parasoft.com/parabank/index.htm",
+        "job": "blackbox",
+        "load_test_allowed": "false",
+        "owner_team": "banking-platform",
+        "project_name": "ParaBank Public Demo",
+        "service": "parabank-web",
+        "severity": "warning",
+        "synthetic": "true"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "OnlineBoutiquePaymentServiceDown",
+        "alertstate": "firing",
+        "application": "Online Boutique",
+        "environment": "demo",
+        "instance": "ob-paymentservice:50051",
+        "job": "online-boutique-payment",
+        "project_name": "Online Boutique",
+        "service": "ob-paymentservice",
+        "severity": "critical",
+        "source_system": "prometheus"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "RobotShopServiceDown",
+        "alertstate": "firing",
+        "instance": "rs-redis-exporter:9121",
+        "job": "robot-shop-redis",
+        "severity": "critical",
+        "source": "robot-shop"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "RobotShopServiceDown",
+        "alertstate": "firing",
+        "instance": "rs-payment:8080",
+        "job": "robot-shop-payment",
+        "severity": "critical",
+        "source": "robot-shop"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "RobotShopServiceDown",
+        "alertstate": "firing",
+        "instance": "rs-rabbitmq-exporter:9419",
+        "job": "robot-shop-rabbitmq",
+        "severity": "critical",
+        "source": "robot-shop"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "RobotShopServiceDown",
+        "alertstate": "firing",
+        "instance": "rs-cart:8080",
+        "job": "robot-shop-cart",
+        "severity": "critical",
+        "source": "robot-shop"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "RobotShopServiceDown",
+        "alertstate": "firing",
+        "instance": "rs-mysqld-exporter:9104",
+        "job": "robot-shop-mysql",
+        "severity": "critical",
+        "source": "robot-shop"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "RobotShopServiceDown",
+        "alertstate": "firing",
+        "instance": "rs-mongodb-exporter:9216",
+        "job": "robot-shop-mongodb",
+        "severity": "critical",
+        "source": "robot-shop"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "RobotShopRabbitMQQueueBacklog",
+        "alertstate": "firing",
+        "severity": "warning",
+        "source": "robot-shop"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "OnlineBoutiqueFrontendDown",
+        "alertstate": "firing",
+        "instance": "http://ob-frontend:8080/_healthz",
+        "job": "blackbox",
+        "severity": "critical",
+        "source": "online-boutique"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "OnlineBoutiqueFrontendSlow",
+        "alertstate": "firing",
+        "instance": "http://ob-frontend:8080/_healthz",
+        "job": "blackbox",
+        "severity": "warning",
+        "source": "online-boutique"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "KaiOpsMySQLAlertsTableRowsHigh",
+        "alertstate": "firing",
+        "category": "database",
+        "database": "kaiops",
+        "instance": "api-gateway:8000",
+        "job": "kaiops-api-gateway",
+        "project": "kaiops-core",
+        "service": "mysql",
+        "severity": "warning",
+        "table": "alerts"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "LowRequestThroughput",
+        "alertstate": "firing",
+        "application": "KaiOps",
+        "project_name": "KaiOps",
+        "severity": "warning"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "ALERTS",
+        "alertname": "RobotShopMySQLTooManyConnections",
+        "alertstate": "firing",
+        "instance": "mysql-exporter:9104",
+        "job": "mysql-exporter",
+        "severity": "warning",
+        "source": "robot-shop"
+      },
+      "value": [
+        1788757462.901,
+        "1"
+      ]
+    }
+  ],
+  "target_up": [
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "fault-lab:8080",
+        "job": "kaiops-fault-lab-service"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "orchestrator:8000",
+        "job": "kaiops-orchestrator"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "approval-service:8000",
+        "job": "kaiops-approval-service"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "resolution-agent:8000",
+        "job": "kaiops-resolution-agent"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "remediation-engine:8000",
+        "job": "kaiops-remediation-engine"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "context-agent:8000",
+        "job": "kaiops-context-agent"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "mysql-exporter:9104",
+        "job": "mysql-exporter"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "alert-intelligence:8000",
+        "job": "kaiops-alert-intelligence"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "opentelemetry-demo",
+        "environment": "public-internet",
+        "external": "true",
+        "instance": "https://opentelemetry.io/",
+        "job": "blackbox",
+        "project_name": "KaiOps",
+        "service": "opentelemetry-demo",
+        "synthetic": "false"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "parabank-public-demo",
+        "environment": "public-demo",
+        "external": "true",
+        "instance": "https://parabank.parasoft.com/parabank/index.htm",
+        "job": "blackbox",
+        "load_test_allowed": "false",
+        "owner_team": "banking-platform",
+        "project_name": "ParaBank Public Demo",
+        "service": "parabank-web",
+        "synthetic": "true"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "http://resolution-agent:8000/healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "rs-redis-exporter:9121",
+        "job": "robot-shop-redis"
+      },
+      "value": [
+        1788757462.906,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "node-exporter:9100",
+        "job": "node-exporter"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "httpbin-failure-lab",
+        "environment": "public-internet",
+        "external": "true",
+        "instance": "https://httpbin.org/status/503",
+        "job": "blackbox",
+        "project_name": "KaiOps",
+        "service": "httpbin-failure-lab",
+        "synthetic": "true"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "model-router:8000",
+        "job": "kaiops-model-router"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "http://api-gateway:8000/healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "fault-lab:8080",
+        "job": "kaiops-fault-lab"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "monitoring-adapter:8000",
+        "job": "kaiops-monitoring-adapter"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "ob-cadvisor:8080",
+        "job": "online-boutique-cadvisor"
+      },
+      "value": [
+        1788757462.906,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "rs-mysqld-exporter:9104",
+        "job": "robot-shop-mysql"
+      },
+      "value": [
+        1788757462.906,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "rs-mongodb-exporter:9216",
+        "job": "robot-shop-mongodb"
+      },
+      "value": [
+        1788757462.906,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "rs-cart:8080",
+        "job": "robot-shop-cart"
+      },
+      "value": [
+        1788757462.906,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "rabbitmq:15692",
+        "job": "kaiops-rabbitmq"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "http://orchestrator:8000/healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "closure-service:8000",
+        "job": "kaiops-closure-service"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "otel-collector:8889",
+        "job": "otel-collector"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "http://monitoring-adapter:8000/healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "otel-collector:8888",
+        "job": "otel-collector"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "api-gateway:8000",
+        "job": "kaiops-api-gateway"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "github-status",
+        "environment": "public-internet",
+        "external": "true",
+        "instance": "https://www.githubstatus.com/api/v2/status.json",
+        "job": "blackbox",
+        "project_name": "KaiOps",
+        "service": "github-status",
+        "synthetic": "false"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "Online Boutique",
+        "environment": "demo",
+        "instance": "ob-paymentservice:50051",
+        "job": "online-boutique-payment",
+        "project_name": "Online Boutique",
+        "service": "ob-paymentservice",
+        "source_system": "prometheus"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "rs-payment:8080",
+        "job": "robot-shop-payment"
+      },
+      "value": [
+        1788757462.906,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "rs-rabbitmq-exporter:9419",
+        "job": "robot-shop-rabbitmq"
+      },
+      "value": [
+        1788757462.906,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "instance": "http://ob-frontend:8080/_healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "redis:6379",
+        "job": "kaims-recovery-dependencies",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://monitoring-adapter:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-monitoring-adapter",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "mysql:3306",
+        "job": "kaims-recovery-dependencies",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://alert-intelligence:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-alert-intelligence",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://resolution-agent:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-resolution-agent",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://orchestrator:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-orchestrator",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://model-router:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-model-router",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://api-gateway:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-api-gateway",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://closure-service:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-closure-service",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://remediation-engine:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-remediation-engine",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://approval-service:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-approval-service",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://context-agent:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-context-agent",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "up",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "rabbitmq:5672",
+        "job": "kaims-recovery-dependencies",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.906,
+        "1"
+      ]
+    }
+  ],
+  "probes": [
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "opentelemetry-demo",
+        "environment": "public-internet",
+        "external": "true",
+        "instance": "https://opentelemetry.io/",
+        "job": "blackbox",
+        "project_name": "KaiOps",
+        "service": "opentelemetry-demo",
+        "synthetic": "false"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "parabank-public-demo",
+        "environment": "public-demo",
+        "external": "true",
+        "instance": "https://parabank.parasoft.com/parabank/index.htm",
+        "job": "blackbox",
+        "load_test_allowed": "false",
+        "owner_team": "banking-platform",
+        "project_name": "ParaBank Public Demo",
+        "service": "parabank-web",
+        "synthetic": "true"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "instance": "http://resolution-agent:8000/healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "httpbin-failure-lab",
+        "environment": "public-internet",
+        "external": "true",
+        "instance": "https://httpbin.org/status/503",
+        "job": "blackbox",
+        "project_name": "KaiOps",
+        "service": "httpbin-failure-lab",
+        "synthetic": "true"
+      },
+      "value": [
+        1788757462.91,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "instance": "http://api-gateway:8000/healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "instance": "http://orchestrator:8000/healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "instance": "http://monitoring-adapter:8000/healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "github-status",
+        "environment": "public-internet",
+        "external": "true",
+        "instance": "https://www.githubstatus.com/api/v2/status.json",
+        "job": "blackbox",
+        "project_name": "KaiOps",
+        "service": "github-status",
+        "synthetic": "false"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "Online Boutique",
+        "environment": "demo",
+        "instance": "ob-paymentservice:50051",
+        "job": "online-boutique-payment",
+        "project_name": "Online Boutique",
+        "service": "ob-paymentservice",
+        "source_system": "prometheus"
+      },
+      "value": [
+        1788757462.91,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "instance": "http://ob-frontend:8080/_healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.91,
+        "0"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "redis:6379",
+        "job": "kaims-recovery-dependencies",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://monitoring-adapter:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-monitoring-adapter",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "mysql:3306",
+        "job": "kaims-recovery-dependencies",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://alert-intelligence:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-alert-intelligence",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://resolution-agent:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-resolution-agent",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://orchestrator:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-orchestrator",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://model-router:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-model-router",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://api-gateway:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-api-gateway",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://closure-service:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-closure-service",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://remediation-engine:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-remediation-engine",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://approval-service:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-approval-service",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://context-agent:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-context-agent",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_success",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "rabbitmq:5672",
+        "job": "kaims-recovery-dependencies",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.91,
+        "1"
+      ]
+    }
+  ],
+  "probe_latency": [
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "opentelemetry-demo",
+        "environment": "public-internet",
+        "external": "true",
+        "instance": "https://opentelemetry.io/",
+        "job": "blackbox",
+        "project_name": "KaiOps",
+        "service": "opentelemetry-demo",
+        "synthetic": "false"
+      },
+      "value": [
+        1788757462.913,
+        "0.089794744"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "parabank-public-demo",
+        "environment": "public-demo",
+        "external": "true",
+        "instance": "https://parabank.parasoft.com/parabank/index.htm",
+        "job": "blackbox",
+        "load_test_allowed": "false",
+        "owner_team": "banking-platform",
+        "project_name": "ParaBank Public Demo",
+        "service": "parabank-web",
+        "synthetic": "true"
+      },
+      "value": [
+        1788757462.913,
+        "0.321533163"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "instance": "http://resolution-agent:8000/healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.913,
+        "0.003350627"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "httpbin-failure-lab",
+        "environment": "public-internet",
+        "external": "true",
+        "instance": "https://httpbin.org/status/503",
+        "job": "blackbox",
+        "project_name": "KaiOps",
+        "service": "httpbin-failure-lab",
+        "synthetic": "true"
+      },
+      "value": [
+        1788757462.913,
+        "1.048438286"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "instance": "http://api-gateway:8000/healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.913,
+        "0.003638834"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "instance": "http://orchestrator:8000/healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.913,
+        "0.003225341"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "instance": "http://monitoring-adapter:8000/healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.913,
+        "0.003430981"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "github-status",
+        "environment": "public-internet",
+        "external": "true",
+        "instance": "https://www.githubstatus.com/api/v2/status.json",
+        "job": "blackbox",
+        "project_name": "KaiOps",
+        "service": "github-status",
+        "synthetic": "false"
+      },
+      "value": [
+        1788757462.913,
+        "0.034743157"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "Online Boutique",
+        "environment": "demo",
+        "instance": "ob-paymentservice:50051",
+        "job": "online-boutique-payment",
+        "project_name": "Online Boutique",
+        "service": "ob-paymentservice",
+        "source_system": "prometheus"
+      },
+      "value": [
+        1788757462.913,
+        "5.001028687"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "instance": "http://ob-frontend:8080/_healthz",
+        "job": "blackbox"
+      },
+      "value": [
+        1788757462.913,
+        "5.000378212"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "redis:6379",
+        "job": "kaims-recovery-dependencies",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.000995871"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://monitoring-adapter:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-monitoring-adapter",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.003287557"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "mysql:3306",
+        "job": "kaims-recovery-dependencies",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.001167495"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://alert-intelligence:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-alert-intelligence",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.002926797"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://resolution-agent:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-resolution-agent",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.004730659"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://orchestrator:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-orchestrator",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.003209535"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://model-router:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-model-router",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.003103294"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://api-gateway:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-api-gateway",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.00315661"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://closure-service:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-closure-service",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.002830325"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://remediation-engine:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-remediation-engine",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.003337341"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://approval-service:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-approval-service",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.00406243"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "http://context-agent:8000/healthz",
+        "job": "kaims-recovery-http",
+        "service": "kaiops-context-agent",
+        "synthetic": "true",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.003419466"
+      ]
+    },
+    {
+      "metric": {
+        "__name__": "probe_duration_seconds",
+        "application": "KaiMS",
+        "environment": "prod",
+        "instance": "rabbitmq:5672",
+        "job": "kaims-recovery-dependencies",
+        "tenant_id": "default"
+      },
+      "value": [
+        1788757462.913,
+        "0.00095866"
+      ]
+    }
+  ]
+}

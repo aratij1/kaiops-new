@@ -1,0 +1,26 @@
+{
+  "0bb48265-dc82-475b-9d5e-3c4a8fa97dc3": {
+    "request_id": "08bc0d22-6423-4be2-bb71-2e546290a245",
+    "status": "accepted",
+    "delivery": "published",
+    "alert_id": "0bb48265-dc82-475b-9d5e-3c4a8fa97dc3",
+    "incident_id": "34003c0e-84c6-448c-8116-543ed238a9a2",
+    "previous_recommendation_id": "0241d0c9-2a79-5fc5-9fd0-ffc6a306ff8d",
+    "expected_recommendation_id": "a06aa3c7-d909-5fce-a4e7-b96fb2b7620c",
+    "analysis_mode": "fresh",
+    "context_strategy": "realtime",
+    "poll_after_ms": 2500
+  },
+  "56c914ab-1e3f-453e-953e-688650a31f49": {
+    "request_id": "4a67e809-fa13-40bb-9287-d81eca4a1e3b",
+    "status": "accepted",
+    "delivery": "published",
+    "alert_id": "56c914ab-1e3f-453e-953e-688650a31f49",
+    "incident_id": "105282df-3ce7-4116-87eb-5428f8841fe7",
+    "previous_recommendation_id": "984958ae-f78b-5d12-b7c8-774f9f82e087",
+    "expected_recommendation_id": "79486dcc-f489-5bd0-8915-c123b854671a",
+    "analysis_mode": "fresh",
+    "context_strategy": "realtime",
+    "poll_after_ms": 2500
+  }
+}

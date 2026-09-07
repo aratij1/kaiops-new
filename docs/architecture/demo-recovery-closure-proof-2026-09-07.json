@@ -1,0 +1,1570 @@
+{
+  "captured_at": "2026-09-07T05:45:49.269631+00:00",
+  "incidents": {
+    "0638d6ef-4a7e-423f-aebb-364f2353fa56": {
+      "status": "investigating",
+      "lifecycle_state": "DETECTED",
+      "assessment_id": "6b9bf51a-0aa4-4f45-857e-6fb3799e2c3c",
+      "assessment_status": "superseded",
+      "requested_at": "2026-09-07T05:33:41.802310+00:00",
+      "completed_at": null,
+      "report_id": null,
+      "checks": [
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-availability",
+          "status": "warming_up",
+          "samples": 0
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-alert_clearance",
+          "status": "warming_up",
+          "samples": 0
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-error_rate",
+          "status": "warming_up",
+          "samples": 0
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-latency",
+          "status": "warming_up",
+          "samples": 0
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-dependency_health",
+          "status": "warming_up",
+          "samples": 0
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-critical_alerts",
+          "status": "warming_up",
+          "samples": 0
+        }
+      ]
+    },
+    "144d4e97-b71b-4961-bc4b-a4b85f35a0f2": {
+      "status": "investigating",
+      "lifecycle_state": "DETECTED",
+      "assessment_id": "c1a214e8-7d32-4207-9924-fd4e69055537",
+      "assessment_status": "superseded",
+      "requested_at": "2026-09-07T05:33:41.800354+00:00",
+      "completed_at": null,
+      "report_id": null,
+      "checks": [
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-availability",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-alert_clearance",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-error_rate",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-latency",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-dependency_health",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-critical_alerts",
+          "status": "warming_up",
+          "samples": 1
+        }
+      ]
+    },
+    "159bb131-6330-4d07-947b-6e5c54e801be": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "c14808a5-1f6e-4616-b903-210e534c8881",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:22.659063+00:00",
+      "completed_at": "2026-09-07T05:34:11.818044+00:00",
+      "report_id": "938060ca-6940-5bfe-92d9-713fcd4b62b1",
+      "checks": [
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:2ed583374a8febf29a39672beab93ef3e3ac4d238d1771086db85f35ed02784b",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:34:00.000000",
+        "window_start": "2026-09-07 05:29:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:d8c9726b-2a03-472e-877c-a7cea98ad461",
+          "published_at": "2026-09-07 05:35:16.228994",
+          "assessment_id": "c14808a5-1f6e-4616-b903-210e534c8881"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:c14808a5-1f6e-4616-b903-210e534c8881:closed",
+          "published_at": "2026-09-07 05:35:16.216879",
+          "assessment_id": null
+        }
+      ]
+    },
+    "1725aaf9-f358-4569-9a09-7504a76ea563": {
+      "status": "investigating",
+      "lifecycle_state": "DETECTED",
+      "assessment_id": "1c191c59-8a21-4355-a20b-5dfc45752c21",
+      "assessment_status": "superseded",
+      "requested_at": "2026-09-07T05:33:41.803295+00:00",
+      "completed_at": null,
+      "report_id": null,
+      "checks": [
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-availability",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-alert_clearance",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-error_rate",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-latency",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-dependency_health",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-critical_alerts",
+          "status": "warming_up",
+          "samples": 1
+        }
+      ]
+    },
+    "1a26fb32-0de5-4f03-b08a-20d6b89c8fc4": {
+      "status": "investigating",
+      "lifecycle_state": "DETECTED",
+      "assessment_id": "b28b2190-41fb-4448-b0c8-c70f4ef3a8ce",
+      "assessment_status": "superseded",
+      "requested_at": "2026-09-07T05:33:43.140095+00:00",
+      "completed_at": null,
+      "report_id": null,
+      "checks": [
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-availability",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-alert_clearance",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-error_rate",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-latency",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-dependency_health",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-critical_alerts",
+          "status": "warming_up",
+          "samples": 1
+        }
+      ]
+    },
+    "31cf7879-fffb-48f6-a887-015213348f28": {
+      "status": "investigating",
+      "lifecycle_state": "DETECTED",
+      "assessment_id": "2c6ad86a-3b3e-49d5-b796-8723554e8032",
+      "assessment_status": "superseded",
+      "requested_at": "2026-09-07T05:33:43.143453+00:00",
+      "completed_at": null,
+      "report_id": null,
+      "checks": [
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-availability",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-alert_clearance",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-error_rate",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-latency",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-dependency_health",
+          "status": "warming_up",
+          "samples": 1
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-critical_alerts",
+          "status": "warming_up",
+          "samples": 1
+        }
+      ]
+    },
+    "512fe8c0-0914-4e56-b276-04e9be24c0d9": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "b4bf559a-afeb-427c-8e81-dadc1ed1def5",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:28.830069+00:00",
+      "completed_at": "2026-09-07T05:34:12.918104+00:00",
+      "report_id": "0b729bac-c2de-5ba4-9282-a536de60fa31",
+      "checks": [
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:d1a22c145881b081aca78441b3e6f1913fea4745d09733df9ddfa1dbbb558b26",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:34:00.000000",
+        "window_start": "2026-09-07 05:29:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:19b6d0ed-4818-47d9-8cbb-1030a99374df",
+          "published_at": "2026-09-07 05:35:16.263654",
+          "assessment_id": "b4bf559a-afeb-427c-8e81-dadc1ed1def5"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:b4bf559a-afeb-427c-8e81-dadc1ed1def5:closed",
+          "published_at": "2026-09-07 05:35:16.254345",
+          "assessment_id": null
+        }
+      ]
+    },
+    "6861588c-4dd4-4625-b496-c4679b9280ba": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "73d3be6f-98a2-4549-a798-42ba9e940150",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:28.779769+00:00",
+      "completed_at": "2026-09-07T05:34:13.366421+00:00",
+      "report_id": "e28601f0-ffc1-50d0-9db0-f50d1d1b4ede",
+      "checks": [
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:88d6017a6c8e6f681e8c9e2c59641d7501aed66c2a3b60e3840297a2a09ed9de",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:34:00.000000",
+        "window_start": "2026-09-07 05:29:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:498c8c5c-4b97-4f5d-aa3d-abc4e56b0af0",
+          "published_at": "2026-09-07 05:35:16.279203",
+          "assessment_id": "73d3be6f-98a2-4549-a798-42ba9e940150"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:73d3be6f-98a2-4549-a798-42ba9e940150:closed",
+          "published_at": "2026-09-07 05:35:16.270918",
+          "assessment_id": null
+        }
+      ]
+    },
+    "69b1118a-7be3-4536-86ac-bc891df1bfc7": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "1ba0d07b-787b-4ece-b05f-518440b81a93",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:28.809107+00:00",
+      "completed_at": "2026-09-07T05:34:12.523105+00:00",
+      "report_id": "74b88313-9098-5f17-90b6-81aac8731f83",
+      "checks": [
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:b2a3a89b772c7edd83494f383e1d92dfc97e645c524b9cbdcb86a25969688c02",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:34:00.000000",
+        "window_start": "2026-09-07 05:29:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:1fb9dca9-103d-4789-8221-592b78cd6b5f",
+          "published_at": "2026-09-07 05:35:16.246491",
+          "assessment_id": "1ba0d07b-787b-4ece-b05f-518440b81a93"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:1ba0d07b-787b-4ece-b05f-518440b81a93:closed",
+          "published_at": "2026-09-07 05:35:16.238094",
+          "assessment_id": null
+        }
+      ]
+    },
+    "8ae0a513-3579-4ab6-8c0c-064080618857": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "3fd40141-1301-4439-9e9c-767daa5867f6",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:32.406560+00:00",
+      "completed_at": "2026-09-07T05:35:01.814572+00:00",
+      "report_id": "5cbcfc1e-48e7-561d-aa7e-30eae82fc77f",
+      "checks": [
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:f5a78e2b94d74b208c26d902645fe94f0c352f2d98892dae5668e62b5e33eac4",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:35:00.000000",
+        "window_start": "2026-09-07 05:30:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:5b95c6bf-1309-4df1-8708-d1aad5365787",
+          "published_at": "2026-09-07 05:36:06.466876",
+          "assessment_id": "3fd40141-1301-4439-9e9c-767daa5867f6"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:3fd40141-1301-4439-9e9c-767daa5867f6:closed",
+          "published_at": "2026-09-07 05:36:06.454575",
+          "assessment_id": null
+        }
+      ]
+    },
+    "8bd182fe-4ab4-430b-9afb-f65708c85b6c": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "140009d2-ca04-4e30-af96-8ba83daf92de",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:32.360092+00:00",
+      "completed_at": "2026-09-07T05:35:02.600712+00:00",
+      "report_id": "bc2e455b-b392-582b-8501-e03e6f1bf866",
+      "checks": [
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:b2a97b7561af2b5ec594abaec93447a4ffdb06174eca34a494b0a9d219cdfa87",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:35:00.000000",
+        "window_start": "2026-09-07 05:30:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:15133536-f85e-4a4c-ad35-ab8af81dc78f",
+          "published_at": "2026-09-07 05:36:06.510054",
+          "assessment_id": "140009d2-ca04-4e30-af96-8ba83daf92de"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:140009d2-ca04-4e30-af96-8ba83daf92de:closed",
+          "published_at": "2026-09-07 05:36:06.498770",
+          "assessment_id": null
+        }
+      ]
+    },
+    "8d7674c2-e1f9-4c25-ac24-ad7a0c193f5d": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "8a3a2bec-b860-4422-b57b-02c29c5045db",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:32.414112+00:00",
+      "completed_at": "2026-09-07T05:35:02.148776+00:00",
+      "report_id": "4840bf44-4de4-5bd1-86b5-afd07a90dea0",
+      "checks": [
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-redis-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:8b04ac4d3a2bba8d9146bd6e487b5bae751ac580b6f17b2c8de60e0b985a040b",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:35:00.000000",
+        "window_start": "2026-09-07 05:30:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:8b35087c-37b7-46ec-a5d4-1dec589a94ab",
+          "published_at": "2026-09-07 05:36:06.487116",
+          "assessment_id": "8a3a2bec-b860-4422-b57b-02c29c5045db"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:8a3a2bec-b860-4422-b57b-02c29c5045db:closed",
+          "published_at": "2026-09-07 05:36:06.476893",
+          "assessment_id": null
+        }
+      ]
+    },
+    "94d16482-72d2-4209-a45b-ee3fa45d52da": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "46713a0e-f118-4e29-a7b3-d60b122a9bb2",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:35.219212+00:00",
+      "completed_at": "2026-09-07T05:35:03.401700+00:00",
+      "report_id": "a5240dec-c0e2-515f-8621-c9f383106ced",
+      "checks": [
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:621c2410faf3d7bce5403e405a1282d39f9c208f3014c59e8a80a7e61cac0bcb",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:35:00.000000",
+        "window_start": "2026-09-07 05:30:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:37c99aac-938d-43c7-98ce-67fa93c94c9f",
+          "published_at": "2026-09-07 05:36:06.559659",
+          "assessment_id": "46713a0e-f118-4e29-a7b3-d60b122a9bb2"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:46713a0e-f118-4e29-a7b3-d60b122a9bb2:closed",
+          "published_at": "2026-09-07 05:36:06.547279",
+          "assessment_id": null
+        }
+      ]
+    },
+    "9eb6f6f8-e4b3-4966-b369-a5c99c09f8fa": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "367e9cd4-41f4-4861-91a2-b09698936520",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:35.225963+00:00",
+      "completed_at": "2026-09-07T05:35:02.993822+00:00",
+      "report_id": "5089aacf-cf72-5e6d-a014-eee295dfa46f",
+      "checks": [
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:6be321ed52bbc294ee7459ec839f708926fde3d59525a9de1cf7e7d5ce6a9d4f",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:35:00.000000",
+        "window_start": "2026-09-07 05:30:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:9032ff70-932e-431d-8ef9-b7d9ca5750ba",
+          "published_at": "2026-09-07 05:36:06.534977",
+          "assessment_id": "367e9cd4-41f4-4861-91a2-b09698936520"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:367e9cd4-41f4-4861-91a2-b09698936520:closed",
+          "published_at": "2026-09-07 05:36:06.523084",
+          "assessment_id": null
+        }
+      ]
+    },
+    "abb9dbe5-3335-4937-9e23-aaf11d14d7cf": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "89596485-e2d7-4f26-b2d6-1b68120fe85d",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:35.227522+00:00",
+      "completed_at": "2026-09-07T05:35:03.720676+00:00",
+      "report_id": "5846dd86-0ddb-5311-a11b-b26a3f224197",
+      "checks": [
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:b9f6b55c238210ad0e882538dce42b39afb3381cb2a0f4807267395e68ab37ba",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:35:00.000000",
+        "window_start": "2026-09-07 05:30:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:b6572023-6093-46b7-b083-98b45cc78076",
+          "published_at": "2026-09-07 05:36:06.584135",
+          "assessment_id": "89596485-e2d7-4f26-b2d6-1b68120fe85d"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:89596485-e2d7-4f26-b2d6-1b68120fe85d:closed",
+          "published_at": "2026-09-07 05:36:06.572419",
+          "assessment_id": null
+        }
+      ]
+    },
+    "abc0a588-9617-44ab-8db3-06dbb4e5f2c5": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "05f14328-2a86-4697-afa9-da01afa1cf95",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:38.222988+00:00",
+      "completed_at": "2026-09-07T05:35:04.005609+00:00",
+      "report_id": "59a5f8d7-eba4-5970-987a-6803cbe7fec0",
+      "checks": [
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:9d940937d15dda87d7edbe042880b763e2991bbabbadaff672f380331eb5c563",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:35:00.000000",
+        "window_start": "2026-09-07 05:30:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:d12aaa36-3d37-4666-8b21-85f00dd21eef",
+          "published_at": "2026-09-07 05:36:06.609364",
+          "assessment_id": "05f14328-2a86-4697-afa9-da01afa1cf95"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:05f14328-2a86-4697-afa9-da01afa1cf95:closed",
+          "published_at": "2026-09-07 05:36:06.597903",
+          "assessment_id": null
+        }
+      ]
+    },
+    "b8d23ba1-9015-4d1b-afd2-486da4c8655c": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "51b1365f-f1fb-4d15-b952-a38cab399a1c",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:38.201527+00:00",
+      "completed_at": "2026-09-07T05:35:04.350118+00:00",
+      "report_id": "1be779d7-7826-5b01-a9ec-330dbee5e505",
+      "checks": [
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mysql-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:c5bce3035fb2c943a7971b903494f9081936f0503cde5b77a1604b0b800b3333",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:35:00.000000",
+        "window_start": "2026-09-07 05:30:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:ba9d6cc8-e2f1-4191-a23a-b3394729edfd",
+          "published_at": "2026-09-07 05:36:06.634259",
+          "assessment_id": "51b1365f-f1fb-4d15-b952-a38cab399a1c"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:51b1365f-f1fb-4d15-b952-a38cab399a1c:closed",
+          "published_at": "2026-09-07 05:36:06.622226",
+          "assessment_id": null
+        }
+      ]
+    },
+    "c0cc4aef-7cb8-475e-a143-32bbbde92719": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "62c0727a-a2cf-412f-b8ca-706fc499d2ad",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:38.197200+00:00",
+      "completed_at": "2026-09-07T05:35:04.596533+00:00",
+      "report_id": "ae8a4dbc-1cef-5397-8342-43cb0ebc30f3",
+      "checks": [
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-rabbitmq-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:cc7028f93717a6c36b3a896b9e076d5ad7935daf22525bbde9374037ec866526",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:35:00.000000",
+        "window_start": "2026-09-07 05:30:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:4a2d738e-03ea-49c2-b94d-8d4ae8bb1857",
+          "published_at": "2026-09-07 05:36:06.657433",
+          "assessment_id": "62c0727a-a2cf-412f-b8ca-706fc499d2ad"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:62c0727a-a2cf-412f-b8ca-706fc499d2ad:closed",
+          "published_at": "2026-09-07 05:36:06.646713",
+          "assessment_id": null
+        }
+      ]
+    },
+    "c10d39a5-cd6d-43e2-89ee-741cdbdcd778": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "a4f4c003-5d7c-4093-8d1c-3c1fa3136f9c",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:41.535531+00:00",
+      "completed_at": "2026-09-07T05:35:20.199471+00:00",
+      "report_id": "c3ceb607-b354-5853-aa49-d451cdc27fdb",
+      "checks": [
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:02f50936ca2bee46a682765c399b2ce234c8fd1dfc08426d4b375b125552207a",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:35:00.000000",
+        "window_start": "2026-09-07 05:30:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:59d4f9e8-ad41-4565-bee3-3b0caf80af38",
+          "published_at": "2026-09-07 05:36:26.872608",
+          "assessment_id": "a4f4c003-5d7c-4093-8d1c-3c1fa3136f9c"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:a4f4c003-5d7c-4093-8d1c-3c1fa3136f9c:closed",
+          "published_at": "2026-09-07 05:36:26.863212",
+          "assessment_id": null
+        }
+      ]
+    },
+    "d11b7456-8382-42e6-bc4c-bc9cb1d428a4": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "6a6ddf38-ff89-4d2d-a8a1-895e8577bf1f",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:41.539042+00:00",
+      "completed_at": "2026-09-07T05:35:04.846815+00:00",
+      "report_id": "32745d9e-a866-5a69-8938-d68a0ae256cf",
+      "checks": [
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-cart-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:14d280b635b6ee0752991b2e2fbe4a64c895a10b596d029928dae687387ee88c",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:35:00.000000",
+        "window_start": "2026-09-07 05:30:00.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:c49a7ea6-1c41-46f7-9bca-9754c103e8ac",
+          "published_at": "2026-09-07 05:36:06.694447",
+          "assessment_id": "6a6ddf38-ff89-4d2d-a8a1-895e8577bf1f"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:6a6ddf38-ff89-4d2d-a8a1-895e8577bf1f:closed",
+          "published_at": "2026-09-07 05:36:06.681783",
+          "assessment_id": null
+        }
+      ]
+    },
+    "d44522fc-7c8d-46ac-9d6a-2484851d1b2a": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "f64095b2-d015-4c11-acc9-358571aca4f8",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:41.546311+00:00",
+      "completed_at": "2026-09-07T05:34:44.738995+00:00",
+      "report_id": "4f7b5475-50df-5b90-9069-d7cf02013fdc",
+      "checks": [
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:af07e792ba09d79ac96ea1af879dbbf20648eb51756321858958ef986044d82e",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:34:30.000000",
+        "window_start": "2026-09-07 05:29:30.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:db270a27-b8ef-4db5-a44f-2f3a9fe80b5f",
+          "published_at": "2026-09-07 05:35:46.330349",
+          "assessment_id": "f64095b2-d015-4c11-acc9-358571aca4f8"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:f64095b2-d015-4c11-acc9-358571aca4f8:closed",
+          "published_at": "2026-09-07 05:35:46.321051",
+          "assessment_id": null
+        }
+      ]
+    },
+    "e271a12b-ce0f-4ba9-9546-f15a5f43e2f6": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "37b2b01a-93a8-4bae-81f0-35115dd6a814",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:44.582827+00:00",
+      "completed_at": "2026-09-07T05:34:45.096477+00:00",
+      "report_id": "057d38d3-67bc-58da-82f5-94f6ba8f84f2",
+      "checks": [
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-payment-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:6b7de75e7b9fd5a01b7cee237c0f0d5eb47532e3d818eea5b7d9126c23c63090",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:34:30.000000",
+        "window_start": "2026-09-07 05:29:30.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:675603b6-a08e-4fcf-887e-fc5b3c39185c",
+          "published_at": "2026-09-07 05:35:46.347017",
+          "assessment_id": "37b2b01a-93a8-4bae-81f0-35115dd6a814"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:37b2b01a-93a8-4bae-81f0-35115dd6a814:closed",
+          "published_at": "2026-09-07 05:35:46.337811",
+          "assessment_id": null
+        }
+      ]
+    },
+    "e6b23087-9cdf-4eeb-9e09-bb0cb2ab229a": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "ac51b52f-6986-4cc4-add3-4204b05fd5d9",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:44.593372+00:00",
+      "completed_at": "2026-09-07T05:34:45.684159+00:00",
+      "report_id": "d369bb1f-0937-59b1-8950-de14401d8d43",
+      "checks": [
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "ob-paymentservice-OnlineBoutiquePaymentServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:c0ede16205c12f707e8e677673c4dbeece9e34194bc299065bc197ac31951cd5",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:34:30.000000",
+        "window_start": "2026-09-07 05:29:30.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:920426ed-232a-4339-b57d-f2652021bae8",
+          "published_at": "2026-09-07 05:35:46.379643",
+          "assessment_id": "ac51b52f-6986-4cc4-add3-4204b05fd5d9"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:ac51b52f-6986-4cc4-add3-4204b05fd5d9:closed",
+          "published_at": "2026-09-07 05:35:46.370509",
+          "assessment_id": null
+        }
+      ]
+    },
+    "f49363e8-eb41-46a8-bd66-f8e9eb525ed7": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "0da25fd6-ad65-41c3-be0f-cba92344da5f",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:44.597647+00:00",
+      "completed_at": "2026-09-07T05:34:45.365412+00:00",
+      "report_id": "b9852b82-6c92-5c34-b821-fcf981787792",
+      "checks": [
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "robot-shop-mongodb-RobotShopServiceDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:04b02a5df556b6544fe86a28c930b07649869547792bcfc503828d153601ec62",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:34:30.000000",
+        "window_start": "2026-09-07 05:29:30.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:25873718-eaa7-4038-9baf-45de2cf8aeae",
+          "published_at": "2026-09-07 05:35:46.362664",
+          "assessment_id": "0da25fd6-ad65-41c3-be0f-cba92344da5f"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:0da25fd6-ad65-41c3-be0f-cba92344da5f:closed",
+          "published_at": "2026-09-07 05:35:46.354202",
+          "assessment_id": null
+        }
+      ]
+    },
+    "f4c2ab59-496f-453f-ac67-5a390992224d": {
+      "status": "closed",
+      "lifecycle_state": "CLOSED",
+      "assessment_id": "aa7827ac-506a-42b0-9763-50634e35e33a",
+      "assessment_status": "closed",
+      "requested_at": "2026-09-07T05:28:46.595841+00:00",
+      "completed_at": "2026-09-07T05:34:45.965370+00:00",
+      "report_id": "cf2e2412-2ed4-5675-a098-cb0914eedac3",
+      "checks": [
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-availability",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-alert_clearance",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-error_rate",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-latency",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-dependency_health",
+          "status": "passed",
+          "samples": 11
+        },
+        {
+          "validator_id": "blackbox-OnlineBoutiqueFrontendDown-critical_alerts",
+          "status": "passed",
+          "samples": 11
+        }
+      ],
+      "closure_kind": "observed_recovery",
+      "health_restored": true,
+      "corrective_execution_performed": false,
+      "validation_checksum": "sha256:4bd23ca575456964643151be8a03fca6cd19de053b248dbee3533c11986f3de3",
+      "observations": {
+        "count": 66,
+        "passed": 66,
+        "window_end": "2026-09-07 05:34:30.000000",
+        "window_start": "2026-09-07 05:29:30.000000",
+        "corrective_actions": 0
+      },
+      "events": [
+        {
+          "topic": "incident-lifecycle-events",
+          "status": "published",
+          "event_id": "incident-lifecycle:8cbc644a-0b28-4103-afc6-db7c787ca42f",
+          "published_at": "2026-09-07 05:35:46.394289",
+          "assessment_id": "aa7827ac-506a-42b0-9763-50634e35e33a"
+        },
+        {
+          "topic": "closure-events",
+          "status": "published",
+          "event_id": "closure:aa7827ac-506a-42b0-9763-50634e35e33a:closed",
+          "published_at": "2026-09-07 05:35:46.387196",
+          "assessment_id": null
+        }
+      ]
+    }
+  }
+}

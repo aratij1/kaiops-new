@@ -1,0 +1,1598 @@
+{
+  "selection_sha256": "67f21257e7dae1225b59ae63d213b4fc774d8021d8d58eff1f3d4faa5defc4a3",
+  "incidents": {
+    "3c9e13fa-44c9-48d8-9ab4-34a470f9591a": {
+      "service": "github-status",
+      "status": "blocked",
+      "checks": {
+        "availability": {
+          "passed": true,
+          "value": "1.0"
+        },
+        "alert_clearance": {
+          "passed": true,
+          "value": "0.0"
+        },
+        "error_rate": {
+          "passed": false,
+          "value": "0.04999999999999993"
+        },
+        "latency": {
+          "passed": true,
+          "value": "0.031529597"
+        },
+        "dependency_health": {
+          "passed": true,
+          "value": "1.0"
+        },
+        "critical_alerts": {
+          "passed": true,
+          "value": "0.0"
+        }
+      },
+      "request": {
+        "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+        "status": "pending_stability",
+        "requested_at": "2026-09-07T09:01:19.725095+00:00",
+        "expires_at": "2026-09-07T10:01:19.725095+00:00",
+        "minimum_wait_seconds": 360
+      },
+      "result": {
+        "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+        "status": "blocked",
+        "observed_at": "2026-09-07T09:06:00.261201+00:00",
+        "checks": [
+          {
+            "validator_id": "github-status-external-recovery-availability",
+            "kind": "availability",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:993fae7edbebce624713853f7d5a6c9085248778a282c933f27a0f26324271d7"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:ece45e1611cbbf997c892dc96b20e9e52fc04e5b03f32cad71be067931d0fbae"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:779d5a6f92a8dc59b68596aa2a0e9fdc3baaf7919674344591594aebcd6f288a"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:b85c993058b7ccd26da5222f5b10a8b0306452e3c25c64139f3880a6b2125ea8"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:8c09a3462bed74b2e892119019dce7db95af242ba8b0294b956ab444774a190e"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:6e71360d558fc3a518734b361b06c9a75eff8d2cde6edd7b407a2e0ec5fa1c4a"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:afed8e2a0f936c6c5012379d95b2ed33a26ee0ae1f4d3c4c8823ae0308cedb6c"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:ef06b4257d4a45574db8c32368f5eebe26cee91e2a7783e1cf318ac87cfafb16"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:06:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:94287eeab49030e4c3cc670840e9a59a22d4d9e6c497c3e90d827bbc93ec47cc"
+              }
+            ]
+          },
+          {
+            "validator_id": "github-status-external-recovery-alert_clearance",
+            "kind": "alert_clearance",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:f7bad0028f719c88ea610e35b5a9602c7c5f7117a8d07ae8aa6f91741a3a79ee"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:74eea95a814944fa238c6d5ae1d232c7932f278753f72a5d7ba02ae217eb39f3"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:15c271fbeac5806dfc38f94b5f4f53bd0c4cebfe8fced6afa2db019eb2a47178"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:ed93250043499d83850035f1a1932b768195dd91b2227b67fa5285d1a9982763"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:3f5ba0dcadf95299fe9827bdc37477e1d5a3685960e43b27d36f823325e0b0f2"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:69c22c511491454c1c273934461d13381f16b8fb13bb2627e468a66bb096feef"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:5e405cabce8bd60b74e24cf124db79314eafc9dac98f2b8e2f632adf987b6758"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:43759beaa1ab3dcc316c726d723f12ad169e3968305634a5682dbe5b1206b60d"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:06:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:e8cc5115331717698ed846b1b9376fa7ca1bfd02f35078c1503e4bf1c08c6ae7"
+              }
+            ]
+          },
+          {
+            "validator_id": "github-status-external-recovery-error_rate",
+            "kind": "error_rate",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:5e3902a818cb57835e9cc7eccf9ea0fe7b81378091f3cc0c21ee558249e0facc"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:d4eecab7496e25414aee5490f8721ba80f624be0334e314636aeee8a79d712b3"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:379269baa127a87522e880c78dc7b8258f9252e0d23995b753055c0e69a42618"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:7d50656cf17b83d60bc4ac22fd8357838d7fd1dd4d084e4509d8583119d26d12"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:a4f116049c57049aa4283d6c7d0882ef394a98715a40857c44e23b608585e4c0"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:929942d7be0f122b4ce35c1399aa187aba15f51b864818632798a3eb14cf602b"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:002facea53f0f026796eceb21df3c4e69692baf8c807def547f023e1929ad9db"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:c23da1398809c62c3da91b974b3b5dde576ab35caa82cb7213c17366bb914322"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:06:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:25ccd1ecac2606ba0887045012b47af4404df643c4c40965769227945a2caafe"
+              }
+            ]
+          },
+          {
+            "validator_id": "github-status-external-recovery-latency",
+            "kind": "latency",
+            "status": "failed",
+            "samples": [
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:00+00:00",
+                "measured_value": "0.031093219",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:4159cb2633602551f44a94128f990dcad4cde419c4dd634b3a9a24de151b13bc"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:30+00:00",
+                "measured_value": "0.027689687",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:1a444db40dc5fbb770e2229c4bba42a817e29f789c3ae96e1594ea7ebe47d941"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:00+00:00",
+                "measured_value": "0.03533745",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:b65f52cedeed2a7fc454ca38a8bdd41cae31acc001c10a4d5404f7c11098b810"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:30+00:00",
+                "measured_value": "0.038090576",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:5c8481c8bf0df65a93166d6fb7e5eb5a97f0cc3ccaa587655ed52f0f2a247828"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:00+00:00",
+                "measured_value": "0.053909533",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:b907c0ce389023f6f4d412535017132b2e2e7e58ee28772fcec9f33c52de35b4"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:30+00:00",
+                "measured_value": "0.033167328",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:85ae76681d9f50aec7c41ee0332d6d51917ca7432390673c9256dd561e4ac312"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:00+00:00",
+                "measured_value": "0.264004313",
+                "expected_value": "0.2",
+                "passed": false,
+                "result_checksum": "sha256:bd1be9bdfb5671c13817f5540c23e47fe953fb70e633e2141fbf3ca849925d15"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:30+00:00",
+                "measured_value": "0.030127408",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:37e4d89a13d4b701ff50497e66472f5b27bac2890cd181d4a870ccf4a9e8c07a"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:06:00+00:00",
+                "measured_value": "0.029634416",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:82816a6915a098f142770cf6131015287e21a7122ddf98d45c2e8e386026d593"
+              }
+            ]
+          },
+          {
+            "validator_id": "github-status-external-recovery-dependency_health",
+            "kind": "dependency_health",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:f515da380d6c03fdb84af0c224e99c2d01d94679a3bd65c2ad5e48fd024a3645"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:ef45f434c7998899285fc08ea8f3228f080f10b3c0fbdbee7edd9e3e3c7dac51"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:438f90a7352ed28c5b044614adafca9dc1b6a93bae2732d72bf59d060d6e5e9b"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:22065eda6734f1102542dd8fc6d28a54101c5f358ce266aa3fec01bd4c6ae65e"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:4e2cb9c801fd51a869481c8c2f5c458d91fcad636799b930493277c238d6bcd2"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:0af9b37bde81cccd97114b3b161c68ce8d8c926644d16bc62a3871292bb43b50"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:9268a6be671b2eca1bd2d32e24b81df1ced9f4fafe4d5b8a74518a3c63e69eb2"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:858508d0f540083f38d8da807170d9cac9a253a568d22238aa2352a5cdeacb60"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:06:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:acb4b3a49e50d6e98e67a2bd09e1c54fc637139795ab15d80a1264e5739681fb"
+              }
+            ]
+          },
+          {
+            "validator_id": "github-status-external-recovery-critical_alerts",
+            "kind": "critical_alerts",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:c91ace10e380e0aebbc6d6c4dbe59aef494b75476b355a0e35b65a495785e027"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:ec543d4ae713c8a6251095c9f4928db3a2b613ee34eaf3f1aaf806be13444be1"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:d4a5e10d686acb0449bf7e6ac9b88e42b34f25f6845d170c98d134667f2c9dbb"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:db08e71d9f38a801ca0b027da50f31a6ad5928b201d1415ace768e7ecbcdc260"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:5f1ac288d1dc7ed3506da501240d98a1382c53b2f5abf3869211df6dfe95d0e9"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:28b9b4e5ac80893132199c210b00b53cb4246483f52fcc4533dd314905aacd8d"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:688f51b74ff8f2d9d93df58986d427be9e4499519c6e2ff26c11e61fe2db7cc9"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:19a4f2edae194b912e90dd2b3d6e1e81132a0777d86dd569ea7397e935f8c802"
+              },
+              {
+                "assessment_id": "de6058dc-6d35-44bb-af26-d3cda9ed8d48",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:06:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:b01fa7230fce28a15d50fdc8acc68e709584e708b25bbc308381afe19ecb89eb"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "605ee7b5-77f3-4779-92a0-055a79b6ed4f": {
+      "service": "github-status",
+      "status": "blocked",
+      "checks": {
+        "availability": {
+          "passed": true,
+          "value": "1.0"
+        },
+        "alert_clearance": {
+          "passed": true,
+          "value": "0.0"
+        },
+        "error_rate": {
+          "passed": false,
+          "value": "0.04999999999999993"
+        },
+        "latency": {
+          "passed": true,
+          "value": "0.031529597"
+        },
+        "dependency_health": {
+          "passed": true,
+          "value": "1.0"
+        },
+        "critical_alerts": {
+          "passed": true,
+          "value": "0.0"
+        }
+      },
+      "request": {
+        "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+        "status": "pending_stability",
+        "requested_at": "2026-09-07T09:01:19.723694+00:00",
+        "expires_at": "2026-09-07T10:01:19.723694+00:00",
+        "minimum_wait_seconds": 360
+      },
+      "result": {
+        "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+        "status": "blocked",
+        "observed_at": "2026-09-07T09:06:00.281747+00:00",
+        "checks": [
+          {
+            "validator_id": "github-status-external-recovery-availability",
+            "kind": "availability",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:dd110cf9180d7e55cc97cf49bd0b3463a10f255fa3534e667af2b68a5923a26c"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:65315ba6e631e117390c1e5dd0e8c96e53e9ea01cc602fcf766a0808dcf46e0e"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:6f4f1edfad66d74f26a971a399dfc96527924978f98f72d6e892171adac3dac5"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:7ede1d3841a0a38296ad9f906079092488680f99bff69081ee1e37c5bc37a736"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:9026143e2711b4bd72c45497461f30ab8c67220e70638f3c883bdb655bcca9b5"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:d49b3fbebda03e44c116249b859308cd5976c81ee7d336bdecf1c88fa6477d98"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:645f8f01250b8d23999ae3fee429e83b222f7d31e0f851e98a3860fbdcf70d52"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:779e3e8cc67103ff5210a2834d3029febcecbdabf9564fd16a7cb32eef07b156"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-availability",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:06:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:242e4c6fce6521cc2513cf49496906a0921665db0c93d7341c36f36b5d96d954"
+              }
+            ]
+          },
+          {
+            "validator_id": "github-status-external-recovery-alert_clearance",
+            "kind": "alert_clearance",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:98ec4b3e8fbf282255bd60f49e5015220b72531eaef3add8044b5587fec27a28"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:518558ea6e5b11ac391be3083443461390d0cf2eed4c845e6e6cab6cee326f9d"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:52430947afb083034cd23451adced722aed732ae6298170961e9d49f30097eea"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:45a058c7e3f1f2a69443801cacf3eefa5755dbf68260cb3177e9d53285d2fc40"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:2934bf38ec47bf84a5b11d226a50c2da29a9074222ad7da98ef67d6aa67cbbb1"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:0e5f393448f3137764f674cc92f63aaf891ed5829b51abe80047f594710d9918"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:9545974f8778c79981b497ab56b4105da09fc461fc26edf4b802846e7ddbf9e2"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:79647677d79507c474af0a9f98aa76cde538fe7ac23e3be57eaa837720b4a106"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-alert_clearance",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:06:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:c6153432ae68323b37c087e2d83244d9799dfb1071c8951c61d9927b96152c77"
+              }
+            ]
+          },
+          {
+            "validator_id": "github-status-external-recovery-error_rate",
+            "kind": "error_rate",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:586b53c6db20a3a9fbead2854b18fdc463079a2c830c1743762c333839339b97"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:ccb646f138d922d1be0adbe8881374d3381879dbee31d02541d2e38d2f01365c"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:ffcf13067aff7fd73b603ed4f2fc86e3631927127f81e4fb60ac974e9092a862"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:fde41afe3d5534043c03dcd71fb0b4407133d76eb0343dd6e4ff7dd4c6b49dd4"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:b9ee629b34e5cfd3b9dfce78689feffce062443d011e3ee7cf45e77111cc2d3c"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:9391723fabadd38b0f11db17ac391bfe2ef562269cd61cd5ebce268ff78981d3"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:750b65bba678868c6ab7933ab5eb17a9401b25e1fbee65253c8fe80b57a4503f"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:d7ad24ba4c3b7ded0f5634aeb361e98ffb6c3302e686c09cfa0388fdd0d3b4e3"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-error_rate",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:06:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:452e9ec55c9eaad0a513b339f3f6ed5dce6f14f57100eaf6ea0cbf4f04e89865"
+              }
+            ]
+          },
+          {
+            "validator_id": "github-status-external-recovery-latency",
+            "kind": "latency",
+            "status": "failed",
+            "samples": [
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:00+00:00",
+                "measured_value": "0.031093219",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:d42ade5038caee0d0ff8aefc89e27225b4c8216a5cc04a7efb767d1ad441ebec"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:30+00:00",
+                "measured_value": "0.027689687",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:23f8b067acc52583e7b32a3b81459638e34a10e4faed37479dfcd59696335ea4"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:00+00:00",
+                "measured_value": "0.03533745",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:c6e29522d725fb6d24372ec253fa1374c9f116bddbb4dc843e9fb3d140c87931"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:30+00:00",
+                "measured_value": "0.038090576",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:6c22d3043abe86ac73078de7f43124d868ac61153028ee48a603d108fa640157"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:00+00:00",
+                "measured_value": "0.053909533",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:dbf76366d1ca171453fffacb52734f50c13f6c530eb2e4bb2b8fb0b83f38e6cf"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:30+00:00",
+                "measured_value": "0.033167328",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:fb68e271be07502d8dfca728a787867d6568d7a0fe84ab373536ad7f328c5167"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:00+00:00",
+                "measured_value": "0.264004313",
+                "expected_value": "0.2",
+                "passed": false,
+                "result_checksum": "sha256:aa1d1c5e74b6e0d4b112d669577d297295fab9825bb04dba49d07980c9520aac"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:30+00:00",
+                "measured_value": "0.030127408",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:0303ba653516e936c9cbd8c8158456e83e13b3cd4e7c7b92a23ab595119e567e"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-latency",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:06:00+00:00",
+                "measured_value": "0.029634416",
+                "expected_value": "0.2",
+                "passed": true,
+                "result_checksum": "sha256:c8e48fcc04e7de9c399ebfe3927f1dd1d97c22f7628acbb8e17d20afc40b68a4"
+              }
+            ]
+          },
+          {
+            "validator_id": "github-status-external-recovery-dependency_health",
+            "kind": "dependency_health",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:eecad4d9770ec373303773b7d30c66c1852b7d3f454043d8cd808c906dac5a13"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:941876abe58f343f8a2cf9543d201d983e64814395621c951182ac6c2facaf60"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:876ad8d61d1f38ac835b13aafb29d8e8a2406b8e2ccd04eb5fda0d5009388d7f"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:23638b73427827882281c53b601b309cc4eb1a4d3639f0c806ec4a6bb54d34a5"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:76844960964f0b80899c2962c254fe7f747374c947a5c203ff06c1b4dad35c25"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:6209d46006004bebeffa6fcdb8802dfb0ebf71e7a1fbe8eac4ebe016a1795854"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:1a12c7b087645e98f44b97e6bb05528e69db1dac0515968020e2bedf0681edfe"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:30+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:f745929621a2f1bcfe640a3e2b285cfdb4ca48812e023276abaef464fcd541a4"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-dependency_health",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:06:00+00:00",
+                "measured_value": "1",
+                "expected_value": "1.0",
+                "passed": true,
+                "result_checksum": "sha256:9c9d2da2a45e43cc246fc608d9e44b566ed02850c533252284b794634b3536ce"
+              }
+            ]
+          },
+          {
+            "validator_id": "github-status-external-recovery-critical_alerts",
+            "kind": "critical_alerts",
+            "status": "warming_up",
+            "samples": [
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:821f0a96636dfaa1ff76a14d9ebd3b11b4c1a5dd86385ccc4d7c31828f835f0f"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:02:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:dd1c7f0f617abba4d87969b6db9869722caab7beaff399828b904a9fa9e3e976"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:01649fa6ce8c71096a26341a295ec3ad2730f24c25f89ee45e41479229bd096a"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:03:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:33d9497ab36d1963a6652187bfa76cbed0d96a7d392fd369ee169847efd574dc"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:66f3507a75c406872c3eb15bf8e94383c9414ef081337267ba3cfaadd70b7e04"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:04:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:b3784f9a80c8c4265ffc843369d66b3d179c99535e0ee376f8c60833f954924b"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:e2b54a65328d1f2d8418c0a4908aecf60f70dca4c7bb7286afa162a7099c4c3c"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:05:30+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:e4d9584239a260d89b9cbf54b5e71bbb435e1ee875cb3657fd3a97b32122510c"
+              },
+              {
+                "assessment_id": "ef594495-dd0e-419b-9369-ac1b88712afc",
+                "profile_digest": "sha256:637de58d0d7e12545aa5f0ad80ad76ecf5365ff15baa3022141a80b121ac9449",
+                "phase": "post_assessment",
+                "validator_id": "github-status-external-recovery-critical_alerts",
+                "connector_id": "prometheus-local-kaims",
+                "target_resource_id": "github-status",
+                "observed_at": "2026-09-07T09:06:00+00:00",
+                "measured_value": "0",
+                "expected_value": "0.0",
+                "passed": true,
+                "result_checksum": "sha256:0f543310528063f71ab6d2c68074f9e0051a10e8f39ad5d7d9e264897987dd13"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "ac38a842-83cd-4a3b-baea-10888b611dc4": {
+      "service": "opentelemetry-demo",
+      "request": {
+        "assessment_id": "901514f7-c28d-4151-8138-eb79fdec4e25",
+        "status": "pending_stability",
+        "requested_at": "2026-09-07T08:57:15.825705+00:00",
+        "expires_at": "2026-09-07T09:57:15.825705+00:00",
+        "minimum_wait_seconds": 360
+      },
+      "status": "closed",
+      "result": {
+        "assessment_id": "901514f7-c28d-4151-8138-eb79fdec4e25",
+        "status": "closed",
+        "report_id": "b0592750-8b54-581c-83aa-0cee57dc7ae3"
+      }
+    }
+  },
+  "updated_at": "2026-09-07T09:06:00.426140+00:00"
+}

@@ -1,0 +1,196 @@
+{
+  "url": "http://localhost:8501/incidents?inbox_view=resolved",
+  "visibleClosed": 3,
+  "refreshFetchedFeed": true,
+  "feeds": [
+    {
+      "url": "http://localhost:8501/api-gateway/incidents/inbox/feed?limit=10&inbox_view=resolved&record_type=incidents&project_id=KaiMS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8501/api-gateway/incidents/inbox/feed?limit=10&inbox_view=resolved&record_type=incidents&project_id=KaiMS",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8501/api-gateway/incidents/inbox/feed?limit=10&inbox_view=resolved&record_type=incidents&project_id=robot-shop-payment",
+      "status": 200
+    }
+  ],
+  "selectors": [
+    {
+      "label": null,
+      "value": "KaiMS",
+      "options": [
+        {
+          "value": "KaiMS",
+          "text": "KaiMS"
+        },
+        {
+          "value": "Telemetry",
+          "text": "Telemetry"
+        },
+        {
+          "value": "checkout-api",
+          "text": "checkout-api"
+        },
+        {
+          "value": "api-gateway",
+          "text": "api-gateway"
+        },
+        {
+          "value": "httpbin-failure-lab",
+          "text": "httpbin-failure-lab"
+        },
+        {
+          "value": "parabank-web",
+          "text": "parabank-web"
+        },
+        {
+          "value": "parabank-public-demo",
+          "text": "parabank-public-demo"
+        },
+        {
+          "value": "github-status",
+          "text": "github-status"
+        },
+        {
+          "value": "mysql-exporter",
+          "text": "mysql-exporter"
+        },
+        {
+          "value": "kaiops-api-gateway",
+          "text": "kaiops-api-gateway"
+        },
+        {
+          "value": "kaiops-platform",
+          "text": "kaiops-platform"
+        },
+        {
+          "value": "robot-shop-redis",
+          "text": "robot-shop-redis"
+        },
+        {
+          "value": "robot-shop-rabbitmq",
+          "text": "robot-shop-rabbitmq"
+        },
+        {
+          "value": "robot-shop-payment",
+          "text": "robot-shop-payment"
+        },
+        {
+          "value": "robot-shop-mysql",
+          "text": "robot-shop-mysql"
+        },
+        {
+          "value": "robot-shop-mongodb",
+          "text": "robot-shop-mongodb"
+        },
+        {
+          "value": "robot-shop-cart",
+          "text": "robot-shop-cart"
+        },
+        {
+          "value": "ob-paymentservice",
+          "text": "ob-paymentservice"
+        },
+        {
+          "value": "Online Boutique",
+          "text": "Online Boutique"
+        },
+        {
+          "value": "online-boutique-payment",
+          "text": "online-boutique-payment"
+        },
+        {
+          "value": "orchestrator",
+          "text": "orchestrator"
+        },
+        {
+          "value": "payments-api",
+          "text": "payments-api"
+        },
+        {
+          "value": "fault-lab",
+          "text": "fault-lab"
+        },
+        {
+          "value": "kaiops-fault-lab",
+          "text": "kaiops-fault-lab"
+        },
+        {
+          "value": "search-service",
+          "text": "search-service"
+        },
+        {
+          "value": "discovery-mcp",
+          "text": "discovery-mcp"
+        }
+      ]
+    },
+    {
+      "label": null,
+      "value": "all",
+      "options": [
+        {
+          "value": "all",
+          "text": "all"
+        },
+        {
+          "value": "high",
+          "text": "high"
+        },
+        {
+          "value": "medium",
+          "text": "medium"
+        },
+        {
+          "value": "low",
+          "text": "low"
+        }
+      ]
+    },
+    {
+      "label": null,
+      "value": "all",
+      "options": [
+        {
+          "value": "all",
+          "text": "all"
+        },
+        {
+          "value": "open",
+          "text": "open"
+        },
+        {
+          "value": "investigating",
+          "text": "investigating"
+        },
+        {
+          "value": "awaiting_approval",
+          "text": "awaiting_approval"
+        },
+        {
+          "value": "remediating",
+          "text": "remediating"
+        },
+        {
+          "value": "validating",
+          "text": "validating"
+        },
+        {
+          "value": "closed",
+          "text": "closed"
+        },
+        {
+          "value": "failed",
+          "text": "failed"
+        }
+      ]
+    }
+  ],
+  "demoVerification": {
+    "project": "robot-shop-payment",
+    "visibleClosed": 1,
+    "incidentId": "c10d39a5-cd6d-43e2-89ee-741cdbdcd778"
+  }
+}

@@ -1,0 +1,968 @@
+{
+  "purpose": "Read-only live transport preflight; no actual remediation execution or closure asserted",
+  "observed_at": "2026-09-07T03:46:44.667830+00:00",
+  "window_seconds": 300,
+  "profiles": 20,
+  "checks": [
+    {
+      "target": "kaiops-api-gateway",
+      "alert": "KaiOpsServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-api-gateway",
+      "alert": "KaiOpsServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-api-gateway",
+      "alert": "KaiOpsServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-api-gateway",
+      "alert": "KaiOpsServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.003174051
+    },
+    {
+      "target": "kaiops-api-gateway",
+      "alert": "KaiOpsServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-api-gateway",
+      "alert": "KaiOpsServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-api-gateway",
+      "alert": "ServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-api-gateway",
+      "alert": "ServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-api-gateway",
+      "alert": "ServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-api-gateway",
+      "alert": "ServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.003174051
+    },
+    {
+      "target": "kaiops-api-gateway",
+      "alert": "ServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-api-gateway",
+      "alert": "ServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-monitoring-adapter",
+      "alert": "KaiOpsServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-monitoring-adapter",
+      "alert": "KaiOpsServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-monitoring-adapter",
+      "alert": "KaiOpsServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-monitoring-adapter",
+      "alert": "KaiOpsServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.003546243
+    },
+    {
+      "target": "kaiops-monitoring-adapter",
+      "alert": "KaiOpsServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-monitoring-adapter",
+      "alert": "KaiOpsServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-monitoring-adapter",
+      "alert": "ServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-monitoring-adapter",
+      "alert": "ServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-monitoring-adapter",
+      "alert": "ServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-monitoring-adapter",
+      "alert": "ServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.003546243
+    },
+    {
+      "target": "kaiops-monitoring-adapter",
+      "alert": "ServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-monitoring-adapter",
+      "alert": "ServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-alert-intelligence",
+      "alert": "KaiOpsServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-alert-intelligence",
+      "alert": "KaiOpsServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-alert-intelligence",
+      "alert": "KaiOpsServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-alert-intelligence",
+      "alert": "KaiOpsServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.002542419
+    },
+    {
+      "target": "kaiops-alert-intelligence",
+      "alert": "KaiOpsServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-alert-intelligence",
+      "alert": "KaiOpsServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-alert-intelligence",
+      "alert": "ServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-alert-intelligence",
+      "alert": "ServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-alert-intelligence",
+      "alert": "ServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-alert-intelligence",
+      "alert": "ServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.002542419
+    },
+    {
+      "target": "kaiops-alert-intelligence",
+      "alert": "ServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-alert-intelligence",
+      "alert": "ServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-orchestrator",
+      "alert": "KaiOpsServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-orchestrator",
+      "alert": "KaiOpsServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-orchestrator",
+      "alert": "KaiOpsServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-orchestrator",
+      "alert": "KaiOpsServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.00273998
+    },
+    {
+      "target": "kaiops-orchestrator",
+      "alert": "KaiOpsServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-orchestrator",
+      "alert": "KaiOpsServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-orchestrator",
+      "alert": "ServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-orchestrator",
+      "alert": "ServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-orchestrator",
+      "alert": "ServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-orchestrator",
+      "alert": "ServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.00273998
+    },
+    {
+      "target": "kaiops-orchestrator",
+      "alert": "ServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-orchestrator",
+      "alert": "ServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-context-agent",
+      "alert": "KaiOpsServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-context-agent",
+      "alert": "KaiOpsServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-context-agent",
+      "alert": "KaiOpsServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-context-agent",
+      "alert": "KaiOpsServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.002800286
+    },
+    {
+      "target": "kaiops-context-agent",
+      "alert": "KaiOpsServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-context-agent",
+      "alert": "KaiOpsServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-context-agent",
+      "alert": "ServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-context-agent",
+      "alert": "ServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-context-agent",
+      "alert": "ServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-context-agent",
+      "alert": "ServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.002800286
+    },
+    {
+      "target": "kaiops-context-agent",
+      "alert": "ServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-context-agent",
+      "alert": "ServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-model-router",
+      "alert": "KaiOpsServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-model-router",
+      "alert": "KaiOpsServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-model-router",
+      "alert": "KaiOpsServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-model-router",
+      "alert": "KaiOpsServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.00344734
+    },
+    {
+      "target": "kaiops-model-router",
+      "alert": "KaiOpsServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-model-router",
+      "alert": "KaiOpsServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-model-router",
+      "alert": "ServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-model-router",
+      "alert": "ServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-model-router",
+      "alert": "ServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-model-router",
+      "alert": "ServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.00344734
+    },
+    {
+      "target": "kaiops-model-router",
+      "alert": "ServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-model-router",
+      "alert": "ServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-resolution-agent",
+      "alert": "KaiOpsServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-resolution-agent",
+      "alert": "KaiOpsServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-resolution-agent",
+      "alert": "KaiOpsServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-resolution-agent",
+      "alert": "KaiOpsServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.002439133
+    },
+    {
+      "target": "kaiops-resolution-agent",
+      "alert": "KaiOpsServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-resolution-agent",
+      "alert": "KaiOpsServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-resolution-agent",
+      "alert": "ServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-resolution-agent",
+      "alert": "ServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-resolution-agent",
+      "alert": "ServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-resolution-agent",
+      "alert": "ServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.002439133
+    },
+    {
+      "target": "kaiops-resolution-agent",
+      "alert": "ServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-resolution-agent",
+      "alert": "ServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-approval-service",
+      "alert": "KaiOpsServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-approval-service",
+      "alert": "KaiOpsServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-approval-service",
+      "alert": "KaiOpsServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-approval-service",
+      "alert": "KaiOpsServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.00296361
+    },
+    {
+      "target": "kaiops-approval-service",
+      "alert": "KaiOpsServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-approval-service",
+      "alert": "KaiOpsServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-approval-service",
+      "alert": "ServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-approval-service",
+      "alert": "ServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-approval-service",
+      "alert": "ServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-approval-service",
+      "alert": "ServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.00296361
+    },
+    {
+      "target": "kaiops-approval-service",
+      "alert": "ServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-approval-service",
+      "alert": "ServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-remediation-engine",
+      "alert": "KaiOpsServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-remediation-engine",
+      "alert": "KaiOpsServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-remediation-engine",
+      "alert": "KaiOpsServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-remediation-engine",
+      "alert": "KaiOpsServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.002542422
+    },
+    {
+      "target": "kaiops-remediation-engine",
+      "alert": "KaiOpsServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-remediation-engine",
+      "alert": "KaiOpsServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-remediation-engine",
+      "alert": "ServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-remediation-engine",
+      "alert": "ServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-remediation-engine",
+      "alert": "ServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-remediation-engine",
+      "alert": "ServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.002542422
+    },
+    {
+      "target": "kaiops-remediation-engine",
+      "alert": "ServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-remediation-engine",
+      "alert": "ServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-closure-service",
+      "alert": "KaiOpsServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-closure-service",
+      "alert": "KaiOpsServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-closure-service",
+      "alert": "KaiOpsServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-closure-service",
+      "alert": "KaiOpsServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.002743631
+    },
+    {
+      "target": "kaiops-closure-service",
+      "alert": "KaiOpsServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-closure-service",
+      "alert": "KaiOpsServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-closure-service",
+      "alert": "ServiceDown",
+      "kind": "availability",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 1.0
+    },
+    {
+      "target": "kaiops-closure-service",
+      "alert": "ServiceDown",
+      "kind": "alert_clearance",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-closure-service",
+      "alert": "ServiceDown",
+      "kind": "error_rate",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-closure-service",
+      "alert": "ServiceDown",
+      "kind": "latency",
+      "samples": 11,
+      "passing": true,
+      "latest_value": 0.002743631
+    },
+    {
+      "target": "kaiops-closure-service",
+      "alert": "ServiceDown",
+      "kind": "dependency_health",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    },
+    {
+      "target": "kaiops-closure-service",
+      "alert": "ServiceDown",
+      "kind": "critical_alerts",
+      "samples": 11,
+      "passing": false,
+      "latest_value": 0.0
+    }
+  ]
+}

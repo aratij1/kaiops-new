@@ -1,0 +1,62 @@
+{
+  "0638d6ef-4a7e-423f-aebb-364f2353fa56": {
+    "assessment_id": "41a8b741-47ca-4887-91fd-2826723f60ee",
+    "status": "pending_stability",
+    "requested_at": "2026-09-07T07:50:06.336261+00:00",
+    "expires_at": "2026-09-07T08:50:06.336261+00:00",
+    "minimum_wait_seconds": 360,
+    "result": {
+      "assessment_id": "41a8b741-47ca-4887-91fd-2826723f60ee",
+      "status": "closed",
+      "report_id": "205c9370-b6e1-5b7a-a255-58f48e61266d"
+    }
+  },
+  "144d4e97-b71b-4961-bc4b-a4b85f35a0f2": {
+    "assessment_id": "5b6ec1fe-eb59-4ae5-bf0a-a6babfa00520",
+    "status": "pending_stability",
+    "requested_at": "2026-09-07T07:50:07.614815+00:00",
+    "expires_at": "2026-09-07T08:50:07.614815+00:00",
+    "minimum_wait_seconds": 360,
+    "result": {
+      "assessment_id": "5b6ec1fe-eb59-4ae5-bf0a-a6babfa00520",
+      "status": "closed",
+      "report_id": "3dd18b7c-d468-5e70-867f-01844b8201e8"
+    }
+  },
+  "1725aaf9-f358-4569-9a09-7504a76ea563": {
+    "assessment_id": "8fa224cc-1562-4acb-a823-3304f47f4851",
+    "status": "pending_stability",
+    "requested_at": "2026-09-07T07:50:08.781387+00:00",
+    "expires_at": "2026-09-07T08:50:08.781387+00:00",
+    "minimum_wait_seconds": 360,
+    "result": {
+      "assessment_id": "8fa224cc-1562-4acb-a823-3304f47f4851",
+      "status": "closed",
+      "report_id": "573dfa77-a447-50ce-a38d-d7410b2b67d7"
+    }
+  },
+  "1a26fb32-0de5-4f03-b08a-20d6b89c8fc4": {
+    "assessment_id": "1cb38a63-a2ed-4f95-81b3-c726b66db1a0",
+    "status": "pending_stability",
+    "requested_at": "2026-09-07T07:50:09.976796+00:00",
+    "expires_at": "2026-09-07T08:50:09.976796+00:00",
+    "minimum_wait_seconds": 360,
+    "result": {
+      "assessment_id": "1cb38a63-a2ed-4f95-81b3-c726b66db1a0",
+      "status": "closed",
+      "report_id": "98157198-7a01-54d6-be69-f4720edae93f"
+    }
+  },
+  "31cf7879-fffb-48f6-a887-015213348f28": {
+    "assessment_id": "4aa9d31d-335b-4808-b942-c9886cba35ad",
+    "status": "pending_stability",
+    "requested_at": "2026-09-07T07:50:12.062833+00:00",
+    "expires_at": "2026-09-07T08:50:12.062833+00:00",
+    "minimum_wait_seconds": 360,
+    "result": {
+      "assessment_id": "4aa9d31d-335b-4808-b942-c9886cba35ad",
+      "status": "closed",
+      "report_id": "482e700b-a6c2-5509-a7da-1cac656f9376"
+    }
+  }
+}
