@@ -1191,3 +1191,43 @@ async def test_confirmed_hypothesis_respects_claim_grounding_before_stopping(
     if not corroborated:
         assert report["rca_result"]["root_cause"] is None
         assert "causal_corroboration" in report["rca_result"]["missing_evidence"]
+
+
+@pytest.mark.parametrize("leading", [
+    {"claim": "Candidate causal change identified: container is up", "source": "derived_observation"},
+    {"claim": "Observed signal requiring causal confirmation: HTTP 503"},
+])
+def test_observations_cannot_become_typed_causal_claims(leading):
+    from resolution_agent.contracts import ClaimKind, ResolutionOutcome
+
+    claims = IterativeInvestigator._build_claims(
+        leading=leading, outcome=ResolutionOutcome.INSUFFICIENT_EVIDENCE,
+        context=make_context(), evidence=[],
+    )
+    assert not any(claim.kind == ClaimKind.CAUSAL for claim in claims)
+
+
+def test_genuine_causal_hypothesis_remains_explicitly_unconfirmed():
+    from resolution_agent.contracts import ClaimKind, ClaimStatus, ResolutionOutcome
+
+    claims = IterativeInvestigator._build_claims(
+        leading={"claim": "Pool limit reduction exhausted checkout connections", "source": "discovery"},
+        outcome=ResolutionOutcome.INSUFFICIENT_EVIDENCE,
+        context=make_context(), evidence=[],
+    )
+    causal = next(claim for claim in claims if claim.kind == ClaimKind.CAUSAL)
+    assert causal.status == ClaimStatus.HYPOTHESIS
+
+
+def test_latency_alert_and_unrelated_log_do_not_prove_impact():
+    from resolution_agent.contracts import ClaimKind, ClaimStatus, ResolutionOutcome
+
+    context = make_context()
+    context.alert.name = "HighLatency"
+    claims = IterativeInvestigator._build_claims(
+        leading=None, outcome=ResolutionOutcome.INSUFFICIENT_EVIDENCE,
+        context=context, evidence=[{"source": "logs", "evidence_id": "unrelated-log", "snippet": "container started"}],
+    )
+    impact = next(claim for claim in claims if claim.kind == ClaimKind.IMPACT)
+    assert impact.status == ClaimStatus.NOT_ESTABLISHED
+    assert impact.supporting_evidence_ids == []

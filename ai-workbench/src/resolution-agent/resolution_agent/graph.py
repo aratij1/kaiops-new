@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from common.evidence_source_policy import is_alert_artifact
+
+from common.investigation_gaps import blocking_investigation_gaps
+
 import asyncio
 import hashlib
 import json
@@ -115,6 +119,11 @@ class ResolutionIntelligenceAgent(BaseAgent):
         # alert added 30-90 seconds without being required to persist an RCA.
         self.deep_analysis_enabled = str(
             os.getenv("RESOLUTION_DEEP_ANALYSIS_ENABLED", "false")
+        ).strip().lower() in {"1", "true", "yes", "on"}
+        # Separate impact assessment from optional remediation-plan generation.
+        # Preserve the existing model-call policy unless explicitly configured.
+        self.impact_analysis_enabled = str(
+            os.getenv("RESOLUTION_IMPACT_ANALYSIS_ENABLED", str(self.deep_analysis_enabled))
         ).strip().lower() in {"1", "true", "yes", "on"}
         # Keeps strong references to fire-and-forget evaluation-publish tasks so they
         # aren't garbage-collected mid-flight; discarded automatically once done.
@@ -852,14 +861,9 @@ class ResolutionIntelligenceAgent(BaseAgent):
         # legacy names, but also ingest every category produced by the current
         # collector; otherwise successfully collected metrics/traces/topology
         # are frozen into the snapshot yet invisible to RCA grounding.
-        for source_name in (
-            "logs", "code", "tickets", "telemetry", "database",
-            "metrics", "traces", "topology", "changes", "change", "runbook",
-            "dependencies", "deployment", "configuration",
-        ):
-            rows = context_evidence.get(source_name)
+        for source_name, rows in context_evidence.items():
             if isinstance(rows, list):
-                raw_evidence.extend(row for row in rows if isinstance(row, dict))
+                raw_evidence.extend({"category": source_name, **row} for row in rows if isinstance(row, dict))
         unique_evidence: dict[str, dict[str, Any]] = {}
         for index, item in enumerate(raw_evidence):
             if isinstance(item, dict):
@@ -874,7 +878,7 @@ class ResolutionIntelligenceAgent(BaseAgent):
         }
         relevant_evidence: list[dict[str, Any]] = []
         for item in raw_evidence:
-            if not isinstance(item, dict):
+            if not isinstance(item, dict) or is_alert_artifact(item):
                 continue
             content = item.get("content") if isinstance(item.get("content"), dict) else {}
             content_text = json.dumps(content, sort_keys=True, default=str)[:2000] if content else ""
@@ -882,7 +886,7 @@ class ResolutionIntelligenceAgent(BaseAgent):
                 str(item.get(key) or "")
                 for key in (
                     "evidence_id", "source", "source_id", "connector", "category",
-                    "uri", "path", "source_reference", "snippet", "summary", "service", "resource",
+                    "uri", "path", "source_uri", "source_reference", "snippet", "summary", "relevant_content", "service", "resource",
                 )
             ) + " " + content_text)
             if service_terms and not any(term in evidence_text for term in service_terms):
@@ -890,16 +894,21 @@ class ResolutionIntelligenceAgent(BaseAgent):
             relevant_evidence.append(
                 {
                     "evidence_id": item.get("evidence_id"),
-                    "source": item.get("source") or item.get("connector") or item.get("category"),
-                    "uri": item.get("uri") or item.get("path") or item.get("source_reference"),
+                    "source": item.get("source_type") or item.get("category") or item.get("source") or item.get("connector"),
+                    "connector": item.get("connector") or item.get("connector_id"),
+                    "observed_at": item.get("observed_at") or item.get("timestamp"),
+                    "service": item.get("service"),
+                    "current_observation": item.get("current_observation"),
+                    "current_operational_evidence": item.get("current_operational_evidence"),
+                    "uri": item.get("source_uri") or item.get("uri") or item.get("path") or item.get("source_reference") or item.get("citation"),
                     "snippet": str(item.get("snippet") or item.get("summary") or content_text)[:500],
                     "diagnostic_signals": item.get("diagnostic_signals", []),
                     "signal_counts": item.get("signal_counts", {}),
                     "supporting_evidence": item.get("supporting_evidence", []),
                 }
             )
-            if len(relevant_evidence) >= 24:
-                break
+        from resolution_agent.evidence import balanced_evidence
+        relevant_evidence = balanced_evidence(relevant_evidence, limit=48)
 
         log_evidence = [
             row for row in relevant_evidence if str(row.get("source") or "").lower() in {"log", "opensearch"}
@@ -967,7 +976,7 @@ class ResolutionIntelligenceAgent(BaseAgent):
             "code": "code", "source": "code", "github": "code", "gitlab": "code",
             "metric": "telemetry", "metrics": "telemetry", "prometheus": "telemetry", "telemetry": "telemetry",
             "ticket": "history", "tickets": "history", "incident": "history", "rag": "history", "runbook": "history",
-            "database": "data", "mysql": "data", "deployment": "changes", "change": "changes",
+            "database": "data", "mysql": "data", "deployment": "changes", "change": "changes", "source_code": "code", "traces": "telemetry", "trace": "telemetry", "dependency": "telemetry", "resource": "telemetry",
         }
         buckets: dict[str, list[dict[str, Any]]] = {
             "logs": [], "code": [], "telemetry": [], "history": [], "data": [], "changes": [], "alert": [],
@@ -1219,6 +1228,14 @@ class ResolutionIntelligenceAgent(BaseAgent):
             "code_review_findings": code_findings,
             "code_review_finding_evidence_ids": code_finding_ids,
         }
+        state["rca_analysis"]["missing_evidence"] = blocking_investigation_gaps(
+            state["rca_analysis"], iterative_investigation,
+        )
+        if model_fallback:
+            state["rca_analysis"]["grounding_notes"] = (
+                "RCA synthesis used a model fallback and did not produce a validated causal conclusion. "
+                "Retained context is available; review model availability and rerun the analysis."
+            )
         evidence_quality = assess_evidence_quality(
             state["gathered_context"].get("discovery_evidence", []),
             accepted_ids=cited,
@@ -1305,7 +1322,7 @@ class ResolutionIntelligenceAgent(BaseAgent):
             "log_intelligence": state["gathered_context"].get("log_intelligence", []),
             "detected_errors": state["gathered_context"].get("detected_errors", []),
         }
-        if self.deep_analysis_enabled:
+        if self.impact_analysis_enabled:
             response = await self._generate_with_fallback(
                 context=context,
                 task=ModelTask.IMPACT,
@@ -1342,7 +1359,7 @@ class ResolutionIntelligenceAgent(BaseAgent):
                 "Database availability or customer impact is not established by this evidence; the operational "
                 "risk is loss of replication-health visibility and delayed detection of replica problems."
             )
-        elif "latency" in normalized_description and affected_service:
+        elif model_fallback and "latency" in normalized_description and affected_service:
             state["impact"] = f"Observed alert condition indicates latency for {affected_service}; customer impact is not established."
         else:
             state["impact"] = self._extract_model_text(
@@ -1393,7 +1410,7 @@ class ResolutionIntelligenceAgent(BaseAgent):
         state["impact_analysis"] = {
             **parsed,
             "impact_summary": parsed.get("impact_summary") or state.get("impact", ""),
-            "observed_impact": parsed.get("observed_impact") or state.get("impact", ""),
+            "observed_impact": parsed.get("observed_impact") or "",
             "evidence_used": impact_citations,
             "confidence_score": impact_confidence,
             "context_readiness": {

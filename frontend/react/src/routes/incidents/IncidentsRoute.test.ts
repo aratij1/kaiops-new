@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { analysisBlocker, currentLifecycleStage, isActionableInboxIncident, lifecycleFor } from "./IncidentsRoute";
+import { belongsToInboxView, analysisBlocker, currentLifecycleStage, isActionableInboxIncident, lifecycleFor } from "./IncidentsRoute";
 import { journeyIndexForStatus } from "../../features/incidents/IncidentCommand";
 
 describe("Unified Inbox actionability", () => {
-  it("admits lower-severity incidents for the Watching view", () => {
-    expect(isActionableInboxIncident({ severity: "warning" } as any)).toBe(true);
+  it("excludes warnings while retaining other severity policies", () => {
+    expect(isActionableInboxIncident({ severity: "warning" } as any)).toBe(false);
     expect(isActionableInboxIncident({ severity: "medium" } as any)).toBe(true);
     expect(isActionableInboxIncident({ severity: "low" } as any)).toBe(true);
     expect(isActionableInboxIncident({ severity: "high" } as any)).toBe(true);
@@ -97,5 +97,19 @@ describe("Observed recovery closure", () => {
     expect(stages.find(s => s.id === "validate")?.caption).toBe("Recovery independently verified and closed");
     expect(stages.some(s => s.caption === "Remediation completed")).toBe(false);
     expect(currentLifecycleStage({status: "closed"} as any, stages)?.id).toBe("validate");
+  });
+});
+
+
+describe("Inbox human evidence ownership", () => {
+  it("puts an actual human evidence wait in Needs me", () => {
+    const row = { status: "waiting_for_human", severity: "high" } as any;
+    expect(belongsToInboxView(row, "needs_me")).toBe(true);
+    expect(belongsToInboxView(row, "kai_handling")).toBe(false);
+  });
+  it("keeps ongoing collection in Kai handling", () => {
+    const row = { status: "collecting", severity: "high" } as any;
+    expect(belongsToInboxView(row, "needs_me")).toBe(false);
+    expect(belongsToInboxView(row, "kai_handling")).toBe(true);
   });
 });

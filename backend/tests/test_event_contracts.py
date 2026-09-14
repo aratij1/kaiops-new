@@ -106,7 +106,7 @@ async def test_inconclusive_investigation_preserves_diagnostic_evidence_handoff(
     assert recommendation.confidence == analysis["confidence_score"] == 0.58
     assert analysis["evidence_used"] == ["EV-1"]
     assert analysis["supporting_signals"] == [
-        "The leading hypothesis cites validated telemetry evidence EV-1."
+        "The diagnostic candidate references telemetry evidence EV-1."
     ]
     assert recommendation.metadata["confidence_kind"] == "leading_hypothesis"
     assert recommendation.metadata["confidence_actionable"] is False

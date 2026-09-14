@@ -69,3 +69,14 @@ async def test_orchestrator_keeps_deployment_transport_for_entire_workflow(strea
     assert provider_used == "rabbitmq"
     assert len(rabbitmq_publisher.events) == 1
     assert len(kafka_publisher.events) == 0
+
+
+@pytest.mark.asyncio
+async def test_unstarted_real_publishers_cannot_report_delivery():
+    from common.config import Settings
+    from common.kafka import KafkaProducer
+    from common.event_publishers import KafkaPublisher
+    from common.servicebus import AzureServiceBusProducer
+    for producer in (KafkaProducer(Settings()), KafkaPublisher(Settings()), AzureServiceBusProducer(Settings())):
+        with pytest.raises(RuntimeError, match="not delivered"):
+            await producer.publish("context-events", {"incident_id": "incident-a"})

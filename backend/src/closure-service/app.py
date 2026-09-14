@@ -153,30 +153,8 @@ async def _publish_closure_event(app: FastAPI, payload: dict[str, Any], *, key: 
 
 
 async def _flush_resolution_outbox(app: FastAPI) -> int:
-    if not settings.database_enabled or getattr(app.state, "session_factory", None) is None:
-        return 0
-    published = 0
-    async with app.state.session_factory() as session:
-        lock_acquired = await session.scalar(text("SELECT GET_LOCK('kaiops_resolution_outbox_dispatch', 0)"))
-        if int(lock_acquired or 0) != 1:
-            return 0
-        try:
-            repo = IncidentRepository(session)
-            rows = await repo.list_pending_resolution_events(
-                limit=int(getattr(settings, "resolution_outbox_batch_size", 100) or 100)
-            )
-            for row in rows:
-                try:
-                    await app.state.producer.publish(row.topic, row.payload, key=row.partition_key)
-                    await repo.mark_resolution_event_published(row.event_id)
-                    published += 1
-                except Exception as exc:
-                    await repo.mark_resolution_event_retry(row.event_id, str(exc))
-                await session.commit()
-        finally:
-            await session.execute(text("SELECT RELEASE_LOCK('kaiops_resolution_outbox_dispatch')"))
-            await session.commit()
-    return published
+    from common.outbox_dispatch import flush_resolution_outbox
+    return await flush_resolution_outbox(app, settings)
 
 
 async def _outbox_dispatch_loop(app: FastAPI) -> None:

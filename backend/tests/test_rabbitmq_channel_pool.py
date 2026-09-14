@@ -34,7 +34,8 @@ class _FakeConnection:
     def __init__(self) -> None:
         self.channels_created = 0
 
-    async def channel(self) -> _FakeChannel:
+    async def channel(self, *, publisher_confirms=True, on_return_raises=False) -> _FakeChannel:
+        assert publisher_confirms and on_return_raises
         self.channels_created += 1
         return _FakeChannel(_FakeExchange())
 
@@ -84,10 +85,11 @@ async def test_publish_round_robins_across_channels(fake_connection: _FakeConnec
     assert counts == [3, 3, 3]
 
 
-async def test_publish_without_start_logs_and_does_not_raise() -> None:
+async def test_publish_without_start_fails_instead_of_claiming_delivery() -> None:
     producer = RabbitMQProducer(Settings())
-    # start() was never called, so there are no exchanges yet.
-    await producer.publish("some-topic", {"hello": "world"})
+    # A successful return would let callers acknowledge an event that was lost.
+    with pytest.raises(RuntimeError, match="not delivered"):
+        await producer.publish("some-topic", {"hello": "world"})
 
 
 class _FailingExchange:

@@ -36,7 +36,7 @@ describe("ContextEnrichmentPanel polling", () => {
       onIncidentRefresh={vi.fn().mockResolvedValue(undefined)}
     />);
 
-    expect(await screen.findByText(/bound trace is no longer available in Jaeger/)).toBeInTheDocument();
+    expect(await screen.findByText(/No matching trace was retrieved/)).toBeInTheDocument();
     expect(screen.queryByText("Human evidence assignment needs attention.")).not.toBeInTheDocument();
   });
 
@@ -115,6 +115,10 @@ describe("ContextEnrichmentPanel polling", () => {
     };
     const view = render(<ContextEnrichmentPanel {...props} reviewRequestToken={0} />);
     expect(await screen.findByText("What KaiMS needs to establish")).toBeInTheDocument();
+    expect(screen.getAllByText("waiting for human evidence").length).toBeGreaterThan(0);
+    expect(screen.getByText(/No automated collection job is recorded/)).toBeInTheDocument();
+    expect(screen.queryByText(/KaiMS is searching/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Automated discovery is still running/)).not.toBeInTheDocument();
     expect(screen.getAllByText(/Provide the incident-window trace/).length).toBeGreaterThan(0);
 
     view.rerender(<ContextEnrichmentPanel {...props} reviewRequestToken={1} />);
@@ -168,7 +172,7 @@ describe("ContextEnrichmentPanel polling", () => {
     ));
   });
 
-  it("offers minimum user input while automated MCP and RAG discovery is running", async () => {
+  it("offers evidence input without claiming discovery when no job is recorded", async () => {
     fetchJson.mockResolvedValue({
       schema_version: "kaiops.operations-state.v1",
       lifecycle_state: "COLLECTING",
@@ -185,8 +189,16 @@ describe("ContextEnrichmentPanel polling", () => {
       onIncidentRefresh={vi.fn().mockResolvedValue(undefined)}
     />);
 
-    expect(await screen.findByText(/searching the available MCP and governed knowledge sources/)).toBeInTheDocument();
+    expect(await screen.findByText(/No automated collection job is recorded/)).toBeInTheDocument();
     expect(screen.getByLabelText("Response for topology")).toBeInTheDocument();
     expect(screen.getByLabelText("Source reference for topology")).toBeInTheDocument();
   });
+});
+
+it("does not describe an ungrounded RCA without collection requests as gap-free", async () => {
+  fetchJson.mockResolvedValue({ schema_version: "kaiops.operations-state.v1", lifecycle_state: "INVESTIGATING", context: { evidence_ids: ["metric-1"] }, requirements: [], investigation_workspace: { rca: { status: "insufficient_evidence", grounded: false } } });
+  render(<ContextEnrichmentPanel incidentId="gap-handoff" accessToken="token" declaredGaps={[]} onIncidentRefresh={vi.fn()} />);
+  expect(await screen.findByText(/No active collection requests are published/)).toBeInTheDocument();
+  expect(screen.queryByText("No unresolved evidence gaps are declared.")).not.toBeInTheDocument();
+  cleanup();
 });

@@ -53,7 +53,9 @@ describe("Kai operations shell", () => {
     await user.keyboard("{Control>}k{/Control}");
     const palette = screen.getByRole("dialog", { name: "Search, navigate, or ask Kai" });
     expect(palette).toBeVisible();
-    expect(within(palette).getByRole("button", { name: /Incidents/ })).toBeVisible();
+    expect(screen.queryByRole("combobox", { name: /project/i })).not.toBeInTheDocument();
+    expect(screen.getByText("Payments")).toBeVisible();
+    expect(within(palette).getByRole("button", { name: /^Incidents / })).toBeVisible();
     expect(screen.queryByText("Users & Access")).not.toBeInTheDocument();
   });
 

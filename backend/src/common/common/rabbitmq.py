@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import json
 from collections.abc import AsyncIterator, Awaitable, Callable
 from datetime import datetime, timezone
@@ -34,6 +35,8 @@ def _is_transient_handler_error(error: str) -> bool:
         for marker in (
             "can't connect to mysql server",
             "connection refused",
+            "producer is not started",
+            "publisher is not started",
             "connection reset",
             "connection timed out",
             "temporary failure in name resolution",
@@ -77,7 +80,7 @@ class RabbitMQProducer:
             try:
                 self._connection = await aio_pika.connect_robust(self._settings.rabbitmq_url)
                 for _ in range(pool_size):
-                    channel = await self._connection.channel()
+                    channel = await self._connection.channel(publisher_confirms=True, on_return_raises=True)
                     exchange = await channel.declare_exchange(
                         self._settings.rabbitmq_exchange,
                         ExchangeType.TOPIC,
@@ -88,7 +91,6 @@ class RabbitMQProducer:
                 logger.info(
                     "connected rabbitmq producer",
                     extra={
-                        "url": self._settings.rabbitmq_url,
                         "exchange": self._settings.rabbitmq_exchange,
                         "channel_pool_size": pool_size,
                     },
@@ -126,8 +128,7 @@ class RabbitMQProducer:
 
     async def publish(self, topic: str, event: dict[str, Any] | Any, key: str | None = None) -> None:
         if not self._exchanges:
-            logger.info("rabbitmq producer unavailable; event logged", extra={"topic": topic, "payload": normalize_payload(event)})
-            return
+            raise RuntimeError("RabbitMQ producer is not started; event was not delivered")
         if not self._publish_breaker.allow():
             raise CircuitOpenError("rabbitmq publish circuit breaker open: broker appears unreachable")
         payload = normalize_payload(event)
@@ -164,9 +165,10 @@ class RabbitMQProducer:
 
 
 class RabbitMQConsumer:
-    def __init__(self, settings: Settings, topic: str) -> None:
+    def __init__(self, settings: Settings, topic: str, *, deferred: bool = False) -> None:
         self._settings = settings
         self._topic = topic
+        self._deferred = deferred
         # Expose an observed zero before the first failure. Otherwise a healthy
         # restarted consumer has no failure series and cannot be verified.
         DEAD_LETTER_EVENTS.labels("rabbitmq", topic, "handler_failed").inc(0)
@@ -184,27 +186,32 @@ class RabbitMQConsumer:
         for attempt in range(1, attempts + 1):
             try:
                 self._connection = await aio_pika.connect_robust(self._settings.rabbitmq_url)
-                self._channel = await self._connection.channel()
+                self._channel = await self._connection.channel(publisher_confirms=True, on_return_raises=True)
                 # Bound how many unacked messages the broker will push to this
                 # consumer at once. Without this, a channel drop mid-backlog can
                 # leave thousands of delivered-but-unacked messages that all fail
                 # to nack together (a single ExceptionGroup with one sub-exception
                 # per message), and total in-flight work per consumer is otherwise
                 # unbounded.
-                await self._channel.set_qos(prefetch_count=self._settings.rabbitmq_consumer_prefetch_count)
+                await self._channel.set_qos(prefetch_count=1 if self._deferred else self._settings.rabbitmq_consumer_prefetch_count)
                 self._exchange = await self._channel.declare_exchange(
                     self._settings.rabbitmq_exchange,
                     ExchangeType.TOPIC,
                     durable=True,
                 )
-                queue_name = f"{self._settings.rabbitmq_queue_prefix}.{self._settings.service_name}.{self._topic}"
+                base_queue_name = f"{self._settings.rabbitmq_queue_prefix}.{self._settings.service_name}.{self._topic}"
+                queue_name = base_queue_name + (".deferred" if self._deferred else "")
                 self._queue = await self._channel.declare_queue(queue_name, durable=True)
                 declaration = getattr(self._queue, "declaration_result", None)
                 if declaration is not None:
                     QUEUE_DEPTH.labels("rabbitmq", queue_name).set(float(getattr(declaration, "message_count", 0) or 0))
-                await self._queue.bind(self._exchange, routing_key=self._topic)
-                self._dlq_routing_key = f"{self._topic}{self._settings.rabbitmq_dlq_suffix}"
-                dlq_queue_name = f"{queue_name}.dlq"
+                if not self._deferred:
+                    await self._queue.bind(self._exchange, routing_key=self._topic)
+                # A topic can have several independent subscribers. A shared
+                # topic.dlq route would fan one subscriber's failure into all
+                # their dead-letter queues. Keep the durable queue name stable.
+                self._dlq_routing_key = f"{base_queue_name}.dlq"
+                dlq_queue_name = f"{base_queue_name}.dlq"
                 dlq_queue = await self._channel.declare_queue(dlq_queue_name, durable=True)
                 await dlq_queue.bind(self._exchange, routing_key=self._dlq_routing_key)
                 logger.info(
@@ -260,6 +267,28 @@ class RabbitMQConsumer:
                             yield payload
 
 
+async def _quarantine_invalid_message(consumer: RabbitMQConsumer, message: Any, reason: str) -> None:
+    """Acknowledge malformed input only after its exact bytes are durably quarantined."""
+    try:
+        if consumer._exchange is None or not consumer._dlq_routing_key:
+            raise RuntimeError("dead-letter exchange is unavailable")
+        envelope = {
+            "failed_topic": consumer._topic, "error": reason,
+            "raw_body_base64": base64.b64encode(message.body).decode("ascii"),
+            "failed_at": datetime.now(timezone.utc).isoformat(),
+        }
+        await asyncio.wait_for(consumer._exchange.publish(
+            Message(json.dumps(envelope).encode("utf-8"), content_type="application/json",
+                    delivery_mode=DeliveryMode.PERSISTENT, type=consumer._dlq_routing_key, app_id="kaiops"),
+            routing_key=consumer._dlq_routing_key,
+        ), timeout=_PUBLISH_TIMEOUT_SECONDS)
+    except Exception:
+        await message.nack(requeue=True)
+        return
+    DEAD_LETTER_EVENTS.labels("rabbitmq", consumer._topic, reason).inc()
+    await message.ack()
+
+
 async def consume_forever(
     consumer: RabbitMQConsumer,
     handler: Callable[[dict[str, Any]], Awaitable[None]],
@@ -279,12 +308,12 @@ async def consume_forever(
                         decoded = json.loads(message.body.decode("utf-8"))
                     except (UnicodeDecodeError, json.JSONDecodeError):
                         logger.warning("failed to decode rabbitmq message", extra={"topic": consumer._topic})
-                        await message.ack()
+                        await _quarantine_invalid_message(consumer, message, "decode_failed")
                         continue
 
                     payload = decoded.get("payload") if isinstance(decoded, dict) else None
                     if not isinstance(payload, dict):
-                        await message.ack()
+                        await _quarantine_invalid_message(consumer, message, "invalid_payload")
                         continue
 
                     identity = extract_message_identity(payload)
@@ -373,12 +402,18 @@ async def consume_forever(
                                     # read back through a normal successful
                                     # request and display to an operator, so
                                     # it gets the sanitized text instead.
-                                    await failure_handler(payload, sanitize_handler_failure_text(last_error))
+                                    await asyncio.wait_for(
+                                        failure_handler(payload, sanitize_handler_failure_text(last_error)),
+                                        timeout=_PUBLISH_TIMEOUT_SECONDS,
+                                    )
                                 except Exception:
                                     logger.exception(
                                         "failed to persist rabbitmq terminal handler state",
                                         extra={"topic": consumer._topic, "message_identity": identity},
                                     )
+                                    # Preserve the delivery if its terminal state was not
+                                    # persisted; a later retry can repair the handoff.
+                                    raise
                             envelope = {
                                 "failed_topic": consumer._topic,
                                 "payload": payload,
@@ -386,7 +421,7 @@ async def consume_forever(
                                 "attempts": attempts,
                                 "failed_at": datetime.now(timezone.utc).isoformat(),
                             }
-                            await consumer._exchange.publish(
+                            await asyncio.wait_for(consumer._exchange.publish(
                                 Message(
                                     json.dumps(envelope, default=str).encode("utf-8"),
                                     content_type="application/json",
@@ -395,7 +430,7 @@ async def consume_forever(
                                     app_id="kaiops",
                                 ),
                                 routing_key=consumer._dlq_routing_key,
-                            )
+                            ), timeout=_PUBLISH_TIMEOUT_SECONDS)
                             processed_cache.mark(identity)
                             dlq_published = True
                             DEAD_LETTER_EVENTS.labels("rabbitmq", consumer._topic, "handler_failed").inc()

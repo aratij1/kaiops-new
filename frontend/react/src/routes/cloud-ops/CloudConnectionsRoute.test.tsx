@@ -1,8 +1,14 @@
 // @vitest-environment jsdom
 
 import "@testing-library/jest-dom/vitest";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render as renderView, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { MemoryRouter } from "react-router-dom";
+import type { ReactElement } from "react";
+const render = (ui: ReactElement) => renderView(ui, { wrapper: MemoryRouter });
+const runtime = vi.hoisted(() => ({ selectedProject: "demo-project" }));
+vi.mock("../../app/routeRuntime", () => ({ useRouteRuntimeSlice: () => runtime }));
 
 import CloudConnectionsRoute from "./CloudConnectionsRoute";
 import * as cloudApi from "./cloudOpsApi";
@@ -43,6 +49,7 @@ function deferred<T>() {
 
 describe("CloudConnectionsRoute project isolation", () => {
   beforeEach(() => {
+    runtime.selectedProject = "demo-project";
     vi.useFakeTimers();
     vi.mocked(cloudApi.listConnections).mockReset();
     vi.mocked(cloudApi.validateConnection).mockReset().mockResolvedValue({ status: "ready", checks: [], warnings: [], errors: [] });
@@ -61,11 +68,13 @@ describe("CloudConnectionsRoute project isolation", () => {
       .mockReturnValueOnce(first.promise)
       .mockReturnValueOnce(second.promise);
 
-    render(<CloudConnectionsRoute />);
+    const view = render(<CloudConnectionsRoute />);
     await act(async () => { vi.advanceTimersByTime(250); });
     const firstSignal = vi.mocked(cloudApi.listConnections).mock.calls[0][2];
 
-    fireEvent.change(screen.getByLabelText("Project ID"), { target: { value: " project-b " } });
+    expect(screen.getByLabelText("Project ID")).toHaveAttribute("readonly");
+    runtime.selectedProject = " project-b ";
+    view.rerender(<CloudConnectionsRoute />);
     expect(firstSignal?.aborted).toBe(true);
     await act(async () => { vi.advanceTimersByTime(250); });
 

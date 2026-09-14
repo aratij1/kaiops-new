@@ -824,3 +824,31 @@ async def test_rca_reservations_survive_sessions_and_do_not_reuse_unfinished_ver
         assert await repo.reserve_incident_rca_version(tenant_id="tenant-a", incident_id=iid, recommendation_id=first) == 1
         with pytest.raises(ValueError, match="existing scoped incident"):
             await repo.reserve_incident_rca_version(tenant_id="other", incident_id=iid, recommendation_id=uuid4())
+
+
+@pytest.mark.asyncio
+async def test_compact_projection_does_not_load_source_or_workflow_documents(sqlite_session_factory):
+    from common.database import PendingWorkflowRecord
+    from sqlalchemy import event
+    iid, aid, rid = uuid4(), uuid4(), uuid4()
+    async with sqlite_session_factory() as session:
+        session.add(AlertRecord(id=aid, tenant_id="compact", source="prometheus", name="Latency", service="api",
+            environment="prod", severity="high", payload={"project_id": "kaims", "evidence": "x" * 100000}))
+        session.add(IncidentProjectionRecord(incident_id=iid, alert_id=aid, tenant_id="compact", service="api",
+            environment="prod", severity="high", status="investigating", first_seen_at=datetime.now(UTC), projection_payload={}))
+        session.add(PendingWorkflowRecord(incident_id=iid, recommendation_id=rid, flow_id="flow-1", payload={"evidence": "x" * 100000}))
+        await session.commit()
+    async with sqlite_session_factory() as session:
+        statements = []
+        engine = session.bind.sync_engine
+        def capture(conn, cursor, statement, parameters, context, many): statements.append(statement)
+        event.listen(engine, "before_cursor_execute", capture)
+        try:
+            rows = await IncidentRepository(session).list_incident_projections(tenant_id="compact", include_enrichment=False)
+        finally:
+            event.remove(engine, "before_cursor_execute", capture)
+        assert rows[0]["flow_id"] == "flow-1"
+        assert rows[0]["title"] == "Latency"
+        assert rows[0]["alert_id"] == str(aid)
+        assert rows[0]["source_alert"] == {}
+        assert all("alerts.payload" not in sql and "pending_workflows.payload" not in sql for sql in statements)

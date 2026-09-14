@@ -4138,13 +4138,23 @@ def _build_alert_from_payload(payload: dict[str, Any], trace_id: str | None = No
 
 
 async def _publish_ingested_alert(alert: Alert, *, topic: str = RAW_ALERTS) -> None:
-    payload = _build_raw_alert_event_payload(alert)
-    started = perf_counter()
-    await app.state.producer.publish(topic, payload, key=alert.service)
-    EVENT_PUBLISH_LATENCY.labels(settings.service_name, topic, "monitoring-adapter").observe(
-        max(0.0, perf_counter() - started)
-    )
-    EVENT_CONTRACTS_EMITTED.labels(settings.service_name, topic, "monitoring-adapter", "v1").inc()
+    if alert.severity.value == "warning":
+        alert.labels = {**alert.labels, "pipeline_outcome": "live_alert_only", "pipeline_reason": "Warning severity does not start investigation"}
+        factory = getattr(app.state, "session_factory", None)
+        if settings.database_enabled:
+            if factory is None:
+                raise RuntimeError("Cannot retain warning alert without database storage")
+            async with factory() as session:
+                await IncidentRepository(session).save_alert(alert)
+                await session.commit()
+    else:
+        payload = _build_raw_alert_event_payload(alert)
+        started = perf_counter()
+        await app.state.producer.publish(topic, payload, key=alert.service)
+        EVENT_PUBLISH_LATENCY.labels(settings.service_name, topic, "monitoring-adapter").observe(
+            max(0.0, perf_counter() - started)
+        )
+        EVENT_CONTRACTS_EMITTED.labels(settings.service_name, topic, "monitoring-adapter", "v1").inc()
     RECENT_ALERTS.appendleft(
         {
             "id": str(alert.id),

@@ -201,8 +201,8 @@ def test_local_evidence_log_matches_are_accepted_as_log_evidence() -> None:
     payload = {
         "code_matches": [],
         "log_matches": [{
-            "kind": "log", "source": "log", "path": "/data/landing/api-gateway.log",
-            "line": 7, "language": "log", "uri": "log:///data/landing/api-gateway.log#L7",
+            "kind": "log", "source": "log", "path": "/data/runtime/api-gateway.log",
+            "line": 7, "language": "log", "uri": "log:///data/runtime/api-gateway.log#L7",
             "snippet": "    7 | ERROR timeout calling downstream", "matched_line": "ERROR timeout calling downstream",
             "message": "ERROR timeout calling downstream", "matched_terms": ["api-gateway"],
             "evidence_id": "LOG-def456",
@@ -216,7 +216,7 @@ def test_local_evidence_log_matches_are_accepted_as_log_evidence() -> None:
 
     assert result.rejected == []
     assert len(result.records) == 1
-    assert result.records[0].source_reference == "log:///data/landing/api-gateway.log#L7"
+    assert result.records[0].source_reference == "log:///data/runtime/api-gateway.log#L7"
 
 
 def test_rca_domain_gap_aliases_create_executable_canonical_requirements() -> None:
@@ -230,3 +230,31 @@ def test_rca_domain_gap_aliases_create_executable_canonical_requirements() -> No
         ("topology", ["discovery-mcp", "vector-db", "cmdb", "kubernetes", "local-evidence"]),
         ("runbook", ["vector-db", "discovery-mcp", "local-evidence"]),
     ]
+
+
+def test_computed_prometheus_result_retains_query_without_inventing_metric_name():
+    incident = Incident(tenant_id="tenant-a", service="api-gateway", title="latency")
+    payload = {"endpoint": "prometheus:9090", "query": "sum(rate(requests_total[5m]))", "series": [{"metric": {}, "value": [1724679030, "3.2"]}]}
+    result = normalize_connector_response(raw_response=payload, requirement=_requirement(incident), incident=incident, connector="prometheus", collected_at=datetime.now(UTC))
+    assert not result.rejected
+    assert result.records[0].content["metric_name"] is None
+    assert result.records[0].content["series_kind"] == "query_result"
+    assert result.records[0].content["expression"] == payload["query"]
+    assert result.records[0].content["samples"][0]["value"] == "3.2"
+    payload.pop("query")
+    invalid = normalize_connector_response(raw_response=payload, requirement=_requirement(incident), incident=incident, connector="prometheus", collected_at=datetime.now(UTC))
+    assert not invalid.records
+    assert invalid.rejected[0]["code"] == "PROMETHEUS_SERIES_INCOMPLETE"
+
+
+def test_discovery_log_snippet_retains_real_source_uri():
+    incident = Incident(tenant_id="tenant-a", service="api-gateway", title="errors")
+    payload = {"records": [{"snippet": "upstream connection refused", "source_uri": "opensearch://logs/doc-123", "timestamp": "2024-08-26T13:30:30Z"}]}
+    result = normalize_connector_response(raw_response=payload, requirement=_requirement(incident, "logs"), incident=incident, connector="discovery-mcp", collected_at=datetime.now(UTC))
+    assert not result.rejected
+    assert result.records[0].source_reference == "opensearch://logs/doc-123"
+    assert result.records[0].content["message"] == "upstream connection refused"
+    payload["records"][0].pop("source_uri")
+    invalid = normalize_connector_response(raw_response=payload, requirement=_requirement(incident, "logs"), incident=incident, connector="discovery-mcp", collected_at=datetime.now(UTC))
+    assert not invalid.records
+    assert invalid.rejected[0]["code"] == "EVIDENCE_SOURCE_REFERENCE_MISSING"

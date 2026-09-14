@@ -33,3 +33,16 @@ scrape_configs:
           project: telemetry
           application: Telemetry
           environment: prod
+
+
+  # The other independent Prometheus detects our outage; detect its outage here.
+  - job_name: kaims-monitoring
+    scrape_interval: 15s
+    scrape_timeout: 5s
+    static_configs:
+      - targets: ["monitoring-prometheus-1:9090"]
+        labels:
+          project: kaims
+          application: KaiMS
+          service: prometheus
+          environment: prod

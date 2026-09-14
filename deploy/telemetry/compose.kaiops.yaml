@@ -71,19 +71,10 @@ services:
       - telemetry-otelcol-storage-v2:/var/lib/otelcol/storage
   opamp-server:
     container_name: telemetry-opamp-server
-  prometheus:
-    container_name: telemetry-prometheus
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    ports: !override
-      - "19090:9090"
-    volumes: !override
-      - ../../../deploy/telemetry/prometheus-kaiops.yaml:/etc/prometheus/prometheus-config.yaml:ro
-      - ../../../deploy/telemetry/telemetry-alerts.yml:/etc/prometheus/telemetry-alerts.yml:ro
   jaeger:
     container_name: telemetry-jaeger
     ports: !override
-      - "16686:16686"
+      - "26686:16686"
   opensearch:
     container_name: telemetry-opensearch
     ports: !override
@@ -95,3 +86,8 @@ services:
 
 volumes:
   telemetry-otelcol-storage-v2:
+
+networks:
+  default:
+    external: true
+    name: opentelemetry-demo

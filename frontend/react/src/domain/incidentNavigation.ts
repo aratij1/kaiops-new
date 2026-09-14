@@ -6,7 +6,8 @@ export type IncidentIdentitySource = {
 
 export function durableIncidentId(source: IncidentIdentitySource | null | undefined): string {
   const projection = source?.incident_projection;
-  return String(source?.incident_id ?? projection?.incident_id ?? projection?.id ?? source?.id ?? "").trim();
+  return [source?.incident_id, projection?.incident_id, projection?.id, source?.id]
+    .map((value) => String(value ?? "").trim()).find(Boolean) || "";
 }
 
 export function durableIncidentPath(source: IncidentIdentitySource | null | undefined): string | null {

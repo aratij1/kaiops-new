@@ -118,9 +118,7 @@ export function KaiOperationsShell({
   currentPath,
   role,
   onNavigate,
-  projects,
   project,
-  onProjectChange,
   environment,
   health,
   aiCapability,
@@ -223,7 +221,7 @@ export function KaiOperationsShell({
         <header className="kai-operations-bar">
           <button className="kai-mobile-menu" type="button" aria-label="Open navigation" onClick={() => setMobileNavigationOpen(true)}><Menu /></button>
           <div className="kai-context-selectors">
-            <label><span>Project</span><select value={project} onChange={(event) => onProjectChange(event.target.value)}>{projects.map((name) => <option value={name} key={name}>{name}</option>)}</select><ChevronDown aria-hidden="true" /></label>
+            <span className="kai-environment"><small>Project</small><strong>{project || "No project selected"}</strong></span>
             <span className={`kai-environment ${["prod", "production"].includes(environment.toLowerCase()) ? "is-production" : ""}`}><small>Environment</small><strong>{humanize(environment, "Unknown")}</strong></span>
           </div>
 

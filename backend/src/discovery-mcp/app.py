@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common.evidence_source_policy import is_alert_artifact_reference, log_observed_at
+
 import aiomysql
 import asyncio
 import csv
@@ -287,6 +289,9 @@ def _evidence(kind: str, path: Path, line: int, snippet: str, matched: list[str]
         "sha256": hashlib.sha256(safe_snippet.encode()).hexdigest(),
     }
     if kind == "log":
+        observed = log_observed_at(snippet)
+        if observed:
+            evidence["observed_at"] = observed
         evidence["diagnostic_signals"] = [
             signal for signal, pattern in LOG_SIGNAL_PATTERNS if pattern.search(safe_snippet)
         ]
@@ -359,7 +364,7 @@ async def _search_docker_logs(arguments: dict[str, Any], terms: list[str], limit
     if not docker_host:
         return []
     service = str(arguments.get("service") or "").strip().lower()
-    project = str(arguments.get("project") or arguments.get("application") or "").strip().lower()
+    project = _runtime_project_scope(arguments)
     max_containers = max(1, min(int(os.getenv("DOCKER_LOG_DISCOVERY_MAX_CONTAINERS", "40")), 100))
     tail = max(20, min(int(os.getenv("DOCKER_LOG_DISCOVERY_TAIL", "250")), 2000))
     timeout = httpx.Timeout(max(2.0, min(float(os.getenv("DOCKER_LOG_DISCOVERY_TIMEOUT_SECONDS", "10")), 30.0)))
@@ -376,7 +381,10 @@ async def _search_docker_logs(arguments: dict[str, Any], terms: list[str], limit
             continue
     try:
         async with httpx.AsyncClient(base_url=f"http://{docker_host}", timeout=timeout) as client:
-            response = await client.get("/containers/json", params={"all": "true", "limit": str(max_containers)})
+            project_id, project_entry = _project_for(arguments)
+            response = await client.get("/containers/json", params=_docker_container_list_params(
+                service, platform_wide=_is_platform_wide_target(service, project_id, project_entry), limit=max_containers,
+            ))
             response.raise_for_status()
             containers = response.json()
             for container in containers[:max_containers]:
@@ -459,6 +467,8 @@ def _search_text_files(
                 if scanned >= root_budget:
                     break
                 path = Path(current) / filename
+                if kind == "log" and is_alert_artifact_reference(path):
+                    continue
                 if path.suffix.lower() not in suffixes:
                     continue
                 scanned += 1
@@ -918,7 +928,7 @@ async def _search_telemetry(arguments: dict[str, Any]) -> dict[str, Any]:
 
     async with httpx.AsyncClient(timeout=timeout, trust_env=False) as client:
         prometheus_url = str(telemetry.get("prometheus_url") or "").rstrip("/")
-        if prometheus_url:
+        if prometheus_url and arguments.get("evidence_category") in (None, "", "metrics"):
             if metric_service:
                 # OTel-instrumented services label series "service_name";
                 # this platform's own Prometheus-native metrics (fault-lab,
@@ -926,24 +936,50 @@ async def _search_telemetry(arguments: dict[str, Any]) -> dict[str, Any]:
                 # the OTel convention silently returned zero evidence for
                 # every non-OTel service, which is most of them.
                 literal = metric_service.replace("\\", "\\\\").replace('"', '\\"')
-                query = f'{{service="{literal}"}} or {{service_name="{literal}"}}'
+                query = f'{{service="{literal}"}} or {{service_name="{literal}"}} or {{job="{literal}"}}'
             else:
                 query = "up"
             try:
-                response = await client.get(f"{prometheus_url}/api/v1/query", params={"query": query})
+                params = {"query": query}
+                query_path = "query"
+                if start_time or end_time:
+                    # Invalid historical windows must not silently query the present.
+                    start = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+                    end = datetime.fromisoformat(end_time.replace("Z", "+00:00"))
+                    if start.tzinfo is None or end.tzinfo is None or end <= start:
+                        raise ValueError("INVALID_OBSERVATION_WINDOW")
+                    params.update({"start": start.timestamp(), "end": end.timestamp(),
+                                   "step": max(15, int((end - start).total_seconds() / 240))})
+                    query_path = "query_range"
+                response = await client.get(f"{prometheus_url}/api/v1/{query_path}", params=params)
                 response.raise_for_status()
-                results = response.json().get("data", {}).get("result", [])
-                for index, row in enumerate(results[:limit], 1):
+                payload = response.json()
+                if payload.get("status") == "error":
+                    raise ValueError(str(payload.get("error") or "PROMETHEUS_QUERY_FAILED"))
+                results = payload.get("data", {}).get("result", [])
+                metric_results = [row for row in results if isinstance(row, dict)
+                                  and (row.get("metric") or {}).get("__name__") not in {"ALERTS", "ALERTS_FOR_STATE"}]
+                for index, row in enumerate(metric_results[:limit], 1):
                     snippet = json.dumps(row, ensure_ascii=False, default=str)[:700]
                     item = _evidence("metric", Path(f"{project_id or 'telemetry'}/prometheus"), index, snippet, terms)
                     item["uri"] = f"prometheus://{project_id or 'telemetry'}?query={query}"
+                    # Preserve samples for evidence admission; snippets are display text only.
+                    item.update({key: row[key] for key in ("metric", "value", "values") if key in row})
+                    item.update({"query": query, "endpoint": prometheus_url, "service": service,
+                                 "observation_window_start": start_time or None,
+                                 "observation_window_end": end_time or None})
+                    samples = row.get("values") or ([row["value"]] if row.get("value") else [])
+                    try:
+                        item["observed_at"] = datetime.fromtimestamp(max(float(sample[0]) for sample in samples), tz=UTC).isoformat()
+                    except (TypeError, ValueError, IndexError, OverflowError, OSError):
+                        pass  # Missing source timestamps remain unknown to the evidence compiler.
                     evidence.append(item)
                 sources.append({"source": "prometheus", "status": "completed", "result_count": len(results)})
             except Exception as exc:
                 sources.append({"source": "prometheus", "status": "unavailable", "error": str(exc)[:240]})
 
         jaeger_url = str(telemetry.get("jaeger_url") or "").rstrip("/")
-        if jaeger_url:
+        if jaeger_url and arguments.get("evidence_category") in (None, "", "traces"):
             try:
                 trace_not_found = False
                 bound_trace_fallback = False
@@ -1057,7 +1093,7 @@ async def _search_telemetry(arguments: dict[str, Any]) -> dict[str, Any]:
 
         opensearch_url = str(telemetry.get("opensearch_url") or "").rstrip("/")
         opensearch_index = str(telemetry.get("opensearch_index") or "otel-*").strip()
-        if opensearch_url:
+        if opensearch_url and arguments.get("evidence_category") in (None, "", "logs"):
             must: list[dict[str, Any]] = []
             if service:
                 must.append(
@@ -1107,8 +1143,18 @@ async def _search_telemetry(arguments: dict[str, Any]) -> dict[str, Any]:
         source.get("source") == "jaeger" and source.get("status") == "not_found"
         for source in sources
     )
+    failed_sources = [source for source in sources if source.get("status") == "unavailable"]
+    provider_failed = not evidence and bool(failed_sources)
+    metric_request = arguments.get("evidence_category") == "metrics"
+    evidence_gap = (
+        "PROMETHEUS_SOURCE_UNAVAILABLE" if metric_request and provider_failed
+        else "METRIC_SERIES_NOT_FOUND_IN_WINDOW" if metric_request and not evidence and start_time
+        else "TRACE_NOT_FOUND_OR_EXPIRED" if trace_id and trace_not_found else ""
+    )
     return {
         "tool": "telemetry.search",
+        "provider_status": "failed" if provider_failed else "completed",
+        "provider_error": "; ".join(str(source.get("error") or "") for source in failed_sources)[:500] or None,
         "project": project_id,
         "query_terms": terms,
         "service": service,
@@ -1125,13 +1171,13 @@ async def _search_telemetry(arguments: dict[str, Any]) -> dict[str, Any]:
         # even when Jaeger/OpenSearch genuinely had matches.
         "evidence": evidence,
         "sources": sources,
-        "evidence_gap": "TRACE_NOT_FOUND_OR_EXPIRED" if trace_id and trace_not_found else "",
+        "evidence_gap": evidence_gap,
         "correlation_keys": project.get("correlation_keys", []),
     }
 
 
 async def _search_traces(arguments: dict[str, Any]) -> dict[str, Any]:
-    result = await _search_telemetry(arguments)
+    result = await _search_telemetry({**arguments, "evidence_category": "traces"})
     evidence = [row for row in result.get("evidence", []) if str(row.get("source") or "").lower() == "trace"]
     return {**result, "tool": "traces.search", "result_count": len(evidence), "evidence": evidence}
 
@@ -1154,6 +1200,26 @@ def _search_changes(arguments: dict[str, Any]) -> dict[str, Any]:
             pass
         row["change_evidence_kind"] = "configuration_or_deployment_artifact"
     return {"tool": "changes.search", "query_terms": terms, "result_count": len(rows), "evidence": rows}
+
+
+def _runtime_project_scope(arguments: dict[str, Any]) -> str:
+    # Ingestion uses placeholders when application attribution is missing.
+    # They are not Docker project names and must not suppress an explicitly
+    # targeted service. Preserve real project constraints.
+    for key in ("project", "application"):
+        value = str(arguments.get(key) or "").strip().lower()
+        if value not in {"", "unassigned", "unknown", "none", "null", "n/a"}:
+            return value
+    return ""
+
+
+def _docker_container_list_params(service: str, *, platform_wide: bool = False, limit: int = 100) -> dict[str, str]:
+    params = {"all": "true", "limit": str(limit)}
+    if service and not platform_wide:
+        # Apply service scope before Docker's limit. Older containers otherwise
+        # disappear when more recently created unrelated containers fill the page.
+        params["filters"] = json.dumps({"name": [re.escape(service)]})
+    return params
 
 
 async def _container_deployment_events(arguments: dict[str, Any]) -> list[dict[str, Any]]:
@@ -1179,7 +1245,7 @@ async def _container_deployment_events(arguments: dict[str, Any]) -> list[dict[s
     if not docker_host:
         return []
     service = str(arguments.get("service") or "").strip().lower()
-    project = str(arguments.get("project") or arguments.get("application") or "").strip().lower()
+    project = _runtime_project_scope(arguments)
     project_id, project_entry = _project_for(arguments)
     platform_wide = _is_platform_wide_target(project, project_id, project_entry)
     service_platform_wide = _is_platform_wide_target(service, project_id, project_entry)
@@ -1188,7 +1254,7 @@ async def _container_deployment_events(arguments: dict[str, Any]) -> list[dict[s
         async with httpx.AsyncClient(
             base_url=f"http://{docker_host}", timeout=httpx.Timeout(8.0), trust_env=False
         ) as client:
-            response = await client.get("/containers/json", params={"all": "true", "limit": "100"})
+            response = await client.get("/containers/json", params=_docker_container_list_params(service, platform_wide=service_platform_wide))
             response.raise_for_status()
             containers = response.json()
         for container in containers:
@@ -1225,6 +1291,10 @@ async def _container_deployment_events(arguments: dict[str, Any]) -> list[dict[s
                 "observed_at": created_at.isoformat(),
                 "source_system": "deployment",
                 "change_evidence_kind": "container_deployment",
+                "deployment_id": str(container.get("Id") or ""),
+                "image": container.get("Image"),
+                "image_id": container.get("ImageID"),
+                "observation_scope": "container_creation",
             })
             events.append(row)
     except Exception:
@@ -1314,7 +1384,7 @@ async def _search_runtime_topology(arguments: dict[str, Any], *, health_only: bo
     # health" -- without a real related_to, that distinction could never
     # fire no matter which service was actually queried.
     related_to = str(arguments.get("related_to") or arguments.get("service") or "").strip().lower()
-    project = str(arguments.get("project") or arguments.get("application") or "").strip().lower()
+    project = _runtime_project_scope(arguments)
     project_id, project_entry = _project_for(arguments)
     # Requesting the platform project's own identity means "show the whole
     # runtime topology", since no single container is named after the
@@ -1339,7 +1409,7 @@ async def _search_runtime_topology(arguments: dict[str, Any], *, health_only: bo
         async with httpx.AsyncClient(
             base_url=f"http://{docker_host}", timeout=httpx.Timeout(8.0), trust_env=False
         ) as client:
-            response = await client.get("/containers/json", params={"all": "true", "limit": "100"})
+            response = await client.get("/containers/json", params=_docker_container_list_params(service, platform_wide=service_platform_wide))
             response.raise_for_status()
             containers = response.json()
         for index, container in enumerate(containers, 1):
@@ -1485,7 +1555,7 @@ async def _search_resource_saturation(arguments: dict[str, Any]) -> dict[str, An
     if not docker_host:
         return {"tool": tool_name, "result_count": 0, "evidence": [], "provider_status": "unavailable"}
     service = str(arguments.get("service") or "").strip().lower()
-    project = str(arguments.get("project") or arguments.get("application") or "").strip().lower()
+    project = _runtime_project_scope(arguments)
     project_id, project_entry = _project_for(arguments)
     platform_wide = _is_platform_wide_target(project, project_id, project_entry)
     service_platform_wide = _is_platform_wide_target(service, project_id, project_entry)
@@ -1495,7 +1565,7 @@ async def _search_resource_saturation(arguments: dict[str, Any]) -> dict[str, An
         async with httpx.AsyncClient(
             base_url=f"http://{docker_host}", timeout=httpx.Timeout(8.0), trust_env=False
         ) as client:
-            response = await client.get("/containers/json", params={"all": "true", "limit": "100"})
+            response = await client.get("/containers/json", params=_docker_container_list_params(service, platform_wide=service_platform_wide))
             response.raise_for_status()
             containers = response.json()
             matched: list[dict[str, Any]] = []
@@ -1683,7 +1753,7 @@ async def _call_logs_tool(arguments: dict[str, Any]) -> dict[str, Any]:
     file_rows, docker_rows = await asyncio.gather(
         asyncio.to_thread(
             _search_text_files,
-            _roots("DISCOVERY_MCP_LOG_ROOTS", "/data/fault-lab/runtime,/data/landing"),
+            _roots("DISCOVERY_MCP_LOG_ROOTS", "/data/fault-lab/runtime"),
             LOG_SUFFIXES,
             terms,
             "log",

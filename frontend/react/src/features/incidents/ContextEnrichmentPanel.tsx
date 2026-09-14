@@ -13,7 +13,7 @@ type OperationsState = {
   investigation?: { rca_version?: number; snapshot_id?: string | null };
   investigation_workspace?: {
     binding?: { snapshot_id?: string | null; snapshot_version?: number; rca_version?: number };
-    rca?: { resolved_evidence_ids?: string[]; traceable_citation_count?: number; unresolved_evidence_ids?: string[] };
+    rca?: { status?: string; grounded?: boolean; grounding_notes?: string; resolved_evidence_ids?: string[]; traceable_citation_count?: number; unresolved_evidence_ids?: string[] };
     evidence?: Array<{ evidence_id?: string; accepted_for_rca?: boolean; citation?: string }>;
     evidence_summary?: { latest_context_records?: number; bound_snapshot_records?: number; rca_bound_records?: number; traceable_citations?: number; unresolved_bindings?: number };
   };
@@ -21,6 +21,13 @@ type OperationsState = {
 };
 
 const TERMINAL_STATES = new Set(["CLOSED"]);
+
+function requirementStatus(item: Requirement) {
+  if (["collected", "answered", "satisfied"].includes(item.status.toLowerCase())) return item.status;
+  if (item.active_human_request?.status === "pending" || item.status === "human_requested") return "waiting for human evidence";
+  return (item.active_human_request?.status || item.status || item.latest_job?.status || "unknown").replaceAll("_", " ");
+}
+
 
 function friendlyFailure(error: unknown) {
   const message = String((error as Error)?.message || error || "");
@@ -37,7 +44,7 @@ function lifecycleLabel(state: string, evidenceCount = 0) {
 }
 
 function actionableFailure(item: Requirement) {
-  if (item.latest_job?.last_error === "TRACE_NOT_FOUND_OR_EXPIRED") return "The incident's bound trace is no longer available in Jaeger. Provide an archived trace or another verified causal source.";
+  if (item.latest_job?.last_error === "TRACE_NOT_FOUND_OR_EXPIRED") return "No matching trace was retrieved. The collector cannot distinguish an absent trace from an expired one. Confirm that a trace source exists for this service, or provide another verified diagnostic source.";
   if (item.latest_job?.last_error === "NO_MATCHING_APPROVED_EVIDENCE") return item.category === "runbook"
     ? "No approved runbook matched this incident. Review and approve a governed runbook, or provide a verified source."
     : "No approved evidence matched this requirement. Provide a verified source or review the governed knowledge corpus.";
@@ -207,7 +214,7 @@ export default function ContextEnrichmentPanel({ incidentId, alertId, accessToke
   const card = (item: Requirement, historical = false) => {
     const request = item.active_human_request; const job = item.latest_job;
     const complete = ["collected", "answered", "satisfied"].includes(item.status.toLowerCase());
-    const status = job?.status || request?.status || item.status; const failure = actionableFailure(item);
+    const status = requirementStatus(item); const failure = actionableFailure(item);
     const recordedAt = item.updated_at || item.created_at;
     return <article key={item.requirement_id} className={historical ? "is-historical" : undefined}>
       <div className="context-enrichment-item-heading">
@@ -224,16 +231,22 @@ export default function ContextEnrichmentPanel({ incidentId, alertId, accessToke
         </dl>
       </div>
       {job ? <small>Latest attempt {job.attempt_count || job.attempt || 1} · connector {job.connector_id} · {job.status.replaceAll("_", " ")}</small> : null}
-      {item.evidence_ids?.length ? <small className="context-enrichment-evidence">Accepted evidence ({item.evidence_ids.length}): {item.evidence_ids.join(", ")}</small> : null}
+      {item.evidence_ids?.length ? <details className="context-enrichment-evidence">
+        <summary>Collected evidence ({item.evidence_ids.length})</summary>
+        <p>Collection confirms records were retrieved. It does not establish the cause or satisfy execution approval.</p>
+        <ul className="context-enrichment-evidence-list" aria-label="Collected evidence references">
+          {item.evidence_ids.map((id, index) => <li key={`${index}:${id}`}>{id}</li>)}
+        </ul>
+      </details> : null}
       {failure ? <p className="context-enrichment-action" role="status">{failure}</p> : null}
-      {!historical && !complete && !job ? <p className="context-enrichment-action" role="status">KaiMS is searching the available MCP and governed knowledge sources. You can provide a verified observation below while discovery continues.</p> : null}
+      {!historical && !complete && !job ? <p className="context-enrichment-action" role="status">No automated collection job is recorded for this requirement. A verified observation or a configured evidence source is needed.</p> : null}
       {!historical && !complete ? <details className="context-enrichment-response-shell" open={expandedRequirements.has(item.requirement_id)} onToggle={(event) => {
         const open = event.currentTarget.open;
         setExpandedRequirements((values) => { const next = new Set(values); if (open) next.add(item.requirement_id); else next.delete(item.requirement_id); return next; });
       }}>
         <summary><span>{request?.status === "assignment_blocked" ? "Provide evidence yourself" : "Review and provide evidence"}</span><small>{expandedRequirements.has(item.requirement_id) ? "Hide form" : "Open form"}</small></summary>
         <div className="context-enrichment-response">
-        <small>{request?.status === "assignment_blocked" ? "Automated sources returned no attributable evidence and assignment failed. An authorized operator can provide the minimum verified observation here." : request ? `Assigned to ${request.expected_responder || "an authorized responder"}${request.due_at ? ` · due ${formatUtcTimestamp(request.due_at)}` : ""}` : "Automated discovery is still running. A verified user response may be submitted at any time."}</small>
+        <small>{request?.status === "assignment_blocked" ? "Human evidence assignment is blocked. An authorized operator can provide a verified observation here." : request ? `Assigned to ${request.expected_responder || "an authorized responder"}${request.due_at ? ` · due ${formatUtcTimestamp(request.due_at)}` : ""}` : "A verified user response may be submitted here. Collection progress is shown only when a job is recorded."}</small>
         <div className="context-enrichment-ai-draft"><div><strong>AI-generated editable draft</strong><p>KaiMS prepared this from the current incident and RCA. Update it with verified facts and cite their source.</p></div></div>
         <textarea data-requirement-response={item.requirement_id} aria-label={`Response for ${item.category}`} value={answers[item.requirement_id] || ""} onChange={(event) => setAnswers((value) => ({ ...value, [item.requirement_id]: event.target.value }))} placeholder="State the verified factual observation. Remove any AI claim you could not confirm." />
         <input aria-label={`Source reference for ${item.category}`} value={references[item.requirement_id] || ""} onChange={(event) => setReferences((value) => ({ ...value, [item.requirement_id]: event.target.value }))} placeholder="Source reference (ticket, dashboard, or catalog URL)" />
@@ -245,8 +258,9 @@ export default function ContextEnrichmentPanel({ incidentId, alertId, accessToke
 
   return <section ref={panelRef} className="context-enrichment-panel" aria-labelledby="context-enrichment-title">
     <div className="sr-only" aria-live="polite">{announcement}</div>
-    <header><div><span className="discovery-eyebrow">Missing evidence</span><h3 id="context-enrichment-title">Automated evidence collection</h3><p>KaiMS searches fresh telemetry, traces, topology, changes, and governed knowledge first. Add a verified observation only when automation cannot establish the fact.</p></div><button ref={refreshButtonRef} type="button" className="button-secondary" onClick={() => void load(true)} disabled={loading}><RefreshCw size={15} className={loading ? "is-spinning" : ""} /> Reload status</button></header>
+    <header><div><span className="discovery-eyebrow">Missing evidence</span><h3 id="context-enrichment-title">Automated evidence collection</h3><p>This section shows recorded collection attempts and outstanding requests. A request does not establish that its source exists or is accessible.</p></div><button ref={refreshButtonRef} type="button" className="button-secondary" onClick={() => void load(true)} disabled={loading}><RefreshCw size={15} className={loading ? "is-spinning" : ""} /> Reload status</button></header>
     {announcement ? <p className="context-enrichment-action" role="status">{announcement}</p> : null}
+    {state?.context?.snapshot_id && state?.investigation?.snapshot_id && state.context.snapshot_id !== state.investigation.snapshot_id ? <p className="context-enrichment-action" role="status">Newer context is available. The displayed RCA still uses an earlier evidence snapshot; collection alone does not update its conclusion.</p> : null}
     {state ? <section className="context-evidence-ledger" aria-labelledby="evidence-ledger-title">
       <div className="context-evidence-ledger-heading"><div><span>Evidence accounting</span><h4 id="evidence-ledger-title">Current RCA evidence funnel</h4></div><strong>{lifecycleLabel(state.lifecycle_state, latestContextCount)}</strong></div>
       <ol>
@@ -260,12 +274,12 @@ export default function ContextEnrichmentPanel({ incidentId, alertId, accessToke
     </section> : null}
     {error ? <p className="context-enrichment-error" role="alert"><CircleAlert size={17} />{error}</p> : null}
     {!alertId && declaredGaps.length ? <p className="context-enrichment-error" role="status"><CircleAlert size={17} />Canonical alert binding is missing. Backend orchestration will regenerate analysis after a governed snapshot is committed.</p> : null}
-    {!error && state && !current.length ? <p className="context-enrichment-empty">{declaredGaps.length ? "Evidence requirements have not been projected yet. KaiMS will continue monitoring this incident." : "No unresolved evidence gaps are declared."}</p> : null}
+    {!error && state && !current.length ? <p className="context-enrichment-empty">{declaredGaps.length ? "Evidence requirements have not been projected yet. KaiMS will continue monitoring this incident." : state.investigation_workspace?.rca?.grounded !== true ? "No active collection requests are published. This does not establish evidence sufficiency; review the RCA limitations and publish targeted evidence requirements." : "No unresolved evidence gaps are declared."}</p> : null}
     {current.length ? <section className="context-enrichment-current" aria-labelledby="current-evidence-title"><div className="context-enrichment-group-heading"><div><span>Active evidence work</span><h4 id="current-evidence-title">{rcaVersion ? `Current RCA · v${rcaVersion}` : "Current investigation"}</h4></div><small>{current.length} requirement{current.length === 1 ? "" : "s"}</small></div>
       <div className="context-enrichment-tabs" role="tablist" aria-label="Evidence collection tasks">{current.map((item) => <button key={item.requirement_id} type="button" role="tab" aria-selected={item.requirement_id === activeRequirementId} onClick={() => {
         setActiveRequirementId(item.requirement_id);
         setExpandedRequirements((values) => new Set([...values, item.requirement_id]));
-      }}><strong>{item.category.replaceAll("_", " ")}</strong><span>{(item.latest_job?.status || item.active_human_request?.status || item.status).replaceAll("_", " ")}</span></button>)}</div>
+      }}><strong>{item.category.replaceAll("_", " ")}</strong><span>{requirementStatus(item)}</span></button>)}</div>
       <div className="context-enrichment-list">{current.filter((item) => item.requirement_id === activeRequirementId).map((item) => card(item))}</div>
     </section> : null}
     {history.length ? <details className="context-enrichment-history"><summary>Previous RCA versions <span>{history.length} archived requirement{history.length === 1 ? "" : "s"}</span></summary><p>Retained for audit history. Responses can only be submitted against active backend-projected work.</p><div className="context-enrichment-list">{history.map((item) => card(item, true))}</div></details> : null}

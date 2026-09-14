@@ -143,6 +143,8 @@ scrape_configs:
           environment: public-internet
           external: "true"
           synthetic: "true"
+          # Intentional failure injection; never admit as a real incident.
+          event_mode: "simulation"
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target
@@ -284,6 +286,54 @@ scrape_configs:
           tenant_id: default
           environment: prod
           application: Robot Shop
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  - job_name: telemetry-application
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: ["http://host.docker.internal:18080/"]
+        labels:
+          project: telemetry
+          application: Telemetry
+          service: frontend-proxy
+          environment: prod
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  - job_name: telemetry-monitoring
+    static_configs:
+      - targets: ["telemetry-prometheus:9090"]
+        labels:
+          project: telemetry
+          application: Telemetry
+          service: telemetry-prometheus
+          environment: prod
+
+  # Query API availability is independent of application and collector health.
+  - job_name: telemetry-jaeger
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets: ["http://host.docker.internal:26686/jaeger/ui/api/services"]
+        labels:
+          project: telemetry
+          application: Telemetry
+          service: jaeger
+          environment: prod
     relabel_configs:
       - source_labels: [__address__]
         target_label: __param_target

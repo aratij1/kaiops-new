@@ -38,6 +38,7 @@ function Invoke-DockerCommand {
 }
 Push-Location $workspace
 try {
+    & (Join-Path $workspace "deploy/monitoring/start.ps1")
     $env:DOCKER_BUILDKIT = "1"
     $env:COMPOSE_BAKE = "false"
     $env:COMPOSE_PARALLEL_LIMIT = "1"
@@ -67,7 +68,7 @@ try {
     }
     $leanServices = @(
         "mysql", "temporal", "redis", "rabbitmq",
-        "mysql-exporter", "node-exporter", "blackbox-exporter", "alertmanager", "prometheus",
+        "mysql-exporter", "node-exporter",
         "monitoring-adapter", "monitoring-ingestion-worker", "application-onboarding", "connector-hub",
         "discovery-service", "metrics-validation-agent", "rule-generation-agent",
         "prometheus-config-service", "validation-agent", "dashboard-generator",

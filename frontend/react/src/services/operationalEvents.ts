@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { OperationalEventSchema, type OperationalEvent } from "../schemas/operationalEvents";
 
+export const OPERATIONAL_UPDATE_EVENT = "kaiops:operational-update";
+
 export type LiveConnectionState = "disabled" | "connecting" | "connected" | "reconnecting" | "paused";
 
 interface Options {
@@ -85,6 +87,7 @@ export function useOperationalEvents({ accessToken, paused, onEvent }: Options) 
               // broad `api` namespace repainted unrelated mounted workspaces.
               if (type === "alert.created") void queryClient.invalidateQueries({ queryKey: ["alerts"], exact: false });
               else void queryClient.invalidateQueries({ queryKey: [type.split(".", 1)[0]], exact: false });
+              window.dispatchEvent(new CustomEvent(OPERATIONAL_UPDATE_EVENT, { detail: { type: event.type } }));
               callback.current?.(event);
             }
           }

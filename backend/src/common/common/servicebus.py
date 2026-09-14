@@ -60,8 +60,7 @@ class AzureServiceBusProducer:
     async def publish(self, topic: str, event: Any, key: str | None = None) -> None:
         payload = normalize_payload(event)
         if self._client is None:
-            logger.info("azure service bus producer unavailable; event logged", extra={"topic": topic, "payload": payload})
-            return
+            raise RuntimeError("Azure Service Bus producer is not started; event was not delivered")
 
         full_topic = _full_topic_name(self._settings, topic)
         data = json.dumps(payload, default=str).encode("utf-8")

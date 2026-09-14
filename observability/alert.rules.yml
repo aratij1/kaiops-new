@@ -630,7 +630,7 @@ groups:
       - alert: KaiOpsSSEDisconnected
         expr: sum(kaiops_sse_connections) == 0
         for: 15m
-        labels: {severity: warning, component: sse, source_system: telemetry}
+        labels: {severity: warning, component: sse, source_system: telemetry, project: kaims, project_name: KaiMS, application: KaiMS, service: api-gateway, environment: prod}
         annotations:
           summary: "No KaiOps live-update clients are connected"
           description: "No authenticated SSE connection has been observed for 15 minutes; clients may be using polling fallback."
@@ -638,7 +638,7 @@ groups:
       - alert: KaiOpsDeadLettersIncreasing
         expr: sum(increase(kaiops_dead_letter_events_total[10m])) > 0
         for: 2m
-        labels: {severity: critical, component: message-bus, source_system: telemetry}
+        labels: {severity: critical, component: message-bus, source_system: telemetry, project: kaims, project_name: KaiMS, application: KaiMS, service: rabbitmq, environment: prod}
         annotations:
           summary: "KaiOps events are entering dead-letter queues"
           description: "{{ $value }} events entered a dead-letter path in the last ten minutes."
@@ -646,7 +646,7 @@ groups:
       - alert: KaiOpsWorkflowFailures
         expr: sum(increase(kaiops_workflow_failures_total[10m])) > 0
         for: 2m
-        labels: {severity: critical, component: workflow, source_system: telemetry}
+        labels: {severity: critical, component: workflow, source_system: telemetry, project: kaims, project_name: KaiMS, application: KaiMS, service: temporal-pilot-worker, environment: prod}
         annotations:
           summary: "KaiOps durable workflow activity failures detected"
           description: "{{ $value }} workflow activity failures occurred in the last ten minutes."
@@ -654,7 +654,7 @@ groups:
       - alert: KaiOpsMySQLP95LatencyHigh
         expr: histogram_quantile(0.95, sum(rate(kaiops_mysql_query_latency_seconds_bucket[5m])) by (le)) > 1
         for: 10m
-        labels: {severity: warning, component: mysql, source_system: telemetry}
+        labels: {severity: warning, component: mysql, source_system: telemetry, project: kaims, project_name: KaiMS, application: KaiMS, service: mysql, environment: prod}
         annotations:
           summary: "KaiOps MySQL p95 query latency is high"
           description: "MySQL p95 query latency has exceeded one second for ten minutes."
@@ -662,7 +662,56 @@ groups:
       - alert: KaiOpsModelFallbackRateHigh
         expr: sum(rate(kaiops_llm_fallback_total[10m])) > 0.1
         for: 10m
-        labels: {severity: warning, component: model-router, source_system: telemetry}
+        labels: {severity: warning, component: model-router, source_system: telemetry, project: kaims, project_name: KaiMS, application: KaiMS, service: model-router, environment: prod}
         annotations:
           summary: "KaiOps model fallback rate is elevated"
           description: "Model fallbacks exceed 0.1 per second; inspect provider health and quota."
+
+  - name: telemetry-external-health
+    rules:
+      - alert: TelemetryApplicationUnavailable
+        expr: probe_success{job="telemetry-application"} == 0 or up{job="telemetry-application"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          project: telemetry
+          project_name: Telemetry
+          application: Telemetry
+          service: frontend-proxy
+          environment: prod
+          source_system: telemetry
+        annotations:
+          summary: Local Telemetry application is unavailable
+          description: The local Astronomy Shop HTTP probe failed or its probe exporter cannot be scraped.
+
+      - alert: TelemetryMonitoringUnavailable
+        expr: up{job="telemetry-monitoring"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          project: telemetry
+          project_name: Telemetry
+          application: Telemetry
+          service: telemetry-prometheus
+          environment: prod
+          source_system: telemetry
+        annotations:
+          summary: Telemetry monitoring is unavailable
+          description: The independent monitoring stack cannot scrape its telemetry metrics endpoint. Collector and application-signal alerts cannot be evaluated while this Prometheus instance is unavailable.
+
+  - name: telemetry-jaeger-health
+    rules:
+      - alert: TelemetryJaegerUnavailable
+        expr: probe_success{job="telemetry-jaeger"} == 0 or up{job="telemetry-jaeger"} == 0
+        for: 30s
+        labels:
+          severity: high
+          project: telemetry
+          project_name: Telemetry
+          application: Telemetry
+          service: jaeger
+          environment: prod
+          source_system: telemetry
+        annotations:
+          summary: Telemetry Jaeger query API is unavailable
+          description: The independent Jaeger query API probe failed or could not be collected. Trace investigation through Jaeger is unavailable or unverified; this does not establish a customer application outage.

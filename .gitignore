@@ -53,3 +53,6 @@ backend/rag/_review/**/*.json
 # Local recovery watcher process output
 docs/architecture/*.stdout.log
 docs/architecture/*.stderr.log
+
+# Local database retention archives contain operational evidence.
+backend/retention-archives/

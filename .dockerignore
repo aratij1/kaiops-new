@@ -22,3 +22,5 @@ frontend/react/playwright-report
 backend/ingested_alerts
 backend/rag/changes
 backend/rag/_review
+
+backend/retention-archives

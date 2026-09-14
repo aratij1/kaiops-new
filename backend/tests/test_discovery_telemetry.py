@@ -358,7 +358,7 @@ async def test_telemetry_matches_both_service_and_service_name_labels(monkeypatc
 
     result = await MODULE._search_telemetry({"project": "checkout-api", "service": "checkout-api"})
 
-    assert seen_queries == ['{service="checkout-api"} or {service_name="checkout-api"}']
+    assert seen_queries == ['{service="checkout-api"} or {service_name="checkout-api"} or {job="checkout-api"}']
     prometheus_source = next(source for source in result["sources"] if source["source"] == "prometheus")
     assert prometheus_source["result_count"] == 1
 

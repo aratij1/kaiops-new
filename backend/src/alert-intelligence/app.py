@@ -547,6 +547,14 @@ async def startup(app: FastAPI) -> None:
     async def handle_alert(payload: dict) -> None:
         raw_alert_payload = payload.get("alert") if isinstance(payload.get("alert"), dict) else payload
         alert_input = Alert.model_validate(raw_alert_payload)
+        # Older deliveries may already be queued when admission policy changes.
+        if alert_input.severity.value == "warning":
+            alert_input.labels = {**alert_input.labels, "pipeline_outcome": "live_alert_only"}
+            if settings.database_enabled:
+                async with app.state.session_factory() as session:
+                    await IncidentRepository(session).save_alert(alert_input)
+                    await session.commit()
+            return
         llm_discovery = await _llm_discovery(alert_input)
         alert, incident = await agent.process(alert_input, llm_discovery)
         noise, noise_reason = _noise_classification(alert, incident)

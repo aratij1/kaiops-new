@@ -8,6 +8,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from common.evidence_source_policy import is_alert_artifact
+
 
 EvidenceSourceType = Literal[
     "alert", "metric", "log", "trace", "topology", "dependency", "change", "code", "ticket", "runbook", "database",
@@ -64,11 +66,15 @@ class EvidenceCompiler:
         "logs": "log",
         "opensearch": "log",
         "trace": "trace",
+        "traces": "trace",
         "topology": "topology",
         "dependency": "dependency",
+        "dependencies": "dependency",
         "change": "change",
+        "changes": "change",
         "deployment": "change",
         "code": "code",
+        "source_code": "code",
         "configuration": "code",
         "config": "code",
         "ticket": "ticket",
@@ -142,9 +148,12 @@ class EvidenceCompiler:
         for index, row in enumerate(rows):
             if not isinstance(row, dict):
                 continue
-            raw_source = str(row.get("source") or row.get("source_type") or "alert").strip().lower()
+            candidates = [str(row.get(key) or "").strip().lower() for key in ("source_type", "category", "source")]
+            raw_source = next((value for value in candidates if value in self.SOURCE_TYPES), "alert")
             source_type = self.SOURCE_TYPES.get(raw_source, "alert")
-            source_uri = str(row.get("source_uri") or row.get("uri") or row.get("path") or "").strip()
+            if source_type == "log" and is_alert_artifact(row):
+                continue
+            source_uri = str(row.get("source_uri") or row.get("source_reference") or row.get("citation") or row.get("uri") or row.get("path") or "").strip()
             summary = self._summary(row)
             if not source_uri:
                 source_uri = f"{source_type}://unknown/{index}"
@@ -173,7 +182,10 @@ class EvidenceCompiler:
             guidance_only = source_type in self.GUIDANCE_TYPES
             reliability = float(row.get("reliability_score") or row.get("confidence") or self.RELIABILITY[source_type])
             reliability = max(0.0, min(reliability, 1.0))
-            current_operational = not timestamp_missing and not guidance_only and not outside_incident_window
+            current_operational = (not timestamp_missing and not guidance_only and not outside_incident_window
+                                   and observed <= collected
+                                   and row.get("current_observation") is not False
+                                   and row.get("current_operational_evidence") is not False)
             contradiction_status = str(row.get("contradiction_status") or "unknown").strip().lower()
             if contradiction_status not in {"supporting", "contradicting", "neutral", "unknown"}:
                 contradiction_status = "unknown"
@@ -235,3 +247,20 @@ class EvidenceCompiler:
     @staticmethod
     def independent_source_count(records: list[EvidenceRecord]) -> int:
         return len({record.connector_id for record in records if record.current_operational_evidence})
+
+
+def balanced_evidence(rows: list[dict[str, Any]], *, limit: int = 48) -> list[dict[str, Any]]:
+    """Keep a bounded model input without letting the first source consume it."""
+    buckets: dict[str, list[dict[str, Any]]] = {}
+    for row in rows:
+        source = str(row.get("source") or row.get("source_type") or row.get("category") or "unknown").lower()
+        source = EvidenceCompiler.SOURCE_TYPES.get(source, source)
+        buckets.setdefault(source, []).append(row)
+    selected: list[dict[str, Any]] = []
+    for index in range(max((len(bucket) for bucket in buckets.values()), default=0)):
+        for bucket in buckets.values():
+            if len(selected) >= limit:
+                return selected
+            if index < len(bucket):
+                selected.append(bucket[index])
+    return selected

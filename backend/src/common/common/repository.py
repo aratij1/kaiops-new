@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import base64
 import hashlib
@@ -2853,21 +2853,105 @@ class IncidentRepository:
 
     async def list_pending_resolution_events(self, *, limit: int = 100) -> list[ResolutionOutboxRecord]:
         rows = await self.session.execute(
-            select(ResolutionOutboxRecord)
+            select(ResolutionOutboxRecord.event_id)
             .where(
                 ResolutionOutboxRecord.published_at.is_(None),
                 ResolutionOutboxRecord.status.in_(("pending", "retry")),
                 ResolutionOutboxRecord.next_attempt_at <= utc_now(),
             )
-            .order_by(ResolutionOutboxRecord.created_at.asc())
+            .order_by(ResolutionOutboxRecord.created_at.asc(), ResolutionOutboxRecord.event_id.asc())
             .limit(max(1, min(int(limit), 1000)))
         )
-        return list(rows.scalars().all())
+        event_ids = list(rows.scalars().all())
+        if not event_ids:
+            return []
+        # Never sort full context JSON in MySQL. Sorting a narrow ID projection
+        # keeps batch memory bounded even when evidence snapshots are large.
+        records = await self.session.execute(
+            select(ResolutionOutboxRecord).where(ResolutionOutboxRecord.event_id.in_(event_ids))
+        )
+        by_id = {row.event_id: row for row in records.scalars().all()}
+        return [by_id[event_id] for event_id in event_ids if event_id in by_id]
+
+    async def coalesce_superseded_background_rca(
+        self, *, tenant_id: str, incident_id: UUID, snapshot_id: UUID, request_id: UUID,
+    ) -> str | None:
+        """Retire only enrichment-generated work fully covered by a durable successor."""
+        if request_id != uuid5(NAMESPACE_URL, f"kaims:enriched-analysis:{snapshot_id}"):
+            return None
+        if await self.get_analysis_request(request_id, tenant_id=tenant_id) is not None:
+            return None  # Explicit operator requests always receive their own result.
+        previous = await self.session.get(ContextSnapshotRecord, snapshot_id)
+        if (previous is None or previous.tenant_id != tenant_id
+                or previous.incident_id != str(incident_id) or previous.snapshot_stage != "enriched"
+                or not previous.evidence_ids):
+            return None
+        # Sort narrow IDs, not megabyte-sized JSON snapshot rows. MySQL's
+        # filesort otherwise exhausts its sort buffer under real evidence load.
+        latest_id = await self.session.scalar(select(ContextSnapshotRecord.snapshot_id).where(
+            ContextSnapshotRecord.tenant_id == tenant_id,
+            ContextSnapshotRecord.incident_id == str(incident_id),
+            ContextSnapshotRecord.snapshot_stage == "enriched",
+        ).order_by(ContextSnapshotRecord.snapshot_version.desc()).limit(1))
+        latest = await self.session.get(ContextSnapshotRecord, latest_id) if latest_id else None
+        if latest is None or latest.snapshot_version <= previous.snapshot_version:
+            return None
+        expires = latest.expires_at
+        if expires.tzinfo is None:
+            expires = expires.replace(tzinfo=UTC)
+        if expires <= utc_now() or not set(previous.evidence_ids).issubset(set(latest.evidence_ids or [])):
+            return None
+        metadata = (latest.payload or {}).get("metadata") or {}
+        digest = str(metadata.get("evidence_set_digest") or "")
+        successor = await self.session.get(ResolutionOutboxRecord, f"context-enriched:{incident_id}:{digest}")
+        successor_context = ((successor.payload or {}).get("context") or {}) if successor else {}
+        successor_metadata = successor_context.get("metadata") or {}
+        if (successor is None or successor.tenant_id != tenant_id
+                or successor.aggregate_id != str(incident_id) or successor.topic != "context-events"
+                or successor.status not in {"pending", "retry", "published"}
+                or str(successor_metadata.get("context_snapshot_id")) != str(latest.snapshot_id)
+                or str(successor_metadata.get("analysis_request_id")) != str(uuid5(NAMESPACE_URL, f"kaims:enriched-analysis:{latest.snapshot_id}"))):
+            return None
+        audit_id = uuid5(NAMESPACE_URL, f"kaims:rca-coalesced:{tenant_id}:{request_id}")
+        if await self.session.get(AuditLogRecord, audit_id) is None:
+            self.session.add(AuditLogRecord(id=audit_id, tenant_id=tenant_id, actor="resolution-agent",
+                action="rca.background.coalesced", resource_type="incident", resource_id=str(incident_id),
+                payload={"request_id": str(request_id), "snapshot_id": str(snapshot_id),
+                         "successor_event_id": successor.event_id, "successor_snapshot_id": str(latest.snapshot_id),
+                         "reason": "newer_durable_enrichment_contains_all_prior_evidence"}))
+        await self.session.flush()
+        return successor.event_id
+
+    async def mark_analysis_request_progress(
+        self, request_id: UUID | str, *, tenant_id: str, stage: str,
+    ) -> bool:
+        """Transport/worker receipts advance active requests without reopening terminals."""
+        request_uuid = self._parse_uuid(request_id)
+        if request_uuid is None:
+            return False
+        if stage not in {"published", "running"}:
+            raise ValueError("unsupported analysis progress stage")
+        eligible = ("accepted", "queued") if stage == "published" else ("accepted", "queued", "published")
+        result = await self.session.execute(
+            update(AnalysisRequestRecord)
+            .where(AnalysisRequestRecord.request_id == request_uuid,
+                   AnalysisRequestRecord.tenant_id == tenant_id)
+            .values(delivery="published", status=case(
+                (AnalysisRequestRecord.status.in_(eligible), stage),
+                else_=AnalysisRequestRecord.status,
+            ))
+        )
+        return bool(result.rowcount)
 
     async def mark_resolution_event_published(self, event_id: str) -> None:
         row = await self.session.get(ResolutionOutboxRecord, event_id)
         if row is None:
             return
+        if event_id.startswith("analysis-regeneration:"):
+            await self.mark_analysis_request_progress(
+                event_id.removeprefix("analysis-regeneration:"),
+                tenant_id=row.tenant_id, stage="published",
+            )
         row.status = "published"
         row.published_at = utc_now()
         row.last_error = None
@@ -3785,6 +3869,12 @@ class IncidentRepository:
             raise RuntimeError("final context snapshot tenant mismatch")
         if str(context_payload.get("incident_id") or "") != parent.incident_id:
             raise RuntimeError("final context snapshot incident mismatch")
+        latest_id = await self.session.scalar(select(ContextSnapshotRecord.snapshot_id).where(
+            ContextSnapshotRecord.tenant_id == parent.tenant_id,
+            ContextSnapshotRecord.incident_id == parent.incident_id,
+        ).order_by(ContextSnapshotRecord.snapshot_version.desc(), ContextSnapshotRecord.collected_at.desc()).limit(1).with_for_update())
+        if latest_id != parent.snapshot_id:
+            raise ValueError("parent context snapshot was superseded before investigation persistence")
         metadata = dict(context_payload.get("metadata") or {})
         metadata.pop("context_snapshot_id", None)
         metadata.pop("context_fingerprint", None)
@@ -6626,17 +6716,16 @@ class IncidentRepository:
     async def project_recent_incident_events(self, limit: int = 500) -> int:
         safe_limit = max(1, min(int(limit), 5000))
         result = await self.session.execute(
-            select(IncidentEventRecord)
-            .order_by(IncidentEventRecord.created_at.desc())
+            select(IncidentEventRecord.id, IncidentEventRecord.incident_id, IncidentEventRecord.created_at)
+            .order_by(IncidentEventRecord.created_at.desc(), IncidentEventRecord.id.desc())
             .limit(safe_limit)
         )
-        rows = list(result.scalars().all())
-        rows.sort(key=lambda row: row.created_at)
+        identities = list(result.all())
         # This worker is a repair path, not a second lifecycle consumer. Replaying
         # historical events into an existing projection can undo a newer status
         # written by remediation/closure (especially for legacy events with tied
         # timestamps). Only reconstruct projections that are actually missing.
-        incident_ids = {row.incident_id for row in rows}
+        incident_ids = {row.incident_id for row in identities}
         existing_ids: set[UUID] = set()
         if incident_ids:
             existing_result = await self.session.execute(
@@ -6646,6 +6735,13 @@ class IncidentRepository:
             )
             existing_ids = set(existing_result.scalars().all())
         rebuilt_ids = incident_ids - existing_ids
+        # Existing projections need no event JSON. Sort narrow identities first,
+        # then fetch payloads only for incidents that actually require repair.
+        repair_event_ids = [row.id for row in identities if row.incident_id in rebuilt_ids]
+        rows = list((await self.session.scalars(select(IncidentEventRecord).where(
+            IncidentEventRecord.id.in_(repair_event_ids),
+        ))).all()) if repair_event_ids else []
+        rows.sort(key=lambda row: row.created_at)
         for row in rows:
             if row.incident_id in rebuilt_ids:
                 await self._upsert_projection_from_record(row)
@@ -6773,6 +6869,7 @@ class IncidentRepository:
         cursor_score: int | None = None
         cursor_at: datetime | None = None
         cursor_id: UUID | None = None
+        direction = "after"
         if cursor:
             try:
                 padding = "=" * (-len(cursor) % 4)
@@ -6783,6 +6880,9 @@ class IncidentRepository:
                 cursor_score = int(decoded["score"])
                 cursor_at = datetime.fromisoformat(str(decoded["at"]).replace("Z", "+00:00"))
                 cursor_id = UUID(str(decoded["id"]))
+                direction = str(decoded.get("direction") or "after")
+                if direction not in {"before", "after"}:
+                    raise ValueError("invalid cursor direction")
             except (ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
                 raise ValueError("Invalid unified inbox cursor") from exc
 
@@ -6795,7 +6895,7 @@ class IncidentRepository:
             "rollback_failed",
             "awaiting_approval",
             "pending_approval",
-            "approval_required",
+            "approval_required", "waiting_for_human", "waiting_for_human_evidence", "collection_blocked",
         )
         latest_generation = (
             select(
@@ -6811,8 +6911,103 @@ class IncidentRepository:
             IncidentRecord.severity,
             "",
         ))
+        # Materialize narrow current-work facts once, instead of expanding or
+        # re-evaluating complete RCA histories for every inbox counter and row.
+        from sqlalchemy import tuple_
+        owner = IncidentCorrelationOwnershipRecord
+        req = ContextEvidenceRequirementRecord
+        human = HumanEvidenceRequestRecord
+        job = ContextEnrichmentJobRecord
+        # Resolve current ownership in the selected workspace before reading
+        # evidence history. Other applications and old generations cannot
+        # affect this inbox's progress or require tenant-wide materialization.
+        work_scope = select(owner.canonical_incident_id).join(latest_generation, and_(
+            latest_generation.c.family_id == owner.correlation_family_id,
+            latest_generation.c.generation == owner.correlation_generation,
+        )).where(owner.tenant_id == tenant_id, owner.last_seen_at <= snapshot)
+        if normalized["project_id"]:
+            work_scope = work_scope.where(or_(
+                func.lower(owner.project_id).in_(project_aliases),
+                func.lower(owner.service).in_(project_aliases),
+                and_(normalized["project_id"] in {"kaims", "kaiops", "kaims-core", "kaiops-core"},
+                     func.lower(owner.service).like("kaiops-%")),
+            ))
+        if normalized["record_type"] == "alerts":
+            work_scope = work_scope.where(literal(False))
+        binding_versions = dict((await self.session.execute(select(
+            IncidentInvestigationBindingRecord.incident_id,
+            func.max(IncidentInvestigationBindingRecord.rca_version),
+        ).where(IncidentInvestigationBindingRecord.tenant_id == tenant_id,
+                 IncidentInvestigationBindingRecord.incident_id.in_(work_scope)).group_by(
+            IncidentInvestigationBindingRecord.incident_id,
+        ))).all())
+        requirement_versions = dict((await self.session.execute(select(
+            req.incident_id, func.max(req.rca_version),
+        ).where(req.tenant_id == tenant_id, req.incident_id.in_(work_scope)).group_by(req.incident_id))).all())
+        pairs = [(incident_id, binding_versions.get(incident_id, version))
+                 for incident_id, version in requirement_versions.items()]
+        current_rows = []
+        for offset in range(0, len(pairs), 200):
+            current_rows.extend((await self.session.execute(select(
+                req.requirement_id, req.incident_id, req.status,
+            ).where(req.tenant_id == tenant_id,
+                    tuple_(req.incident_id, req.rca_version).in_(pairs[offset:offset + 200]),
+                    req.status.not_in(("collected", "answered", "satisfied", "cancelled")),
+            ))).all())
+        requirement_ids = [row.requirement_id for row in current_rows]
+        waiting_ids = set()
+        blocking_human_ids = set()
+        assignment_blocked_ids = set()
+        collecting_ids = set()
+        latest_jobs = {}
+        for offset in range(0, len(requirement_ids), 200):
+            subset = requirement_ids[offset:offset + 200]
+            human_rows = (await self.session.execute(select(
+                human.requirement_id, human.status, human.investigation_can_continue,
+            ).where(
+                human.tenant_id == tenant_id, human.requirement_id.in_(subset),
+                human.status.in_(("pending", "assigned", "open", "in_progress", "assignment_blocked")),
+            ))).all()
+            for request in human_rows:
+                if request.status == "assignment_blocked":
+                    assignment_blocked_ids.add(request.requirement_id)
+                else:
+                    waiting_ids.add(request.requirement_id)
+                    if request.investigation_can_continue is not True:
+                        blocking_human_ids.add(request.requirement_id)
+            job_rows = (await self.session.execute(select(job.requirement_id, job.status, job.created_at, job.job_id).where(
+                job.tenant_id == tenant_id, job.requirement_id.in_(subset),
+            ))).all()
+            for item in job_rows:
+                previous = latest_jobs.get(item.requirement_id)
+                if previous is None or (item.created_at, str(item.job_id)) > (previous.created_at, str(previous.job_id)):
+                    latest_jobs[item.requirement_id] = item
+        collecting_ids = {key for key, value in latest_jobs.items() if value.status in {"scheduled", "collecting", "retry"}}
+        waiting_incidents = {row.incident_id for row in current_rows if row.requirement_id in waiting_ids}
+        blocking_human_incidents = {row.incident_id for row in current_rows if row.requirement_id in blocking_human_ids}
+        collecting_incidents = {row.incident_id for row in current_rows if row.requirement_id in collecting_ids}
+        blocked_incidents = {row.incident_id for row in current_rows if row.status in {"blocked", "failed", "dead_letter"} or row.requirement_id in assignment_blocked_ids}
+        unresolved_incidents = {row.incident_id for row in current_rows}
+        legacy_status = func.lower(func.coalesce(
+            func.nullif(IncidentProjectionRecord.status, ""),
+            func.nullif(IncidentRecord.status, ""),
+            IncidentCorrelationOwnershipRecord.lifecycle_state,
+        ))
+        lifecycle = func.lower(IncidentProjectionRecord.lifecycle_state)
+        early_states = ("detected", "requirements_identified", "collecting", "waiting_for_human", "context_ready")
+        incident_status = case(
+            (func.lower(IncidentRecord.status).in_(terminal), func.lower(IncidentRecord.status)),
+            (legacy_status.in_(terminal), legacy_status),
+            (and_(lifecycle.not_in(early_states), lifecycle != ""), lifecycle),
+            (owner.canonical_incident_id.in_(blocking_human_incidents), "waiting_for_human"),
+            (owner.canonical_incident_id.in_(collecting_incidents), "collecting"),
+            (owner.canonical_incident_id.in_(waiting_incidents), "waiting_for_human"),
+            (owner.canonical_incident_id.in_(blocked_incidents), "collection_blocked"),
+            (owner.canonical_incident_id.in_(unresolved_incidents), "requirements_identified"),
+            else_=legacy_status,
+        )
         incident_score = case(
-            (IncidentCorrelationOwnershipRecord.lifecycle_state.in_(attention), 200), else_=100,
+            (incident_status.in_(attention), 200), else_=100,
         ) + case((incident_severity == "critical", 80), else_=0)
         incident_query = (
             select(
@@ -6820,7 +7015,7 @@ class IncidentRepository:
                 IncidentCorrelationOwnershipRecord.canonical_incident_id.label("record_id"),
                 IncidentCorrelationOwnershipRecord.last_seen_at.label("observed_at"),
                 incident_score.label("score"),
-                IncidentCorrelationOwnershipRecord.lifecycle_state.label("row_status"),
+                incident_status.label("row_status"),
                 incident_severity.label("row_severity"),
             )
             .join(latest_generation, and_(
@@ -6860,11 +7055,16 @@ class IncidentRepository:
             )
         if normalized["service"]:
             incident_query = incident_query.where(
-                func.lower(IncidentCorrelationOwnershipRecord.service) == normalized["service"]
+                or_(
+                    func.lower(IncidentCorrelationOwnershipRecord.service).contains(normalized["service"], autoescape=True),
+                    func.lower(IncidentCorrelationOwnershipRecord.project_id).contains(normalized["service"], autoescape=True),
+                    func.lower(IncidentRecord.title).contains(normalized["service"], autoescape=True),
+                    func.lower(IncidentProjectionRecord.projection_payload["title"].as_string()).contains(normalized["service"], autoescape=True),
+                )
             )
         if normalized["status"]:
             incident_query = incident_query.where(
-                func.lower(IncidentCorrelationOwnershipRecord.lifecycle_state) == normalized["status"]
+                incident_status == normalized["status"]
             )
         if normalized["severity"]:
             incident_query = incident_query.where(
@@ -6879,28 +7079,8 @@ class IncidentRepository:
             if normalized[field]:
                 incident_query = incident_query.where(func.lower(column) == normalized[field])
 
-        alert_project = func.lower(
-            func.coalesce(
-                AlertRecord.payload["project_id"].as_string(),
-                AlertRecord.payload["project"].as_string(),
-                AlertRecord.payload["project_name"].as_string(),
-                AlertRecord.payload["application"].as_string(),
-                AlertRecord.payload["labels"]["project_id"].as_string(),
-                AlertRecord.payload["labels"]["project"].as_string(),
-                AlertRecord.payload["labels"]["project_name"].as_string(),
-                AlertRecord.payload["labels"]["application"].as_string(),
-                "",
-            )
-        )
-        alert_service_scope = func.lower(
-            func.coalesce(
-                AlertRecord.service,
-                AlertRecord.payload["service"].as_string(),
-                AlertRecord.payload["labels"]["service"].as_string(),
-                AlertRecord.payload["labels"]["job"].as_string(),
-                "",
-            )
-        )
+        alert_project = AlertRecord.inbox_project
+        alert_service_scope = func.lower(AlertRecord.service)
         alert_score = case((func.lower(AlertRecord.severity) == "critical", 175), else_=75)
         alert_query = select(
             literal("alert").label("record_type"), AlertRecord.id.label("record_id"),
@@ -6909,6 +7089,7 @@ class IncidentRepository:
         ).where(
             AlertRecord.tenant_id == tenant_id,
             AlertRecord.created_at <= snapshot,
+            func.lower(AlertRecord.severity).notin_(("warning", "warn")),
             ~exists(select(IncidentOccurrenceRecord.id).where(and_(
                 IncidentOccurrenceRecord.tenant_id == tenant_id,
                 IncidentOccurrenceRecord.occurrence_id == AlertRecord.id,
@@ -6917,18 +7098,21 @@ class IncidentRepository:
             # occurrence-table record while still carrying an authoritative
             # canonical incident binding in the alert payload. They are linked
             # occurrences, not unlinked signals.
-            func.json_extract(
-                AlertRecord.payload,
-                "$.metadata.deduplication.canonical_incident_id",
-            ).is_(None),
-        )
+            AlertRecord.inbox_canonical_incident_id.is_(None),
+        ).with_hint(AlertRecord, "FORCE INDEX (idx_alerts_inbox_cover)", dialect_name="mysql")
+        # MySQL otherwise prefers the tenant-only index and recomputes indexed
+        # virtual scope fields from large JSON documents for every alert.
         if normalized["project_id"]:
             alert_query = alert_query.where(or_(
                 alert_project.in_(project_aliases),
                 alert_service_scope.in_(project_aliases),
             ))
         if normalized["service"]:
-            alert_query = alert_query.where(func.lower(AlertRecord.service) == normalized["service"])
+            alert_query = alert_query.where(or_(
+                alert_service_scope.contains(normalized["service"], autoescape=True),
+                alert_project.contains(normalized["service"], autoescape=True),
+                func.lower(AlertRecord.name).contains(normalized["service"], autoescape=True),
+            ))
         if normalized["severity"]:
             alert_query = alert_query.where(func.lower(AlertRecord.severity) == normalized["severity"])
         if normalized["status"] and normalized["status"] != "open":
@@ -6965,38 +7149,35 @@ class IncidentRepository:
                 return and_(is_incident, is_terminal)
             return literal(True)
 
-        record_count_rows = (await self.session.execute(
-            select(candidates.c.record_type, func.count().label("count"))
-            .select_from(candidates)
-            .group_by(candidates.c.record_type)
-        )).all()
-        record_counts = {"incidents": 0, "alerts": 0}
-        for record_type, count in record_count_rows:
-            record_counts[f"{record_type}s"] = int(count or 0)
+        # Compute every counter in one scan of the scoped candidate feed.
+        # Separate per-view counts repeat the expensive correlated alert lookup.
+        counts = (await self.session.execute(select(
+            *[func.coalesce(func.sum(case((view_clause(view), 1), else_=0)), 0).label(view)
+              for view in views],
+            func.coalesce(func.sum(case((candidates.c.record_type == "incident", 1), else_=0)), 0).label("incidents"),
+            func.coalesce(func.sum(case((candidates.c.record_type == "alert", 1), else_=0)), 0).label("alerts"),
+        ).select_from(candidates))).mappings().one()
+        record_counts = {kind: int(counts[kind]) for kind in ("incidents", "alerts")}
         total_count = sum(record_counts.values())
-        view_counts = {
-            view: int(
-                (await self.session.scalar(select(func.count()).select_from(candidates).where(view_clause(view))))
-                or 0
-            )
-            for view in views
-        }
+        view_counts = {view: int(counts[view]) for view in views}
         page_query = select(candidates).where(view_clause(normalized["inbox_view"]))
         if cursor_score is not None and cursor_at is not None and cursor_id is not None:
+            def beyond(column, value):
+                return column > value if direction == "before" else column < value
             page_query = page_query.where(or_(
-                candidates.c.observed_at < cursor_at,
-                and_(candidates.c.observed_at == cursor_at, candidates.c.score < cursor_score),
-                and_(
-                    candidates.c.observed_at == cursor_at,
-                    candidates.c.score == cursor_score,
-                    candidates.c.record_id < cursor_id,
-                ),
+                beyond(candidates.c.observed_at, cursor_at),
+                and_(candidates.c.observed_at == cursor_at, beyond(candidates.c.score, cursor_score)),
+                and_(candidates.c.observed_at == cursor_at, candidates.c.score == cursor_score,
+                     beyond(candidates.c.record_id, cursor_id)),
             ))
+        ordering = [candidates.c.observed_at, candidates.c.score, candidates.c.record_id]
         page_rows = (await self.session.execute(page_query.order_by(
-            candidates.c.observed_at.desc(), candidates.c.score.desc(), candidates.c.record_id.desc(),
+            *[column.asc() if direction == "before" else column.desc() for column in ordering],
         ).limit(safe_limit + 1))).mappings().all()
         has_more = len(page_rows) > safe_limit
         page_rows = page_rows[:safe_limit]
+        if direction == "before":
+            page_rows = list(reversed(page_rows))
         incident_ids = [row["record_id"] for row in page_rows if row["record_type"] == "incident"]
         alert_ids = [row["record_id"] for row in page_rows if row["record_type"] == "alert"]
         projections = await self.list_incident_projections(
@@ -7071,26 +7252,25 @@ class IncidentRepository:
                 }
             )
 
-        next_cursor = None
-        if has_more and page_rows:
-            last = page_rows[-1]
-            payload = json.dumps(
-                {
-                    "filter": fingerprint,
-                    "snapshot": snapshot.isoformat(),
-                    "score": int(last["score"]),
-                    "at": last["observed_at"].isoformat(),
-                    "id": str(last["record_id"]),
-                },
-                separators=(",", ":"),
-            ).encode()
-            next_cursor = base64.urlsafe_b64encode(payload).decode("ascii").rstrip("=")
+        def encode_cursor(item, cursor_direction):
+            payload = json.dumps({
+                "filter": fingerprint, "snapshot": snapshot.isoformat(),
+                "score": int(item["score"]), "at": item["observed_at"].isoformat(),
+                "id": str(item["record_id"]), "direction": cursor_direction,
+            }, separators=(",", ":")).encode()
+            return base64.urlsafe_b64encode(payload).decode("ascii").rstrip("=")
+        next_cursor = previous_cursor = None
+        if page_rows:
+            if (direction == "after" and has_more) or (direction == "before" and cursor):
+                next_cursor = encode_cursor(page_rows[-1], "after")
+            if (direction == "before" and has_more) or (direction == "after" and cursor):
+                previous_cursor = encode_cursor(page_rows[0], "before")
         return {
             "rows": rows,
             "next_cursor": next_cursor,
-            "previous_cursor": None,
+            "previous_cursor": previous_cursor,
             "total_count": total_count,
-            "filtered_count": total_count,
+            "filtered_count": view_counts[normalized["inbox_view"]],
             "record_counts": record_counts,
             "view_counts": view_counts,
             "snapshot_at": snapshot.isoformat(),
@@ -7588,6 +7768,8 @@ class IncidentRepository:
         if missing_context_incidents:
             pending_result = await self.session.execute(
                 select(PendingWorkflowRecord).where(PendingWorkflowRecord.incident_id.in_(missing_context_incidents))
+                .options(load_only(PendingWorkflowRecord.incident_id,
+                                   PendingWorkflowRecord.recommendation_id, PendingWorkflowRecord.flow_id))
             )
             pending_rows = pending_result.scalars().all()
             pending_by_incident = {pending.incident_id: pending for pending in pending_rows}
@@ -7651,14 +7833,19 @@ class IncidentRepository:
                 if row.alert_id is not None or canonical_alert_by_incident.get(row.incident_id) is not None
             }
             if source_alert_ids:
-                source_alert_result = await self.session.execute(
-                    select(AlertRecord).where(AlertRecord.id.in_(source_alert_ids))
-                )
+                source_alert_stmt = select(AlertRecord).where(AlertRecord.id.in_(source_alert_ids))
+                if not include_enrichment:
+                    source_alert_stmt = source_alert_stmt.options(load_only(
+                        AlertRecord.id, AlertRecord.source, AlertRecord.name, AlertRecord.service,
+                        AlertRecord.environment, AlertRecord.severity, AlertRecord.fingerprint,
+                        AlertRecord.correlation_id, AlertRecord.inbox_project,
+                    ))
+                source_alert_result = await self.session.execute(source_alert_stmt)
                 for alert_record in source_alert_result.scalars().all():
                     alert_payload = (
                         dict(alert_record.payload)
-                        if isinstance(alert_record.payload, dict)
-                        else {}
+                        if include_enrichment and isinstance(alert_record.payload, dict)
+                        else {"project_id": alert_record.inbox_project} if not include_enrichment else {}
                     )
                     alert_payload.setdefault("id", str(alert_record.id))
                     alert_payload.setdefault("source", alert_record.source)
@@ -7717,7 +7904,7 @@ class IncidentRepository:
                     AuditLogRecord.id.in_(recommendation_ids),
                     AuditLogRecord.tenant_id == tenant_id,
                     AuditLogRecord.action == "recommendation.generated",
-                )
+                ).with_hint(AuditLogRecord, "FORCE INDEX (PRIMARY)", dialect_name="mysql")
             )
             for rec_id, rca_status, outcome, completed_at, blockers, missing in analysis_result.all():
                 analysis_by_id[rec_id] = {
@@ -8910,6 +9097,33 @@ class ContextEnrichmentRepository(EvaluationRepository):
                     existing.jira_issue_key = None
                     existing.retry_after = None
                     existing.version = int(existing.version or 0) + 1
+            from common.context_enrichment_contract import legacy_discovery_category
+            if legacy_discovery_category(question) == category:
+                legacy_rows = (await self.session.execute(select(ContextEvidenceRequirementRecord).where(
+                    ContextEvidenceRequirementRecord.tenant_id == tenant_id,
+                    ContextEvidenceRequirementRecord.incident_id == incident_id,
+                    ContextEvidenceRequirementRecord.rca_version == existing.rca_version,
+                    ContextEvidenceRequirementRecord.category == "validation",
+                    ContextEvidenceRequirementRecord.question == question,
+                    ContextEvidenceRequirementRecord.status.in_(["identified", "human_requested", "blocked"]),
+                ).with_for_update())).scalars().all()
+                for legacy in legacy_rows:
+                    human = (await self.session.execute(select(HumanEvidenceRequestRecord).where(
+                        HumanEvidenceRequestRecord.tenant_id == tenant_id,
+                        HumanEvidenceRequestRecord.requirement_id == legacy.requirement_id,
+                    ).with_for_update())).scalar_one_or_none()
+                    has_job = await self.session.scalar(select(ContextEnrichmentJobRecord.job_id).where(
+                        ContextEnrichmentJobRecord.requirement_id == legacy.requirement_id,
+                    ).limit(1))
+                    if legacy.evidence_ids or has_job or (human and human.response_payload):
+                        continue
+                    legacy.status = "cancelled"
+                    legacy.reason = f"Superseded by configured discovery requirement {existing.requirement_id}. " + legacy.reason
+                    legacy.version += 1
+                    if human and human.status in {"pending", "assigned", "blocked"}:
+                        human.status = "cancelled"
+                        human.jira_sync_status = "superseded"
+                        human.version += 1
             rows.append(existing)
         return rows
 
@@ -8967,17 +9181,25 @@ class ContextEnrichmentRepository(EvaluationRepository):
 
     async def cancel_inapplicable_context_requirements(
         self, *, tenant_id: str, incident_id: UUID | str, categories: set[str], reason: str,
+        questions: set[str] | None = None,
     ) -> int:
         """Close stale requirements that a refreshed investigation proves inapplicable."""
         tenant = require_tenant_id(tenant_id, source="context requirement reconciliation")
         if not categories:
             return 0
+        if questions is not None and not questions:
+            return 0
+        question_filter = (
+            [ContextEvidenceRequirementRecord.question.in_(questions)]
+            if questions is not None else []
+        )
         result = await self.session.execute(
             update(ContextEvidenceRequirementRecord)
             .where(
                 ContextEvidenceRequirementRecord.tenant_id == tenant,
                 ContextEvidenceRequirementRecord.incident_id == self._to_uuid(incident_id),
                 ContextEvidenceRequirementRecord.category.in_(categories),
+                *question_filter,
                 ContextEvidenceRequirementRecord.status.not_in(("collected", "answered", "resolved", "cancelled")),
             )
             .values(status="cancelled", reason=reason, retry_after=None)
@@ -9142,13 +9364,13 @@ class ContextEnrichmentRepository(EvaluationRepository):
         observation_end: datetime,
     ) -> ContextEnrichmentJobRecord:
         tenant = require_tenant_id(tenant_id, source="context enrichment job")
-        active = await self.session.scalar(select(ContextEnrichmentJobRecord).where(
+        active_id = await self.session.scalar(select(ContextEnrichmentJobRecord.job_id).where(
             ContextEnrichmentJobRecord.tenant_id == tenant,
             ContextEnrichmentJobRecord.requirement_id == self._to_uuid(requirement_id),
             ContextEnrichmentJobRecord.connector_id == connector_id,
         ).order_by(ContextEnrichmentJobRecord.created_at.desc()).limit(1))
-        if active is not None:
-            return active
+        if active_id is not None:
+            return await self.session.get(ContextEnrichmentJobRecord, active_id)
         material = json.dumps({
             "tenant": tenant, "incident": str(incident_id), "requirement": str(requirement_id),
             "connector": connector_id, "query": query_payload,
@@ -9194,32 +9416,35 @@ class ContextEnrichmentRepository(EvaluationRepository):
         """Lease due jobs for one worker using row locks across replicas."""
         now = datetime.now(UTC)
         owner = self._require("context_enrichment.worker_id", worker_id)
-        statement = select(ContextEnrichmentJobRecord).where(
-            ContextEnrichmentJobRecord.available_at <= now,
-            or_(
-                ContextEnrichmentJobRecord.status.in_(["scheduled", "retry"]),
-                and_(
-                    ContextEnrichmentJobRecord.status == "collecting",
-                    or_(
-                        ContextEnrichmentJobRecord.lease_expires_at.is_(None),
-                        ContextEnrichmentJobRecord.lease_expires_at < now,
-                    ),
-                ),
-            ),
-        ).order_by(
-            # New work should visibly start before the worker spends its whole
-            # batch draining historical retries. Retry work remains durable and
-            # is processed as soon as the scheduled queue is empty.
-            case(
-                (ContextEnrichmentJobRecord.status == "scheduled", 0),
-                (ContextEnrichmentJobRecord.status == "collecting", 1),
-                else_=2,
-            ),
-            ContextEnrichmentJobRecord.available_at.asc(),
-        ).limit(max(1, min(limit, 50)))
-        if self.session.bind and self.session.bind.dialect.name != "sqlite":
-            statement = statement.with_for_update(skip_locked=True)
-        rows = (await self.session.execute(statement)).scalars().all()
+        bounded_limit = max(1, min(limit, 50))
+        expired = and_(
+            ContextEnrichmentJobRecord.status == "collecting",
+            or_(ContextEnrichmentJobRecord.lease_expires_at.is_(None),
+                ContextEnrichmentJobRecord.lease_expires_at < now),
+        )
+        due = and_(ContextEnrichmentJobRecord.status.in_(["scheduled", "retry"]),
+                   ContextEnrichmentJobRecord.available_at <= now)
+        rows = []
+
+        async def take(predicate, count):
+            statement = select(ContextEnrichmentJobRecord).where(predicate)
+            if rows:
+                statement = statement.where(ContextEnrichmentJobRecord.job_id.notin_([row.job_id for row in rows]))
+            statement = statement.order_by(ContextEnrichmentJobRecord.available_at.asc(),
+                                           ContextEnrichmentJobRecord.job_id.asc()).limit(count)
+            if self.session.bind and self.session.bind.dialect.name != "sqlite":
+                statement = statement.with_for_update(skip_locked=True)
+            rows.extend((await self.session.execute(statement)).scalars().all())
+
+        # Reserve recovery, retry and new-work capacity. Remaining slots use
+        # oldest-due order, preventing a continuous arrival stream starving
+        # retries or leases abandoned by a crashed worker.
+        if bounded_limit >= 3:
+            await take(expired, 1)
+            await take(and_(due, ContextEnrichmentJobRecord.status == "retry"), 1)
+            await take(and_(due, ContextEnrichmentJobRecord.status == "scheduled"), 1)
+        if len(rows) < bounded_limit:
+            await take(or_(due, expired), bounded_limit - len(rows))
         result = []
         lease_expires_at = now + timedelta(seconds=max(1, int(lease_seconds)))
         for row in rows:
@@ -9343,6 +9568,19 @@ class ContextEnrichmentRepository(EvaluationRepository):
         bucket = buckets.setdefault(requirement.category, [])
         known_ids = {str(item.get("evidence_id")) for item in bucket if isinstance(item, dict)}
         bucket.extend(item for item in accepted_payloads if item["evidence_id"] not in known_ids)
+        # The initial collection manifest may say skipped/no matches. Accepted
+        # enrichment replaces that outcome without asserting that every row is fresh.
+        sources = metadata.setdefault("context_sources", {})
+        source = dict(sources.get(requirement.category) or {})
+        for key in ("fresh_count", "inferred_timestamp_count", "incident_aligned_count",
+                    "untraceable_count", "newest_observed_at", "oldest_observed_at"):
+            source.pop(key, None)
+        source.update({"status": "collected", "collection_status": "collected", "attempted": True,
+                       "error": None, "required_configuration": None, "result_count": len(bucket),
+                       "evidence_ids": list(dict.fromkeys(str(item["evidence_id"]) for item in bucket
+                                                         if isinstance(item, dict) and item.get("evidence_id"))),
+                       "last_attempt_at": datetime.now(UTC).isoformat()})
+        sources[requirement.category] = source
         evidence_ids = list(dict.fromkeys([*(previous.evidence_ids or []), *accepted_ids]))
         evidence_digest = hashlib.sha256("\n".join(evidence_ids).encode()).hexdigest()
         context_fingerprint = hashlib.sha256(json.dumps(
@@ -9394,12 +9632,12 @@ class ContextEnrichmentRepository(EvaluationRepository):
                 status="pending", attempts=0, next_attempt_at=datetime.now(UTC),
             ))
         requirement.status = "collected"
-        requirement.evidence_ids = evidence_ids
+        requirement.evidence_ids = accepted_ids
         requirement.version += 1
         if latest_equivalent is not None and latest_equivalent.requirement_id != requirement.requirement_id:
             latest_equivalent.status = "collected"
             latest_equivalent.evidence_ids = list(dict.fromkeys([
-                *(latest_equivalent.evidence_ids or []), *evidence_ids,
+                *(latest_equivalent.evidence_ids or []), *accepted_ids,
             ]))
             latest_equivalent.retry_after = None
             latest_equivalent.version += 1
@@ -9426,8 +9664,10 @@ class ContextEnrichmentRepository(EvaluationRepository):
         if incident is None and projection is None:
             return None
 
-        snapshot = await self.session.scalar(
-            select(ContextSnapshotRecord).where(
+        # Sort narrow identity rows; sorting complete JSON evidence payloads can
+        # exhaust MySQL sort memory even when the result is limited to one row.
+        snapshot_id = await self.session.scalar(
+            select(ContextSnapshotRecord.snapshot_id).where(
                 ContextSnapshotRecord.tenant_id == tenant,
                 ContextSnapshotRecord.incident_id == str(incident_uuid),
             ).order_by(
@@ -9436,8 +9676,9 @@ class ContextEnrichmentRepository(EvaluationRepository):
                 ContextSnapshotRecord.snapshot_id.desc(),
             ).limit(1)
         )
-        binding = await self.session.scalar(
-            select(IncidentInvestigationBindingRecord).where(
+        snapshot = await self.session.get(ContextSnapshotRecord, snapshot_id) if snapshot_id else None
+        binding_id = await self.session.scalar(
+            select(IncidentInvestigationBindingRecord.binding_id).where(
                 IncidentInvestigationBindingRecord.tenant_id == tenant,
                 IncidentInvestigationBindingRecord.incident_id == incident_uuid,
             ).order_by(
@@ -9446,6 +9687,7 @@ class ContextEnrichmentRepository(EvaluationRepository):
                 IncidentInvestigationBindingRecord.binding_id.desc(),
             ).limit(1)
         )
+        binding = await self.session.get(IncidentInvestigationBindingRecord, binding_id) if binding_id else None
         bound_snapshot = (
             await self.session.get(ContextSnapshotRecord, binding.context_snapshot_id)
             if binding is not None else None
@@ -9508,6 +9750,28 @@ class ContextEnrichmentRepository(EvaluationRepository):
             recommendation_metadata.get("rca_analysis")
             if isinstance(recommendation_metadata.get("rca_analysis"), dict) else {}
         )
+        # Surface synthesis failures for existing records as well as new runs.
+        # This read model must not silently turn a provider fallback into
+        # an apparently ongoing investigation with no explanation.
+        analysis = dict(analysis)
+        for field in ("causal_chain", "supporting_signals", "contradictions", "alternative_causes"):
+            if isinstance(analysis.get(field), str):
+                analysis[field] = [analysis[field]] if analysis[field].strip() else []
+        model_usage = recommendation_metadata.get("model_usage") or []
+        synthesis_fallback = any(
+            isinstance(call, dict) and call.get("task") == "rca"
+            and (call.get("fallback") is True or "fallback" in str(call.get("model") or ""))
+            for call in model_usage
+        )
+        if binding and synthesis_fallback:
+            from common.investigation_gaps import blocking_investigation_gaps
+            analysis["missing_evidence"] = blocking_investigation_gaps(
+                analysis, recommendation_metadata.get("iterative_investigation") or {},
+            )
+            analysis["grounding_notes"] = " ".join(filter(None, [
+                str(analysis.get("grounding_notes") or ""),
+                "RCA synthesis used a model fallback and did not produce a validated causal conclusion. Retained context is available; review model availability and rerun the analysis.",
+            ]))
         quality = (
             recommendation_metadata.get("quality_gate")
             if isinstance(recommendation_metadata.get("quality_gate"), dict) else {}
@@ -9646,18 +9910,26 @@ class ContextEnrichmentRepository(EvaluationRepository):
 
         unresolved = [
             row for row in requirement_projection
-            if str(row["status"]).lower() not in {"collected", "answered", "satisfied"}
+            if str(row["status"]).lower() not in {"collected", "answered", "satisfied", "cancelled"}
         ]
         active_jobs = [row["latest_job"] for row in unresolved if row.get("latest_job")]
-        waiting_human = any(row.get("active_human_request") for row in unresolved)
-        if waiting_human:
+        human_requests = [row["active_human_request"] for row in unresolved
+                          if row.get("active_human_request")]
+        waiting_human = any(request.get("status") != "assignment_blocked" for request in human_requests)
+        blocking_human = any(request.get("status") != "assignment_blocked"
+                             and request.get("investigation_can_continue") is not True
+                             for request in human_requests)
+        collecting = any(str(job.get("status")).lower() in {"scheduled", "collecting", "retry"}
+                         for job in active_jobs)
+        if blocking_human or (waiting_human and not collecting):
             lifecycle_state = "WAITING_FOR_HUMAN"
             next_action = {"type": "HUMAN_EVIDENCE", "message": "KaiMS is waiting for assigned human evidence."}
-        elif any(str(job.get("status")).lower() in {"scheduled", "collecting", "retry"} for job in active_jobs):
+        elif collecting:
             lifecycle_state = "COLLECTING"
             next_action = {"type": "AUTONOMOUS_COLLECTION", "message": "KaiMS is collecting governed evidence."}
         elif unresolved:
-            blocked = any(str(row["status"]).lower() in {"blocked", "failed", "dead_letter"} for row in unresolved)
+            blocked = (any(str(row["status"]).lower() in {"blocked", "failed", "dead_letter"} for row in unresolved)
+                       or any(request.get("status") == "assignment_blocked" for request in human_requests))
             lifecycle_state = "COLLECTION_BLOCKED" if blocked else "REQUIREMENTS_IDENTIFIED"
             next_action = {"type": "REVIEW_EVIDENCE_GAPS", "message": "Review unresolved evidence requirements."}
         elif binding is None:
@@ -9725,7 +9997,7 @@ class ContextEnrichmentRepository(EvaluationRepository):
             and governed_capability.get("capability_id")
         )
         resolution_ready = rca_ready and governed_plan_ready
-        raw_blocked_reasons = list(quality.get("blocking_reasons") or analysis.get("missing_evidence") or [])
+        raw_blocked_reasons = list(quality.get("blocking_reasons") or quality.get("blockers") or []) + list(analysis.get("missing_evidence") or [])
         blocked_reasons = [
             str(reason.get("reason") or reason.get("question") or reason.get("category") or "EVIDENCE_REQUIRED")
             if isinstance(reason, dict) else str(reason)
@@ -9867,7 +10139,8 @@ class ContextEnrichmentRepository(EvaluationRepository):
         investigation_status = str(binding.status).lower() if binding else "not_started"
         analysis_missing = list(analysis.get("missing_evidence") or [])
         analysis_conflicts = list(analysis.get("conflicting_evidence") or [])
-        grounded = investigation_status in {"grounded", "conclusive"} and bool(
+        claim_status = str((causal_claim or {}).get("status") or investigation_status).lower()
+        grounded = investigation_status in {"grounded", "conclusive"} and claim_status in {"grounded", "conclusive", "confirmed"} and bool(
             resolved_accepted_evidence_ids
             and traceable_citation_count == len(resolved_accepted_evidence_ids)
             and not unresolved_accepted_evidence_ids
@@ -9879,6 +10152,7 @@ class ContextEnrichmentRepository(EvaluationRepository):
             (impact_claim or {}).get("statement")
             or analysis.get("customer_impact") or analysis.get("business_impact")
             or recommendation_payload.get("customer_impact") or recommendation_payload.get("business_impact")
+            or analysis.get("impact") or recommendation_payload.get("impact")
             or ""
         ).strip()
         timestamps = [
@@ -10000,16 +10274,23 @@ class ContextEnrichmentRepository(EvaluationRepository):
                 },
                 "impact": {
                     "status": str((impact_claim or {}).get("status") or (
-                        "established" if impact_statement else "not_established"
+                        "unconfirmed" if impact_statement else "not_established"
                     )).lower(),
                     "statement": impact_statement or None,
                     "claim": impact_claim,
                 },
                 "rca": {
-                    "status": str((causal_claim or {}).get("status") or (
-                        "grounded" if grounded else investigation_status
-                    )).lower(),
+                    "status": "grounded" if grounded else (
+                        "insufficient_evidence" if claim_status in {"grounded", "conclusive", "confirmed"}
+                        else claim_status
+                    ),
+                    "grounded": grounded,
                     "hypothesis": hypothesis or None,
+                    "supporting_signals": list(analysis.get("supporting_signals") or []),
+                    "causal_chain": list(analysis.get("causal_chain") or []),
+                    "grounding_notes": str(analysis.get("grounding_notes") or ""),
+                    "contradictions": list(analysis.get("contradictions") or []),
+                    "alternative_causes": list(analysis.get("alternative_causes") or []),
                     "confidence": float(recommendation_payload.get("confidence") or 0.0),
                     "accepted_evidence_ids": accepted_evidence_ids,
                     "resolved_evidence_ids": resolved_accepted_evidence_ids,

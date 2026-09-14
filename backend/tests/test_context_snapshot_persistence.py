@@ -228,6 +228,11 @@ async def test_final_investigation_snapshot_preserves_context_reusability(sqlite
             parent_snapshot_id=parent.snapshot_id,
         )
 
+        with pytest.raises(ValueError, match="parent context snapshot was superseded"):
+            await IncidentRepository(session).persist_final_investigation_snapshot(
+                context=context, report={"status": "insufficient_evidence"}, parent_snapshot_id=parent.snapshot_id,
+            )
+
     assert parent.reusable is True
     assert final.reusable is True
     assert final.snapshot_stage == "investigation_complete"

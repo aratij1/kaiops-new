@@ -71,12 +71,12 @@ class KafkaProducer:
     async def stop(self) -> None:
         if self._producer is not None:
             await self._producer.stop()
+        self._producer = None
 
     async def publish(self, topic: str, event: BaseModel | dict[str, Any], key: str | None = None) -> None:
         payload = normalize_payload(event)
         if self._producer is None:
-            logger.info("kafka disabled; event logged", extra={"topic": topic, "payload": payload})
-            return
+            raise RuntimeError("Kafka producer is not started; event was not delivered")
         if not self._publish_breaker.allow():
             raise CircuitOpenError("kafka publish circuit breaker open: broker appears unreachable")
 

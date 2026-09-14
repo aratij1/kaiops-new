@@ -31,6 +31,7 @@ from common.event_publishers import EventPublisher, RabbitMQPublisher, build_age
 from common.kafka import KafkaConsumer
 from common.kafka import consume_forever as consume_kafka_forever
 from common.models import Alert, Incident
+from common.investigation_gaps import unattempted_requirement_connector, collection_attempt_limit
 from common.rabbitmq import RabbitMQConsumer
 from common.rabbitmq import consume_forever as consume_rabbitmq_forever
 from common.rag_governance import content_checksum, retrieval_allowed
@@ -468,23 +469,16 @@ async def _collect_context_with_strategy(
         if settings.database_enabled and engine is not None and engine.dialect.name == "mysql":
             lock_name = f"kaiops:context:{lock_digest}"
             wait_seconds = int(getattr(settings, "context_collection_lease_wait_seconds", 30) or 0)
-            try:
-                async with engine.connect() as connection:
-                    acquired = await connection.scalar(
-                        text("SELECT GET_LOCK(:name, :wait_seconds)"),
-                        {"name": lock_name, "wait_seconds": wait_seconds},
-                    )
-                    if int(acquired or 0) == 1:
-                        try:
-                            return await _collect_context_with_strategy_unlocked(
-                                app, alert, incident, strategy_override, supplied_context
-                            )
-                        finally:
-                            await connection.execute(text("SELECT RELEASE_LOCK(:name)"), {"name": lock_name})
+            from common.advisory_lock import advisory_connection
+            async with advisory_connection(engine, lock_name, wait_seconds=wait_seconds) as connection:
+                if connection is None:
                     CONTEXT_REUSE_DECISIONS.labels("collect", "distributed_lease_timeout").inc()
-            except Exception:
-                logger.exception("context collection lease failed; continuing under process-local lock")
-                CONTEXT_REUSE_DECISIONS.labels("collect", "distributed_lease_error").inc()
+                    raise HTTPException(status_code=503, detail="Context collection is already in progress; retry shortly.", headers={"Retry-After": "5"})
+                # Collection exceptions must propagate once. They must never
+                # be mistaken for lock failures and trigger a second collection.
+                return await _collect_context_with_strategy_unlocked(
+                    app, alert, incident, strategy_override, supplied_context
+                )
         return await _collect_context_with_strategy_unlocked(
             app, alert, incident, strategy_override, supplied_context
         )
@@ -702,7 +696,7 @@ async def _persist_context_event(
 async def _context_enrichment_worker(app: FastAPI) -> None:
     """Execute durable read-only gap jobs and hand fresh context back to RCA."""
     connector_aliases = {"opensearch": "discovery-mcp", "jaeger": "discovery-mcp", "jira": "discovery-mcp"}
-    worker_id = f"{settings.service_name}:{os.getpid()}"
+    worker_id = f"{settings.service_name}:{os.getenv('HOSTNAME', 'local')}:{os.getpid()}"
     while True:
         try:
             if not settings.database_enabled or getattr(app.state, "session_factory", None) is None:
@@ -716,7 +710,7 @@ async def _context_enrichment_worker(app: FastAPI) -> None:
             if not jobs:
                 await asyncio.sleep(3)
                 continue
-            for job in jobs:
+            async def process_job(job):
                 failure = "connector returned no attributable evidence"
                 try:
                     query = job.get("query_payload") if isinstance(job.get("query_payload"), dict) else {}
@@ -739,7 +733,7 @@ async def _context_enrichment_worker(app: FastAPI) -> None:
                             "orphaned context enrichment job dead-lettered job_id=%s requirement_id=%s",
                             job["job_id"], job["requirement_id"],
                         )
-                        continue
+                        return
                     requirement = EvidenceRequirement.model_validate(requirement_payload)
                     connector_name = connector_aliases.get(job["connector_id"], job["connector_id"])
                     connector = next((item for item in agent.connectors if item.name == connector_name), None)
@@ -748,21 +742,29 @@ async def _context_enrichment_worker(app: FastAPI) -> None:
                     targeted_metadata = dict(alert.metadata)
                     targeted_metadata["context_requirement_category"] = requirement.category
                     targeted_metadata["context_collection_tool"] = (
-                        "dependency-health.search"
+                        "resource-health.search"
+                        if requirement.category == "metrics" and "resource telemetry" in requirement.question.lower()
+                        else "dependency-health.search"
                         if requirement.category == "topology" and "dependency health" in requirement.question.lower()
                         else "topology.search"
                         if requirement.category == "topology"
                         else ""
                     )
-                    targeted_metadata["context_observation_start"] = job.get("observation_start")
-                    targeted_metadata["context_observation_end"] = job.get("observation_end")
+                    for field, key in (("context_observation_start", "observation_start"),
+                                       ("context_observation_end", "observation_end")):
+                        observed = job.get(key)
+                        # MySQL DATETIME stores UTC without tzinfo.
+                        if isinstance(observed, datetime):
+                            observed = (observed if observed.tzinfo else observed.replace(tzinfo=UTC)).isoformat()
+                        targeted_metadata[field] = observed
                     targeted_alert = alert.model_copy(update={"metadata": targeted_metadata})
                     raw_response = await connector.fetch(targeted_alert, incident)
                     normalization = normalize_connector_response(
                         raw_response=raw_response, requirement=requirement, incident=incident,
                         connector=job["connector_id"], collected_at=datetime.now(UTC),
                     )
-                    async with app.state.session_factory() as session:
+                    async def persist_result(session):
+                        nonlocal failure
                         repository = ContextEnrichmentRepository(session)
                         persisted = await repository.persist_enrichment_result_atomically(
                             job_id=job["job_id"], worker_id=worker_id,
@@ -772,20 +774,15 @@ async def _context_enrichment_worker(app: FastAPI) -> None:
                         )
                         if not persisted["accepted"]:
                             explicit_gap = str(raw_response.get("evidence_gap") or "").strip()
-                            failure = explicit_gap or "; ".join(
+                            failure = explicit_gap or "; ".join(dict.fromkeys(
                                 str(item.get("code") or "EVIDENCE_REJECTED")
                                 for item in normalization.rejected
-                            ) or failure
+                            )) or failure
                             final_status = await repository.finish_context_enrichment_job(
                                 job_id=job["job_id"], worker_id=worker_id,
                                 collected=False, error=failure,
                                 retry_after_seconds=min(300, 15 * (2 ** max(0, int(job["attempt_count"]) - 1))),
-                                maximum_attempts=(
-                                    1 if explicit_gap in {
-                                        "NO_MATCHING_APPROVED_EVIDENCE",
-                                        "TRACE_NOT_FOUND_OR_EXPIRED",
-                                    } else 4
-                                ),
+                                maximum_attempts=collection_attempt_limit(explicit_gap, normalization.rejected),
                             )
                             fallback_connector = None
                             if final_status == "dead_letter":
@@ -831,7 +828,9 @@ async def _context_enrichment_worker(app: FastAPI) -> None:
                                     hypothesis_impact=requirement.reason,
                                     investigation_can_continue=True,
                                 )
-                        await session.commit()
+                        return persisted
+                    from common.enrichment_scheduler import persist_collected_evidence
+                    persisted = await persist_collected_evidence(app.state.session_factory, persist_result)
                     if persisted["accepted"]:
                         logger.info(
                             "context enrichment persisted for outbox delivery job_id=%s event_id=%s",
@@ -844,6 +843,18 @@ async def _context_enrichment_worker(app: FastAPI) -> None:
                         repository = ContextEnrichmentRepository(session)
                         current = await session.get(ContextEnrichmentJobRecord, UUID(job["job_id"]))
                         if current is not None and current.status == "collecting" and current.lease_owner == worker_id:
+                            from common.enrichment_scheduler import CollectionPersistenceBusy, transient_collection_database_error
+                            if isinstance(exc, CollectionPersistenceBusy) or transient_collection_database_error(exc):
+                                # Contention is infrastructure failure, not a failed evidence source.
+                                # Return the lease without exhausting connector attempts or requesting a human.
+                                current.attempt_count = max(0, current.attempt_count - 1)
+                                current.status = "retry"
+                                current.available_at = datetime.now(UTC) + timedelta(seconds=15)
+                                current.lease_owner = None
+                                current.lease_expires_at = None
+                                current.last_error = "EVIDENCE_PERSISTENCE_BUSY"
+                                await session.commit()
+                                return
                             await repository.finish_context_enrichment_job(
                                 job_id=job["job_id"], worker_id=worker_id,
                                 collected=False, error=failure,
@@ -851,6 +862,21 @@ async def _context_enrichment_worker(app: FastAPI) -> None:
                                 maximum_attempts=1 if failure == "STALE_EVIDENCE_REQUIREMENT" else 4,
                             )
                         await session.commit()
+            async def on_collection_timeout(job):
+                async with app.state.session_factory() as session:
+                    current = await session.get(ContextEnrichmentJobRecord, UUID(job["job_id"]))
+                    if current is not None and current.status == "collecting" and current.lease_owner == worker_id:
+                        await ContextEnrichmentRepository(session).finish_context_enrichment_job(
+                            job_id=job["job_id"], worker_id=worker_id,
+                            collected=False, error="COLLECTION_DEADLINE_EXCEEDED",
+                            retry_after_seconds=60, maximum_attempts=4,
+                        )
+                    await session.commit()
+
+            from common.enrichment_scheduler import run_leased_collection_batch
+            # Bound each job below its 120-second lease, and start the leased
+            # batch together instead of spending leases waiting on siblings.
+            await run_leased_collection_batch(jobs, process_job, on_collection_timeout)
         except asyncio.CancelledError:
             raise
         except Exception:
@@ -974,33 +1000,8 @@ def _attach_analysis_request_metadata(
 
 
 async def _flush_context_outbox(app: FastAPI) -> int:
-    if not settings.database_enabled or getattr(app.state, "session_factory", None) is None:
-        return 0
-    published = 0
-    async with app.state.session_factory() as session:
-        acquired = await session.scalar(text("SELECT GET_LOCK('kaiops_resolution_outbox_dispatch', 0)"))
-        if int(acquired or 0) != 1:
-            return 0
-        try:
-            repo = IncidentRepository(session)
-            rows = await repo.list_pending_resolution_events(
-                limit=int(getattr(settings, "resolution_outbox_batch_size", 100) or 100)
-            )
-            publishers: dict[str, EventPublisher] = getattr(app.state, "message_bus_publishers", {})
-            for row in rows:
-                provider = str(row.payload.get("transport") or "").strip().lower()
-                publisher = publishers.get(provider) or publishers.get("rabbitmq") or app.state.producer
-                try:
-                    await publisher.publish(row.topic, row.payload, key=row.partition_key)
-                    await repo.mark_resolution_event_published(row.event_id)
-                    published += 1
-                except Exception as exc:
-                    await repo.mark_resolution_event_retry(row.event_id, str(exc))
-                await session.commit()
-        finally:
-            await session.execute(text("SELECT RELEASE_LOCK('kaiops_resolution_outbox_dispatch')"))
-            await session.commit()
-    return published
+    from common.outbox_dispatch import flush_resolution_outbox
+    return await flush_resolution_outbox(app, settings)
 
 
 async def _context_outbox_dispatch_loop(app: FastAPI) -> None:
@@ -1246,6 +1247,9 @@ async def startup(app: FastAPI) -> None:
 
     tasks.append(asyncio.create_task(_context_outbox_dispatch_loop(app), name="context-agent-event-outbox"))
     tasks.append(asyncio.create_task(_context_enrichment_worker(app), name="context-agent-enrichment-worker"))
+    from common.queue_backpressure import backlog_loop, controller_enabled
+    if controller_enabled(settings.queue_backlog_enabled, provider, app.state.rabbitmq_publisher is not None):
+        tasks.append(asyncio.create_task(backlog_loop(settings), name="context-agent-backlog-controller"))
     if settings.context_reconciliation_enabled:
         tasks.append(asyncio.create_task(
             _context_reconciliation_loop(app), name="context-agent-enrichment-reconciler",
@@ -2529,7 +2533,7 @@ async def _reconcile_context_enrichment_tenant(
                     row for row in requirements
                     if str(row.requirement_id) not in ledger_coverage
                     if str((existing_by_key.get((row.rca_version, row.category, row.question)) or {}).get("status") or "identified").lower()
-                    not in {"collected", "answered", "satisfied", "blocked", "dead_letter"}
+                    not in {"collected", "answered", "satisfied", "blocked", "dead_letter", "scheduled", "collecting", "human_requested", "assignment_blocked"}
                 ]
                 summary["requirements_created"] += len(missing)
                 context_payload = candidate["context"] if isinstance(candidate["context"], dict) else {}
@@ -2555,17 +2559,14 @@ async def _reconcile_context_enrichment_tenant(
                     and str(requirement.requirement_id) in dead_letter_requirement_ids
                 ]
                 planned: list[tuple[EvidenceRequirement, str | None]] = [
-                    (requirement, next((name for name in requirement.candidate_connectors if name in authorized), None))
+                    (requirement, unattempted_requirement_connector(requirement, authorized, activity["jobs"]))
                     for requirement in work
+                    if not any(str(job["requirement_id"]) == str(requirement.requirement_id) for job in activity["jobs"])
                 ]
                 recovered_plans = [
                     (
                         requirement,
-                        next_authorized_enrichment_connector(
-                            candidate_connectors=requirement.candidate_connectors,
-                            authorized_connectors=authorized,
-                            attempted_connectors=attempted_by_requirement.get(str(requirement.requirement_id), set()),
-                        ),
+                        unattempted_requirement_connector(requirement, authorized, activity["jobs"]),
                     )
                     for requirement in dead_requirements
                 ]
@@ -2575,11 +2576,17 @@ async def _reconcile_context_enrichment_tenant(
                     for requirement, connector in recovered_plans
                     if connector
                 }
+                active_job_requirement_ids = {
+                    str(job["requirement_id"]) for job in activity["jobs"]
+                    if job.get("status") in {"scheduled", "collecting", "retry", "collected"}
+                }
                 dead_letter_fallbacks = [
                     row for row in existing
                     if int(row["rca_version"]) == int(candidate["rca_version"])
                     and str(row["requirement_id"]) in dead_letter_requirement_ids
                     and str(row["requirement_id"]) not in recoverable_ids
+                    and str(row["requirement_id"]) not in active_job_requirement_ids
+                    and str(row.get("status")) not in {"human_requested", "assignment_blocked", "collected", "satisfied", "answered"}
                 ]
                 summary["jobs_scheduled"] += sum(1 for _, connector in planned if connector)
                 summary["human_requests_created"] += (
@@ -2609,7 +2616,7 @@ async def _reconcile_context_enrichment_tenant(
                                     "incident": incident.model_dump(mode="json"),
                                     "decision": {"reconciled": True},
                                     "authorized_connectors": sorted(authorized),
-                                    "attempted_connectors": [],
+                                    "attempted_connectors": sorted(attempted_by_requirement.get(str(requirement.requirement_id), set())),
                                 },
                                 observation_start=window_start,
                                 observation_end=window_end,

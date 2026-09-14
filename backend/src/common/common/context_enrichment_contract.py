@@ -9,6 +9,7 @@ from uuid import NAMESPACE_URL, UUID, uuid5
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from common.models import Alert, Incident
+from common.evidence_source_policy import is_alert_artifact
 
 EvidenceCategory = Literal[
     "metrics",
@@ -96,7 +97,7 @@ class EvidenceRecord(BaseModel):
     collected_at: datetime
     observation_window_start: datetime | None = None
     observation_window_end: datetime | None = None
-    freshness: Literal["fresh", "cached", "stale"]
+    freshness: Literal["fresh", "cached", "stale", "unknown"]
     content: dict[str, Any]
     provenance: dict[str, Any]
     current_observation: bool
@@ -205,10 +206,47 @@ def normalize_connector_response(
     normalized: list[EvidenceRecord] = []
     rejected: list[dict[str, Any]] = []
     if category == "metrics":
-        source_reference = f"prometheus://{endpoint}/query?expr={query}"
         for index, raw in enumerate(raw_records):
             if not isinstance(raw, dict):
                 rejected.append({"code": "INVALID_RECORD_TYPE", "record_index": index})
+                continue
+            record_query = str(raw.get("query") or query).strip()
+            record_endpoint = str(raw.get("endpoint") or endpoint).strip()
+            source_reference = str(raw.get("source_reference") or raw.get("uri") or
+                                   f"prometheus://{record_endpoint}/query?expr={record_query}")
+            try:
+                record_start = _parse_timestamp(raw["observation_window_start"]) if raw.get("observation_window_start") else window_start
+                record_end = _parse_timestamp(raw["observation_window_end"]) if raw.get("observation_window_end") else window_end
+                if record_start and record_end and record_end <= record_start:
+                    raise ValueError("reversed window")
+            except (TypeError, ValueError, OSError):
+                rejected.append({"code": "INVALID_OBSERVATION_WINDOW", "record_index": index})
+                continue
+            # Docker stats are numeric observations, not Prometheus series. Preserve
+            # their real provider and observation time without claiming a past window.
+            if raw.get("source") == "resource" and str(raw.get("uri") or "").startswith("docker://"):
+                measurements = {key: raw[key] for key in (
+                    "cpu_percent", "cpu_throttled_ratio", "mem_percent", "mem_working_set_bytes", "mem_limit_bytes"
+                ) if isinstance(raw.get(key), (int, float)) and not isinstance(raw.get(key), bool)}
+                try:
+                    observed_at = _parse_timestamp(raw["observed_at"])
+                    if not measurements or raw.get("provider_error"):
+                        raise ValueError("missing samples")
+                except (KeyError, TypeError, ValueError, OSError):
+                    rejected.append({"code": "RESOURCE_SAMPLES_INCOMPLETE", "record_index": index})
+                    continue
+                content = {**raw, "measurements": measurements, "series_kind": "resource_snapshot"}
+                normalized.append(EvidenceRecord(
+                    evidence_id=_stable_evidence_id(requirement=requirement, connector=connector,
+                        source_reference=source_reference, observation_identity=observed_at.isoformat(), content=content),
+                    requirement_id=str(requirement.requirement_id), tenant_id=requirement.tenant_id,
+                    incident_id=str(incident.id), category="metrics", source_id="docker", connector=connector,
+                    source_reference=source_reference, service=str(raw.get("service") or incident.service),
+                    observed_at=observed_at, collected_at=now,
+                    freshness="fresh" if abs((now - observed_at).total_seconds()) <= 900 else "stale",
+                    content=content, provenance={"endpoint": source_reference, "observation_scope": "current_snapshot"},
+                    current_observation=True,
+                ))
                 continue
             labels = raw.get("metric") if isinstance(raw.get("metric"), dict) else {}
             metric_name = str(labels.get("__name__") or "").strip()
@@ -228,10 +266,12 @@ def normalize_connector_response(
                                      "sample_index": sample_index})
                     continue
                 samples.append({"timestamp": observed.isoformat(), "value": str(sample[1])})
-            if not metric_name or not samples:
+            if not (metric_name or record_query) or not samples:
                 rejected.append({"code": "PROMETHEUS_SERIES_INCOMPLETE", "record_index": index})
                 continue
-            content = {"metric_name": metric_name, "labels": dict(labels), "samples": samples,
+            content = {"metric_name": metric_name or None, "expression": record_query or None,
+                       "series_kind": "named_metric" if metric_name else "query_result",
+                       "labels": dict(labels), "samples": samples,
                        "result_type": "matrix" if "values" in raw else "vector"}
             observed_at = max(_parse_timestamp(sample["timestamp"]) for sample in samples)
             evidence_id = _stable_evidence_id(
@@ -241,15 +281,15 @@ def normalize_connector_response(
             normalized.append(EvidenceRecord(
                 evidence_id=evidence_id, requirement_id=str(requirement.requirement_id),
                 tenant_id=requirement.tenant_id, incident_id=str(incident.id), category="metrics",
-                source_id=endpoint, connector=connector, source_reference=source_reference,
+                source_id=record_endpoint, connector=connector, source_reference=source_reference,
                 service=str(labels.get("service") or incident.service or "") or None,
                 resource=str(labels.get("instance") or "") or None,
                 project_id=str(labels.get("project_id") or "") or None,
                 observed_at=observed_at, collected_at=now,
-                observation_window_start=window_start, observation_window_end=window_end,
+                observation_window_start=record_start, observation_window_end=record_end,
                 freshness="fresh" if abs((now - observed_at).total_seconds()) <= 900 else "stale",
                 content=content,
-                provenance={**provenance, "query": query, "endpoint": endpoint,
+                provenance={**provenance, "query": record_query, "endpoint": record_endpoint,
                             "raw_result_type": "matrix" if "values" in raw else "vector"},
                 current_observation=True, contradiction_status=None,
             ))
@@ -267,6 +307,8 @@ def normalize_connector_response(
             if not isinstance(raw, dict):
                 rejected.append({"code": "INVALID_RECORD_TYPE", "record_index": index})
                 continue
+            if category == "logs" and not (raw.get("message") or raw.get("log")) and raw.get("snippet"):
+                raw = {**raw, "message": raw["snippet"]}
             if category == "knowledge":
                 raw = {
                     **raw,
@@ -284,13 +326,17 @@ def normalize_connector_response(
                 continue
             source_reference = str(
                 raw.get("source_reference") or raw.get("url") or raw.get("uri")
-                or raw.get("repository_url") or ""
+                or raw.get("repository_url") or raw.get("citation") or raw.get("source_uri") or ""
             ).strip()
             if category == "topology" and not source_reference:
                 source_reference = f"cmdb://{endpoint}/service/{incident.service}"
             if not source_reference:
                 rejected.append({"code": "EVIDENCE_SOURCE_REFERENCE_MISSING", "record_index": index})
                 continue
+            if category == "logs" and is_alert_artifact(raw):
+                rejected.append({"code": "ALERT_ARTIFACT_NOT_OPERATIONAL_LOG", "record_index": index})
+                continue
+            timestamp_missing = not any(raw.get(key) for key in ("observed_at", "timestamp", "updated_at", "created_at"))
             observed_raw = (
                 raw.get("observed_at") or raw.get("timestamp") or raw.get("updated_at")
                 or raw.get("created_at") or window_end_raw or now
@@ -323,16 +369,17 @@ def normalize_connector_response(
                 project_id=str(raw.get("project_id") or "") or None,
                 observed_at=observed_at, collected_at=now,
                 observation_window_start=window_start, observation_window_end=window_end,
-                freshness="fresh" if abs((now - observed_at).total_seconds()) <= 900 else "stale",
+                freshness="unknown" if timestamp_missing else "fresh" if abs((now - observed_at).total_seconds()) <= 900 else "stale",
                 content=content, provenance={**provenance, **dict(raw.get("provenance") or {}),
-                                             "endpoint": endpoint},
-                current_observation=bool(raw.get("current_observation", True)),
+                                             "endpoint": endpoint, "timestamp_missing": timestamp_missing},
+                current_observation=not timestamp_missing and bool(raw.get("current_observation", True)),
                 contradiction_status=raw.get("contradiction_status"),
             ))
     return ConnectorNormalization(
         records=normalized,
         metadata={"connector": connector, "endpoint": endpoint, "query": query,
-                  "observation_window_start": window_start, "observation_window_end": window_end},
+                  "observation_window_start": window_start.isoformat() if window_start else None,
+                  "observation_window_end": window_end.isoformat() if window_end else None},
         rejected=rejected,
     )
 RequirementStatus = Literal[
@@ -644,10 +691,10 @@ _REQUIREMENT_CONNECTORS: dict[str, list[str]] = {
     "deployment": ["discovery-mcp", "vector-db", "jenkins", "kubernetes", "local-evidence"],
     "change": ["discovery-mcp", "vector-db", "jira", "github", "local-evidence"],
     "source_code": ["discovery-mcp", "local-evidence", "github", "vector-db"],
-    "database": ["discovery-mcp"],
+    "database": [],
     "ticket": ["discovery-mcp", "jira", "vector-db"],
     "runbook": ["vector-db", "discovery-mcp", "local-evidence"],
-    "validation": ["prometheus", "discovery-mcp"],
+    "validation": [],
 }
 _HUMAN_CATEGORIES = {"ownership", "business_impact"}
 _CATEGORY_ALIASES = {
@@ -669,6 +716,18 @@ _CATEGORY_ALIASES = {
     "knowledge": "runbook",
     "runbooks": "runbook",
 }
+
+
+def legacy_discovery_category(question: str) -> str | None:
+    """Recognize known older RCA request templates, not arbitrary prose."""
+    text = " ".join(question.casefold().split()).rstrip(".")
+    if text.startswith("deployment history or recent changes for "):
+        return "deployment"
+    if text == "resource telemetry and data-path health during the incident window":
+        return "metrics"
+    if text == "dependency health and saturation metrics":
+        return "topology"
+    return None
 
 
 def build_evidence_requirements(
@@ -694,11 +753,25 @@ def build_evidence_requirements(
     valid_categories = set(EvidenceCategory.__args__)
     for raw in missing_evidence or []:
         gap = raw if isinstance(raw, dict) else {}
-        token = str(gap.get("category") if gap else raw).strip().lower()
+        token = str((gap.get("category") or gap.get("question") or "") if gap else raw).strip().lower()
         category = _CATEGORY_ALIASES.get(token, token)
-        if category not in valid_categories:
+        if not token or token == "none":
             continue
-        connectors = list(gap.get("candidate_connectors") or _REQUIREMENT_CONNECTORS.get(category, []))
+        legacy_category = legacy_discovery_category(str(raw)) if isinstance(raw, str) else None
+        if legacy_category:
+            category = legacy_category
+            gap = {"question": raw, "reason": "Collect the requested evidence through the configured discovery sources."}
+        if category not in valid_categories:
+            # Preserve prose and unfamiliar gap codes as explicit review work.
+            # Guessing a connector can falsely mark an unanswered question collected.
+            gap = {**gap, "question": gap.get("question") or str(raw),
+                   "reason": gap.get("reason") or "The RCA declared this evidence gap; collection needs a scoped source.",
+                   "candidate_connectors": []}
+            category = "validation"
+        connectors = list((gap.get("candidate_connectors") or []) if "candidate_connectors" in gap else _REQUIREMENT_CONNECTORS.get(category, []))
+        if category not in _CANONICAL_CATEGORY:
+            # Do not schedule a source category that the evidence contract cannot ingest.
+            connectors = []
         mode = (
             "human_required" if category in _HUMAN_CATEGORIES else ("automatic" if connectors else "connector_required")
         )
@@ -770,7 +843,13 @@ def initial_causal_collection_gaps(
         or "public internet" in str(environment).lower()
     )
     if external_probe:
-        return gaps[:1]
+        return [{
+            "category": "metrics",
+            "question": "Collect timestamped HTTP status, probe success, DNS and TLS diagnostics for the exact monitored endpoint and incident window.",
+            "reason": "Distinguish HTTP application responses from DNS, TLS or transport failures. A failed HTTP check alone does not establish packet loss or customer impact.",
+            "priority": "critical",
+            "candidate_connectors": ["prometheus", "discovery-mcp"],
+        }]
     return gaps
 
 

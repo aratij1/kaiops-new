@@ -1896,7 +1896,7 @@ async def _publish_analysis_regeneration_command(
             repository = IncidentRepository(session)
             await repository.mark_resolution_event_retry(outbox_event_id, str(exc))
             lifecycle = await repository.get_analysis_request(UUID(request_id), tenant_id=tenant_id)
-            if lifecycle is not None:
+            if lifecycle is not None and lifecycle.status in {"accepted", "queued"}:
                 lifecycle.status = "queued"
                 lifecycle.delivery = "queued"
             await session.commit()
@@ -1912,10 +1912,6 @@ async def _publish_analysis_regeneration_command(
         async with session_factory() as session:
             repository = IncidentRepository(session)
             await repository.mark_resolution_event_published(outbox_event_id)
-            lifecycle = await repository.get_analysis_request(UUID(request_id), tenant_id=tenant_id)
-            if lifecycle is not None:
-                lifecycle.status = "published"
-                lifecycle.delivery = "published"
             await session.commit()
     return "published", request_id, True
 
@@ -3505,60 +3501,14 @@ def _rabbit_management() -> tuple[str, tuple[str, str]]:
     return f"{scheme}://{broker_url.hostname}:15672/api", (unquote(broker_url.username or "guest"), unquote(broker_url.password or "guest"))
 
 
-def _queue_job_id(queue_name: str, body: bytes) -> str:
-    """Return a stable, opaque identity without exposing queued payload data."""
-    digest = hashlib.sha256(queue_name.encode("utf-8") + b"\0" + body).hexdigest()
-    return f"job-{digest[:24]}"
+from common.queue_management import (
+    broker_vhost, queue_job_id as _queue_job_id,
+    mutate_ready_queue_job, sample_ready_messages,
+)
 
 
-async def _mutate_ready_queue_job(*, queue_name: str, job_id: str, rerun: bool, scan_limit: int = 100) -> bool:
-    """Acknowledge one exact ready message, optionally republishing it at the queue tail.
-
-    Non-matching messages are rejected with requeue=True. Messages already
-    owned by a consumer are never interrupted or acknowledged here.
-    """
-    connection = await aio_pika.connect_robust(settings.rabbitmq_url, timeout=10)
-    pending: list[aio_pika.IncomingMessage] = []
-    try:
-        channel = await connection.channel()
-        bounded_limit = max(1, min(scan_limit, 100))
-        await channel.set_qos(prefetch_count=bounded_limit)
-        queue = await channel.declare_queue(queue_name, passive=True)
-        for _ in range(bounded_limit):
-            message = await queue.get(fail=False, timeout=2)
-            if message is None:
-                break
-            if _queue_job_id(queue_name, message.body) != job_id:
-                pending.append(message)
-                continue
-            if rerun:
-                replacement = aio_pika.Message(
-                    body=message.body,
-                    headers=dict(message.headers or {}),
-                    content_type=message.content_type,
-                    content_encoding=message.content_encoding,
-                    delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
-                    correlation_id=message.correlation_id,
-                    message_id=message.message_id,
-                    timestamp=message.timestamp,
-                    type=message.type,
-                    app_id=message.app_id,
-                )
-                await channel.default_exchange.publish(replacement, routing_key=queue_name, mandatory=True)
-            await message.ack()
-            for skipped in pending:
-                await skipped.reject(requeue=True)
-            pending.clear()
-            return True
-        for skipped in pending:
-            await skipped.reject(requeue=True)
-        pending.clear()
-        return False
-    finally:
-        for skipped in pending:
-            with suppress(Exception):
-                await skipped.reject(requeue=True)
-        await connection.close()
+async def _mutate_ready_queue_job(**kwargs) -> bool:
+    return await mutate_ready_queue_job(broker_url=settings.rabbitmq_url, **kwargs)
 
 
 async def _queue_audit(request: Request, action: str, resource_id: str, payload: dict[str, Any]) -> None:
@@ -3575,7 +3525,7 @@ async def _queue_audit(request: Request, action: str, resource_id: str, payload:
 async def list_processing_queues(request: Request, _: AuthContext = Depends(require_roles(SystemRole.ADMINISTRATOR.value))) -> dict[str, Any]:
     base, auth = _rabbit_management()
     async with httpx.AsyncClient(timeout=httpx.Timeout(5.0)) as client:
-        response = await client.get(f"{base}/queues", auth=auth)
+        response = await client.get(f"{base}/queues/{quote(broker_vhost(settings.rabbitmq_url), safe='')}", auth=auth)
         response.raise_for_status()
     prefix = f"{settings.rabbitmq_queue_prefix}."
     rows = []
@@ -3584,7 +3534,7 @@ async def list_processing_queues(request: Request, _: AuthContext = Depends(requ
         if not name.startswith(prefix):
             continue
         parts = name.split(".")
-        rows.append({"name": name, "consumer_service": parts[1] if len(parts) > 2 else "unknown", "stage": ".".join(parts[2:]) if len(parts) > 2 else name, "ready": int(row.get("messages_ready") or 0), "in_flight": int(row.get("messages_unacknowledged") or 0), "total": int(row.get("messages") or 0), "consumers": int(row.get("consumers") or 0), "state": row.get("state") or "unknown", "dead_letter": name.endswith(".dlq")})
+        rows.append({"name": name, "consumer_service": parts[1] if len(parts) > 2 else "unknown", "stage": ".".join(parts[2:]) if len(parts) > 2 else name, "ready": int(row.get("messages_ready") or 0), "in_flight": int(row.get("messages_unacknowledged") or 0), "total": int(row.get("messages") or 0), "consumers": int(row.get("consumers") or 0), "state": row.get("state") or "unknown", "dead_letter": name.endswith(".dlq"), "deferred": name.endswith(".deferred")})
     rows.sort(key=lambda item: (-item["total"], item["name"]))
     scalable = [
         {
@@ -3595,7 +3545,7 @@ async def list_processing_queues(request: Request, _: AuthContext = Depends(requ
             "reason": "ready backlog exceeds two messages per active consumer",
         }
         for row in rows
-        if not row["dead_letter"]
+        if not row["dead_letter"] and not row["deferred"]
         and row["ready"] > max(5, row["consumers"] * 2)
     ]
     return {
@@ -3603,10 +3553,12 @@ async def list_processing_queues(request: Request, _: AuthContext = Depends(requ
         "queues": rows,
         "summary": {
             "queues": len(rows),
-            "ready": sum(row["ready"] for row in rows),
-            "in_flight": sum(row["in_flight"] for row in rows),
+            "ready": sum(row["ready"] for row in rows if not row["dead_letter"] and not row["deferred"]),
+            "in_flight": sum(row["in_flight"] for row in rows if not row["dead_letter"] and not row["deferred"]),
             "dead_letter": sum(row["total"] for row in rows if row["dead_letter"]),
-            "worker_action": "scale" if scalable else "hold",
+            "deferred": sum(row["total"] for row in rows if row["deferred"]),
+            "worker_action": "start_workers" if any(not row["dead_letter"] and not row["deferred"] and row["ready"] and not row["consumers"] for row in rows) else "inspect" if scalable else "hold",
+            "worker_message": "Ready jobs have no consumer; restore workers before considering scaling." if any(not row["dead_letter"] and not row["deferred"] and row["ready"] and not row["consumers"] for row in rows) else "Backlog needs investigation. Check processing latency and failures before increasing concurrency." if scalable else "No backlog threshold exceeded at this snapshot; throughput has not been established.",
             "scale_recommendations": scalable,
         },
     }
@@ -3616,21 +3568,10 @@ async def list_processing_queues(request: Request, _: AuthContext = Depends(requ
 async def sample_processing_queue(queue_name: str, request: Request, count: int = 25, _: AuthContext = Depends(require_roles(SystemRole.ADMINISTRATOR.value))) -> dict[str, Any]:
     if not queue_name.startswith(f"{settings.rabbitmq_queue_prefix}."):
         raise HTTPException(status_code=403, detail="Queue is outside the KaiMS namespace")
-    base, auth = _rabbit_management()
-    path = f"{base}/queues/%2F/{quote(queue_name, safe='')}/get"
-    body = {"count": max(1, min(count, 100)), "ackmode": "ack_requeue_true", "encoding": "auto", "truncate": 50000}
-    async with httpx.AsyncClient(timeout=httpx.Timeout(10.0)) as client:
-        response = await client.post(path, auth=auth, json=body)
-        response.raise_for_status()
-    messages = []
-    for item in response.json() if isinstance(response.json(), list) else []:
-        raw = item.get("payload")
-        try: decoded = json.loads(raw) if isinstance(raw, str) else raw
-        except json.JSONDecodeError: decoded = {"raw": str(raw)[:500]}
-        payload = decoded.get("payload") if isinstance(decoded, dict) and isinstance(decoded.get("payload"), dict) else decoded
-        raw_bytes = raw.encode("utf-8") if isinstance(raw, str) else json.dumps(raw, sort_keys=True, separators=(",", ":")).encode("utf-8")
-        messages.append({"job_id": _queue_job_id(queue_name, raw_bytes), "alert_id": str((payload or {}).get("alert_id") or (payload or {}).get("id") or ""), "incident_id": str((payload or {}).get("incident_id") or ""), "name": str((payload or {}).get("name") or (payload or {}).get("alert_name") or "Queued event"), "service": str((payload or {}).get("service") or "unknown"), "severity": str((payload or {}).get("severity") or "unknown"), "redelivered": bool(item.get("redelivered")), "payload_bytes": int(item.get("payload_bytes") or 0)})
-    return {"queue": queue_name, "messages": messages, "sampled": len(messages), "note": "Messages were inspected and requeued; no processing state changed."}
+    messages = await sample_ready_messages(settings.rabbitmq_url, queue_name, count)
+    return {"queue": queue_name, "messages": messages, "sampled": len(messages),
+            "note": "Ready messages were inspected and requeued. Concurrent consumption can change the sample; requeueing can change delivery order."}
+
 
 
 async def _queue_job_action(queue_name: str, job_id: str, request: Request, payload: dict[str, Any], *, rerun: bool) -> dict[str, Any]:
@@ -3686,7 +3627,7 @@ async def purge_processing_queue(queue_name: str, request: Request, payload: dic
         raise HTTPException(status_code=422, detail="A meaningful reason and exact queue purge confirmation are required")
     base, auth = _rabbit_management()
     async with httpx.AsyncClient(timeout=httpx.Timeout(10.0)) as client:
-        response = await client.delete(f"{base}/queues/%2F/{quote(queue_name, safe='')}/contents", auth=auth)
+        response = await client.delete(f"{base}/queues/{quote(broker_vhost(settings.rabbitmq_url), safe='')}/{quote(queue_name, safe='')}/contents", auth=auth)
         response.raise_for_status()
     await _queue_audit(request, "queue.messages.purged", queue_name, {"reason": payload["reason"]})
     return {"status": "purged", "queue": queue_name, "effect": "Ready messages were removed. In-flight messages were not interrupted."}
@@ -3701,13 +3642,13 @@ async def purge_all_processing_queues(request: Request, payload: dict[str, Any] 
     prefix = f"{settings.rabbitmq_queue_prefix}."
     purged: list[str] = []
     async with httpx.AsyncClient(timeout=httpx.Timeout(30.0)) as client:
-        listing = await client.get(f"{base}/queues", auth=auth)
+        listing = await client.get(f"{base}/queues/{quote(broker_vhost(settings.rabbitmq_url), safe='')}", auth=auth)
         listing.raise_for_status()
         for row in listing.json() if isinstance(listing.json(), list) else []:
             name = str(row.get("name") or "")
             if not name.startswith(prefix) or int(row.get("messages_ready") or 0) <= 0:
                 continue
-            response = await client.delete(f"{base}/queues/%2F/{quote(name, safe='')}/contents", auth=auth)
+            response = await client.delete(f"{base}/queues/{quote(broker_vhost(settings.rabbitmq_url), safe='')}/{quote(name, safe='')}/contents", auth=auth)
             response.raise_for_status()
             purged.append(name)
     await _queue_audit(request, "queue.all_ready_messages.purged", "all", {"reason": reason, "queues": purged})

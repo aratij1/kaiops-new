@@ -96,17 +96,29 @@ class HttpModelGateway(ModelGateway):
         return value
 
     def _compact_payload(self, payload: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
-        original_bytes = len(json.dumps(payload, default=str, separators=(",", ":")).encode("utf-8"))
+        original_bytes = len(json.dumps(payload, default=str).encode("utf-8"))
         compacted = self._compact_value(payload)
-        compacted_bytes = len(json.dumps(compacted, default=str, separators=(",", ":")).encode("utf-8"))
-        if compacted_bytes > self._max_payload_bytes and isinstance(compacted, dict):
-            # Preserve incident identity and conclusions; progressively omit bulky optional evidence.
-            for key in ("log_intelligence", "observability", "discovery_evidence", "evidence", "related_incidents"):
-                if compacted_bytes <= self._max_payload_bytes:
-                    break
-                if key in compacted:
-                    compacted[key] = {"omitted": "payload budget exceeded", "source": key}
-                    compacted_bytes = len(json.dumps(compacted, default=str, separators=(",", ":")).encode("utf-8"))
+        compacted_bytes = len(json.dumps(compacted, default=str).encode("utf-8"))
+        # Bound every branch, including iterative reports and hypothesis trees.
+        # Keep evidence as arrays of attributable records rather than replacing
+        # the entire evidence plane with an omission object.
+        def bounded(value, strings, items, depth=0):
+            if depth > 10:
+                return "<nested value omitted>"
+            if isinstance(value, str):
+                return value if len(value) <= strings else value[:strings] + "<trimmed>"
+            if isinstance(value, list):
+                return [bounded(v, strings, items, depth + 1) for v in value[:items]]
+            if isinstance(value, dict):
+                return {k: bounded(v, strings, items, depth + 1) for k, v in value.items()}
+            return value
+        for strings, items in ((2000, 10), (1000, 5), (500, 3), (200, 1)):
+            if compacted_bytes <= self._max_payload_bytes:
+                break
+            compacted = bounded(compacted, strings, items)
+            compacted_bytes = len(json.dumps(compacted, default=str).encode("utf-8"))
+        if compacted_bytes > self._max_payload_bytes:
+            raise ValueError("Model payload exceeds the configured budget after compaction; narrow the investigation scope.")
         return compacted, {
             "original_bytes": original_bytes,
             "sent_bytes": compacted_bytes,

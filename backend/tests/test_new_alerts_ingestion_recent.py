@@ -7,7 +7,7 @@ import pytest
 
 class _DummyProducer:
     async def publish(self, *_args, **_kwargs) -> None:
-        return None
+        raise AssertionError("Warning alerts must not be published for investigation")
 
 
 def load_monitoring_app_module():
@@ -21,8 +21,9 @@ def load_monitoring_app_module():
 
 
 @pytest.mark.asyncio
-async def test_ingest_alert_exposes_latest_50_alerts_in_recent_feed() -> None:
+async def test_ingest_alert_exposes_latest_50_alerts_in_recent_feed(monkeypatch) -> None:
     module = load_monitoring_app_module()
+    monkeypatch.setattr(module.settings, "database_enabled", False)
     original_recent_alerts = getattr(module, "RECENT_ALERTS")
 
     setattr(module, "RECENT_ALERTS", deque(maxlen=200))

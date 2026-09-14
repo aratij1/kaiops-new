@@ -269,6 +269,7 @@ services:
     command:
       - "--max-connections=${MYSQL_MAX_CONNECTIONS:-450}"
       - "--sort-buffer-size=${MYSQL_SORT_BUFFER_SIZE:-2097152}"
+      - "--binlog-expire-logs-seconds=${MYSQL_BINLOG_RETENTION_SECONDS:-259200}"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-kaiops}
@@ -282,6 +283,32 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+
+  mysql-retention:
+    image: ${MONITORING_ADAPTER_IMAGE:-kaiops_pubsub-monitoring-adapter:latest}
+    init: true
+    restart: unless-stopped
+    environment:
+      <<: *service-env
+      SERVICE_NAME: mysql-retention
+    working_dir: /app
+    command: ["python", "/app/scripts/manage_mysql_retention.py", "--execute", "--daemon", "--archive-dir", "/archives"]
+    volumes:
+      - ./scripts/manage_mysql_retention.py:/app/scripts/manage_mysql_retention.py:ro
+      - ./backend/retention-archives:/archives
+    depends_on:
+      mysql: { condition: service_healthy }
+    mem_limit: 512m
+    cpus: 0.5
+    healthcheck:
+      test: ["CMD", "python", "-c", "import pathlib,time; p=pathlib.Path('/archives/last-run.json'); assert p.exists() and time.time()-p.stat().st_mtime < 90000 and not pathlib.Path('/archives/last-error.json').exists()"]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 5m
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
 
   migrations:
     build: *service-build
@@ -430,15 +457,6 @@ services:
       - /:/rootfs:ro
     ports: ["9100:9100"]
 
-  blackbox-exporter:
-    image: prom/blackbox-exporter:v0.25.0
-    restart: unless-stopped
-    command:
-      - --config.file=/etc/blackbox_exporter/config.yml
-    volumes:
-      - ./observability/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
-    ports: ["9115:9115"]
-
   kafka-exporter:
     profiles: ["kafka"]
     image: danielqsj/kafka-exporter:v1.7.0
@@ -448,18 +466,6 @@ services:
     ports: ["9308:9308"]
     depends_on:
       kafka: { condition: service_healthy }
-
-  alertmanager:
-    image: prom/alertmanager:v0.27.0
-    restart: unless-stopped
-    command:
-      - --config.file=/etc/alertmanager/alertmanager.yml
-      - --storage.path=/alertmanager
-    ports: ["9093:9093"]
-    volumes:
-      - ./observability/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
-    depends_on:
-      monitoring-adapter: { condition: service_started }
 
   fault-lab:
     profiles:
@@ -537,35 +543,6 @@ services:
     volumes:
       - jaeger-data:/badger
 
-  prometheus:
-    image: prom/prometheus:v2.54.1
-    restart: unless-stopped
-    command:
-      - --config.file=/etc/prometheus/prometheus.yml
-      - --storage.tsdb.path=/prometheus
-      # Bound local-development TSDB growth and memory-mapped index pressure.
-      # Production deployments should override these values from capacity plans.
-      - --storage.tsdb.retention.time=${PROMETHEUS_RETENTION_TIME:-3d}
-      - --storage.tsdb.retention.size=${PROMETHEUS_RETENTION_SIZE:-2GB}
-      - --query.max-concurrency=${PROMETHEUS_QUERY_CONCURRENCY:-10}
-      - --web.enable-lifecycle
-    ports: ["9090:9090"]
-    volumes:
-      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./observability/recovery-kaims-http-targets.json:/etc/prometheus/recovery-kaims-http-targets.json:ro
-      - ./observability/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro
-      - ./backend/rag/changes/prometheus_rules:/etc/prometheus/generated-rules:ro
-      - ./backend/rag/changes/prometheus_targets:/etc/prometheus/generated-targets:ro
-      - prometheus-data:/prometheus
-    depends_on:
-      api-gateway: { condition: service_healthy }
-      monitoring-adapter: { condition: service_started }
-      mysql-exporter: { condition: service_started }
-      node-exporter: { condition: service_started }
-      blackbox-exporter: { condition: service_started }
-      alertmanager: { condition: service_started }
-      otel-collector: { condition: service_started }
-
   grafana:
     profiles: ["observability", "full"]
     image: grafana/grafana:11.2.2
@@ -581,8 +558,6 @@ services:
       - ./observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
       - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
       - grafana-data:/var/lib/grafana
-    depends_on:
-      prometheus: { condition: service_started }
 
   monitoring-adapter:
     image: ${MONITORING_ADAPTER_IMAGE:-kaiops_pubsub-monitoring-adapter:latest}
@@ -757,7 +732,6 @@ services:
       rule-generation-agent: { condition: service_started }
       rabbitmq: { condition: service_healthy }
       mysql: { condition: service_healthy }
-      prometheus: { condition: service_started }
 
   validation-agent:
     build: *service-build
@@ -770,7 +744,6 @@ services:
       prometheus-config-service: { condition: service_started }
       rabbitmq: { condition: service_healthy }
       mysql: { condition: service_healthy }
-      prometheus: { condition: service_started }
 
   dashboard-generator:
     build: *service-build
@@ -915,7 +888,7 @@ services:
       # synchronous RCA synthesis. This avoids duplicate LLM calls per alert.
       CONTEXT_DISCOVERY_MODEL_ANALYSIS_ENABLED: ${CONTEXT_DISCOVERY_MODEL_ANALYSIS_ENABLED:-false}
       CODE_DISCOVERY_ROOTS: /app/backend/src,/app/ai-workbench/src,/app/scripts,/app/config,/app/observability,/app/backend/rag,/app/fault-lab
-      LOG_DISCOVERY_ROOTS: /data/fault-lab/runtime,/data/landing,/app/observability,/app/backend/runtime,/app/backend/ingested_alerts
+      LOG_DISCOVERY_ROOTS: /data/fault-lab/runtime,/app/backend/runtime
       DISCOVERY_MAX_FILES: ${DISCOVERY_MAX_FILES:-60}
     command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
     working_dir: /app/ai-workbench/src/context-agent
@@ -951,7 +924,7 @@ services:
       <<: *service-env
       SERVICE_NAME: discovery-mcp
       DISCOVERY_MCP_CODE_ROOTS: /workspace/backend/src,/workspace/ai-workbench/src,/workspace/frontend/react/src,/workspace/scripts,/workspace/config,/workspace/observability,/workspace/fault-lab,/workspace/docs
-      DISCOVERY_MCP_LOG_ROOTS: /data/fault-lab/runtime,/data/landing,/workspace/fault-lab/runtime,/workspace/backend/ingested_alerts,/workspace/observability,/workspace/backend/runtime
+      DISCOVERY_MCP_LOG_ROOTS: /data/fault-lab/runtime,/workspace/fault-lab/runtime,/workspace/backend/runtime
       DISCOVERY_MCP_TICKET_ROOTS: /workspace/backend/rag,/data/tickets,/data/landing/documents
       DISCOVERY_MCP_MYSQL_TABLES: alerts,incident_projections,incidents,closed_incidents,onboarding_state
       DISCOVERY_MCP_MAX_FILES: ${DISCOVERY_MCP_MAX_FILES:-30}
@@ -1683,7 +1656,9 @@ services:
       - rs-mongodb
 
 networks:
-  default: {}
+  default:
+    external: true
+    name: kaims_default
   # Isolated network for Robot Shop's internal service mesh — its images
   # have hostnames like "mongodb"/"redis"/"mysql"/"rabbitmq"/"catalogue"
   # baked in at build time (nginx config, not env-var configurable), which
@@ -1695,7 +1670,6 @@ networks:
 volumes:
   mysql-data:
   jaeger-data:
-  prometheus-data:
   redis-data:
   zookeeper-data:
   zookeeper-log:

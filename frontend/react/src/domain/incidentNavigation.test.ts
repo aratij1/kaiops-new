@@ -16,3 +16,7 @@ describe("durable incident navigation", () => {
     expect(durableIncidentPath({})).toBeNull();
   });
 });
+
+it("ignores blank identifiers before a valid canonical projection", () => {
+  expect(durableIncidentPath({ incident_id: "  ", id: "alert-id", incident_projection: { incident_id: "incident-id" } })).toBe("/incidents/incident-id");
+});

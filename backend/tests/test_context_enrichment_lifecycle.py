@@ -77,7 +77,9 @@ def test_external_synthetic_probe_does_not_require_internal_topology() -> None:
         environment="public-internet",
     )
 
-    assert [row["category"] for row in gaps] == ["traces"]
+    assert [row["category"] for row in gaps] == ["metrics"]
+    assert "HTTP status" in gaps[0]["question"]
+    assert "prometheus" in gaps[0]["candidate_connectors"]
 
 
 def test_trace_gap_rejects_metric_only_observation() -> None:
@@ -638,10 +640,12 @@ async def test_atomic_enrichment_persists_exact_evidence_snapshot_and_outbox(
         session.add(ContextSnapshotRecord(
             snapshot_id=uuid4(), tenant_id="tenant-a", incident_id=str(incident_id),
             alert_signature="signature", subject_fingerprint="s" * 64,
-            context_fingerprint="c" * 64, snapshot_version=1, evidence_ids=[],
+            context_fingerprint="c" * 64, snapshot_version=1, evidence_ids=["UNRELATED-PRIOR-LOG"],
             evidence_checksums={}, contract_version="kaiops.context.v2", quality_score=0.2,
             reusable=False, source_manifest={}, payload={"tenant_id": "tenant-a",
-                "incident_id": str(incident_id), "metadata": {"context_evidence": {}}},
+                "incident_id": str(incident_id), "metadata": {"context_evidence": {},
+                    "context_sources": {"metrics": {"status": "skipped", "attempted": False,
+                                                    "result_count": 0, "fresh_count": 0}}}},
             collected_at=now, expires_at=now + timedelta(hours=1),
         ))
         await session.commit()
@@ -660,13 +664,20 @@ async def test_atomic_enrichment_persists_exact_evidence_snapshot_and_outbox(
         assert UUID(enriched_request_id)
         assert result["outbox_payload"]["context"]["metadata"]["analysis_request_id"] == enriched_request_id
         snapshot = await session.get(ContextSnapshotRecord, UUID(result["snapshot_id"]))
-        assert snapshot.evidence_ids == [record.evidence_id]
+        assert set(snapshot.evidence_ids) == {"UNRELATED-PRIOR-LOG", record.evidence_id}
         assert snapshot.payload["metadata"]["context_evidence"]["metrics"][0]["evidence_id"] == record.evidence_id
+        source = snapshot.payload["metadata"]["context_sources"]["metrics"]
+        assert source["status"] == "collected"
+        assert source["attempted"] is True
+        assert source["result_count"] == 1
+        assert source["evidence_ids"] == [record.evidence_id]
+        assert "fresh_count" not in source
 
         requirement_row = await repo.context_evidence_requirement(
             tenant_id="tenant-a", requirement_id=requirement.requirement_id,
         )
         assert requirement_row["status"] == "collected"
+        assert requirement_row["evidence_ids"] == [record.evidence_id]
         newer_requirement_row = await repo.context_evidence_requirement(
             tenant_id="tenant-a", requirement_id=newer_requirement.requirement_id,
         )
@@ -1132,3 +1143,30 @@ async def test_closed_observed_recovery_is_read_without_execution_lineage(sqlite
     if invalid is None:
         assert state["validation"]["health_restored"] is True
         assert state["validation"]["post_state_observations"][0]["passed"] is True
+
+
+@pytest.mark.asyncio
+async def test_external_probe_reconciliation_only_cancels_generic_trace_question(sqlite_session_factory):
+    incident_id = uuid4()
+    generic = "Collect fresh distributed traces for the affected service and incident window."
+    specific = "Retrieve instrumented trace abc123 from the owned gateway."
+    async with sqlite_session_factory() as session:
+        repo = ContextEnrichmentRepository(session)
+        requirements = build_evidence_requirements(
+            tenant_id="tenant-a", incident_id=incident_id, rca_version=1,
+            missing_evidence=[{"category": "traces", "question": generic}, {"category": "traces", "question": specific}],
+            now=datetime.now(UTC),
+        )
+        await repo.upsert_context_evidence_requirements(requirements)
+        changed = await repo.cancel_inapplicable_context_requirements(
+            tenant_id="tenant-a", incident_id=incident_id, categories={"traces"},
+            questions={generic}, reason="Superseded generic request",
+        )
+        rows = await repo.list_context_evidence_requirements(tenant_id="tenant-a", incident_id=incident_id)
+        assert changed == 1
+        assert next(row for row in rows if row["question"] == generic)["status"] == "cancelled"
+        assert next(row for row in rows if row["question"] == specific)["status"] != "cancelled"
+        assert await repo.cancel_inapplicable_context_requirements(
+            tenant_id="tenant-a", incident_id=incident_id, categories={"traces"},
+            questions={generic}, reason="Superseded generic request",
+        ) == 0

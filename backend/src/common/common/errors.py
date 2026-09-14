@@ -164,6 +164,10 @@ def install_exception_handlers(app: FastAPI, logger: logging.Logger) -> None:
 # end user reads back later.
 _HANDLER_FAILURE_CATEGORIES: tuple[tuple[re.Pattern[str], str], ...] = (
     (
+        re.compile(r"(?i)context snapshot.*supersed"),
+        "Newer context superseded this analysis; rerun against the current evidence snapshot.",
+    ),
+    (
         re.compile(r"(?i)duplicate entry|integrityerror|unique constraint|already exists"),
         "A duplicate or conflicting record was detected; this was safely coalesced.",
     ),

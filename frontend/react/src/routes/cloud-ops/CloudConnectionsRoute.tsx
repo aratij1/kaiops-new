@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Check, Cloud, Play, RefreshCw, ShieldCheck } from "lucide-react";
 
+import { useRouteRuntimeSlice } from "../../app/routeRuntime";
 import { useSession } from "../../app/SessionContext";
 import {
   createSimulatorConnection,
@@ -39,7 +40,7 @@ function ConnectionPipeline({ connection }: { connection: CloudConnection }) {
 
 export default function CloudConnectionsRoute() {
   const { accessToken } = useSession();
-  const [projectId, setProjectId] = useState("demo-project");
+  const projectId = useRouteRuntimeSlice("dashboard").selectedProject;
   const [serviceId, setServiceId] = useState("checkout-api");
   const [environment, setEnvironment] = useState("prod");
   const [name, setName] = useState("Simulator landing zone");
@@ -148,7 +149,7 @@ export default function CloudConnectionsRoute() {
         <div className="cloud-ops-toolbar">
           <label>
             <span>Project ID</span>
-            <input value={projectId} onChange={(event) => { setConnections([]); setProjectId(event.target.value); }} />
+            <input value={projectId} readOnly aria-readonly="true" />
           </label>
           <label>
             <span>Connection name</span>

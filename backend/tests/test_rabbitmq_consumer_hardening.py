@@ -53,7 +53,8 @@ class _FakeConnection:
     def __init__(self) -> None:
         self.channel_obj = _FakeChannel()
 
-    async def channel(self) -> _FakeChannel:
+    async def channel(self, *, publisher_confirms=True, on_return_raises=False) -> _FakeChannel:
+        assert publisher_confirms and on_return_raises
         return self.channel_obj
 
     async def close(self) -> None:
@@ -253,3 +254,80 @@ def test_new_consumer_exposes_zero_deadletters_without_resetting_existing_count(
     counter.labels(**labels).inc(2)
     rabbitmq.RabbitMQConsumer(Settings(), "context-events")
     assert registry.get_sample_value("test_deadletters_total", labels) == 2
+
+
+@pytest.mark.parametrize("body", [b"not-json", b'{"payload": []}'])
+async def test_malformed_input_is_quarantined_before_ack(body):
+    import base64
+    consumer = RabbitMQConsumer(Settings(), "raw-alerts")
+    consumer._connection = object()
+    consumer._exchange = _FakeExchange()
+    consumer._dlq_routing_key = "raw-alerts.dlq"
+    message = _FakeMessage(body)
+    consumer._queue = _FakeConsumerQueue([message])
+    async def handler(payload):
+        pytest.fail("Malformed input must not reach business handling")
+    task = asyncio.create_task(consume_forever(consumer, handler))
+    try:
+        for _ in range(100):
+            if message.acked:
+                break
+            await asyncio.sleep(0.01)
+    finally:
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+    assert message.acked == 1
+    assert base64.b64decode(consumer._exchange.published[0]["body"]["raw_body_base64"]) == body
+
+
+async def test_failed_quarantine_keeps_message_for_redelivery():
+    from common.rabbitmq import _quarantine_invalid_message
+    consumer = RabbitMQConsumer(Settings(), "raw-alerts")
+    message = _FakeMessage(b"broken")
+    await _quarantine_invalid_message(consumer, message, "decode_failed")
+    assert message.acked == 0
+    assert message.nacked == [True]
+
+
+@pytest.mark.parametrize("failure_mode", ["dlq_hang", "dlq_error", "persistence_hang", "persistence_error", "success"])
+async def test_terminal_handoff_is_bounded_and_ack_requires_durable_state(monkeypatch, failure_mode):
+    import common.rabbitmq as module
+    from unittest.mock import AsyncMock
+    monkeypatch.setattr(module, "processing_cancelled", AsyncMock(return_value=False))
+    monkeypatch.setattr(module, "_PUBLISH_TIMEOUT_SECONDS", 0.03)
+    consumer = RabbitMQConsumer(Settings(RABBITMQ_CONSUMER_MAX_RETRIES=0,
+        RABBITMQ_TRANSIENT_REQUEUE_ENABLED=False), "context-events")
+    consumer._connection = object()
+    consumer._dlq_routing_key = "context-events.dlq"
+    message = _FakeMessage(b'{"payload":{"event_id":"terminal-handoff"}}')
+    consumer._queue = _FakeConsumerQueue([message])
+    published = []
+    class Exchange:
+        async def publish(self, outgoing, routing_key):
+            if failure_mode == "dlq_hang":
+                await asyncio.Event().wait()
+            if failure_mode == "dlq_error":
+                raise ConnectionError("broker offline")
+            published.append(outgoing)
+    consumer._exchange = Exchange()
+    async def handler(payload):
+        raise ValueError("invalid business event")
+    async def persist(payload, error):
+        if failure_mode == "persistence_hang":
+            await asyncio.Event().wait()
+        if failure_mode == "persistence_error":
+            raise ConnectionError("database offline")
+    task = asyncio.create_task(consume_forever(consumer, handler, persist))
+    try:
+        async def settled():
+            while not (message.acked or message.nacked):
+                await asyncio.sleep(0.005)
+        await asyncio.wait_for(settled(), 1)
+    finally:
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+    assert message.acked == (1 if failure_mode == "success" else 0)
+    assert message.nacked == ([] if failure_mode == "success" else [True])
+    assert len(published) == (1 if failure_mode == "success" else 0)

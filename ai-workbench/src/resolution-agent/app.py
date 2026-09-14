@@ -13,6 +13,7 @@ from uuid import NAMESPACE_URL, UUID, uuid4, uuid5
 
 import httpx
 from ai_workbench_common.models import Context
+from common.investigation_gaps import investigation_gaps, blocking_investigation_gaps, requirement_blocks_recollection, incident_collection_window
 from common.capability_registry import default_capability_registry
 from common.config import get_settings
 from common.context_enrichment_contract import (
@@ -616,14 +617,14 @@ async def _resolve_context(context: Context) -> Recommendation:
                         [str(leading.get("reasoning_summary") or "").strip()]
                         if str(leading.get("reasoning_summary") or "").strip()
                         else [
-                            "The leading hypothesis cites validated "
+                            "The diagnostic candidate references "
                             f"{investigator._source(evidence_by_id[evidence_id])} evidence {evidence_id}."
                             for evidence_id in diagnostic_evidence_ids
                             if evidence_id in evidence_by_id
                         ]
                     ),
                     "contradictions": list(leading.get("contradicting_evidence_ids") or []),
-                    "missing_evidence": list(investigation_report.get("missing_sources") or []),
+                    "missing_evidence": investigation_gaps(rca_analysis, investigation_report),
                 })
                 recommendation.metadata["rca_analysis"] = rca_analysis
                 recommendation.rationale = (
@@ -634,7 +635,22 @@ async def _resolve_context(context: Context) -> Recommendation:
                 recommendation.metadata["resolution_outcome"] = "inconclusive"
                 recommendation.metadata["confidence_kind"] = "leading_hypothesis"
                 recommendation.metadata["confidence_actionable"] = False
+            analysis = dict(recommendation.metadata.get("rca_analysis") or {})
+            analysis["missing_evidence"] = blocking_investigation_gaps(analysis, investigation_report)
+            recommendation.metadata["rca_analysis"] = analysis
             _attach_resolution_options(recommendation, context, investigation_report)
+            # The impact graph runs after the iterative investigator. Replace
+            # its provisional NOT_ESTABLISHED placeholder with that assessment.
+            from resolution_agent.impact_claim import evaluated_impact_claim
+            typed = recommendation.metadata.get("iterative_investigation", {})
+            result = typed.get("rca_result") if isinstance(typed, dict) else None
+            if isinstance(result, dict):
+                claim = evaluated_impact_claim(
+                    recommendation.metadata.get("impact_analysis") or {},
+                    recommendation.impact,
+                    investigation_report.get("evidence") or [],
+                )
+                result["claims"] = [row for row in result.get("claims", []) if row.get("kind") != "IMPACT"] + [claim]
         recommendation.metadata = {
             **(recommendation.metadata if isinstance(recommendation.metadata, dict) else {}),
             "analysis_reused": False,
@@ -1082,6 +1098,9 @@ def _build_resolution_event_payload(
         citations=list(recommendation.metadata.get("citations", [])),
         evidence_ids=list(recommendation.metadata.get("evidence_ids", [])),
     )
+    event_contract["event_id"] = str(uuid5(NAMESPACE_URL,
+        f"kaims:resolution:{context.tenant_id}:{incident.id}:{recommendation.id}"))
+
     return {
         "recommendation": recommendation,
         "resolution_lifecycle": recommendation.metadata.get("resolution_lifecycle"),
@@ -1143,8 +1162,10 @@ async def _persist_resolution_event(
     recommendation: Recommendation,
     decision_payload: dict[str, Any],
 ) -> None:
-    if not settings.database_enabled or getattr(app.state, "session_factory", None) is None:
+    if not settings.database_enabled:
         return
+    if getattr(app.state, "session_factory", None) is None:
+        raise RuntimeError("Resolution persistence is unavailable; delivery must be retried")
     metadata = recommendation.metadata if isinstance(recommendation.metadata, dict) else {}
     orchestration = (
         metadata.get("orchestration_decision") if isinstance(metadata.get("orchestration_decision"), dict) else {}
@@ -1295,25 +1316,37 @@ async def _persist_resolution_event(
                 categories={"topology"},
                 reason="Not applicable: external synthetic probe has no internal service topology.",
             )
+            await enrichment_repo.cancel_inapplicable_context_requirements(
+                tenant_id=context.tenant_id,
+                incident_id=incident.id,
+                categories={"traces"},
+                questions={"Collect fresh distributed traces for the affected service and incident window."},
+                reason="Superseded generic trace request: external probe assessment requires endpoint HTTP/DNS/TLS evidence. Explicit incident-specific trace requests are retained.",
+            )
         existing_requirements = await enrichment_repo.list_context_evidence_requirements(
             tenant_id=context.tenant_id, incident_id=incident.id,
         )
+        rca_version = max(1, int(metadata.get("rca_version") or 1))
         existing_questions = {
             str(row.get("question") or "").strip().casefold() for row in existing_requirements
+            if requirement_blocks_recollection(row, rca_version)
         }
+        # Initial probes run once; only explicit outstanding RCA gaps may
+        # reopen completed collection in later versions.
+        initial_questions = {str(row.get("question") or "").strip().casefold() for row in existing_requirements}
         initial_gaps = [
             gap for gap in initial_causal_collection_gaps(
                 source=context.alert.source,
                 environment=context.alert.environment,
             )
-            if str(gap["question"]).strip().casefold() not in existing_questions
+            if str(gap["question"]).strip().casefold() not in initial_questions
         ]
         if initial_gaps:
             missing = [*initial_gaps, *missing]
             metadata["targeted_causal_collection"] = {
                 "launched": True,
                 "status": "collecting",
-                "sources": ["traces", "dependency_health", "runtime_topology"],
+                "sources": list(dict.fromkeys(str(gap["category"]) for gap in initial_gaps)),
             }
         if missing:
             rca_version = max(1, int(metadata.get("rca_version") or 1))
@@ -1332,7 +1365,8 @@ async def _persist_resolution_event(
                 alert_metadata=context.alert.metadata,
                 context_payload=context.model_dump(mode="json"),
             )
-            window_end = datetime.now(UTC)
+            collection_now = datetime.now(UTC)
+            window_start, window_end = incident_collection_window(context.alert, collection_now)
             for requirement in requirements:
                 connector = next_authorized_enrichment_connector(
                     candidate_connectors=requirement.candidate_connectors,
@@ -1355,24 +1389,36 @@ async def _persist_resolution_event(
                             "authorized_connectors": sorted(authorized),
                             "attempted_connectors": [],
                         },
-                        observation_start=window_end.replace(microsecond=0) - timedelta(minutes=30),
+                        observation_start=window_start,
                         observation_end=window_end.replace(microsecond=0),
                     )
                 else:
+                    assignment = await enrichment_repo.resolve_human_evidence_responder(
+                        tenant_id=context.tenant_id, incident_id=incident.id,
+                    )
                     await enrichment_repo.create_human_evidence_request(
                         tenant_id=context.tenant_id, incident_id=incident.id,
                         requirement_id=requirement.requirement_id,
-                        expected_responder=str(
-                            context.alert.metadata.get("owner_team")
-                            or context.alert.metadata.get("assigned_to")
-                            or "incident-owner"
-                        ),
-                        due_at=window_end + timedelta(hours=1),
+                        expected_responder=assignment["identity"] if assignment else None,
+                        assignment_source=assignment["source"] if assignment else None,
+                        assignment_failure_reason=None if assignment else "NO_AUTHORIZED_RESPONDER",
+                        due_at=collection_now + timedelta(hours=1),
                         acceptable_format="A source reference and a concise factual observation.",
                         evidence_already_checked=list((metadata.get("rca_analysis") or {}).get("evidence_used") or []),
                         hypothesis_impact=requirement.reason,
                         investigation_can_continue=True,
                     )
+        from fastapi.encoders import jsonable_encoder
+        delivery = jsonable_encoder(_build_resolution_event_payload(
+            context=context, incident=incident, recommendation=recommendation,
+            decision_payload=decision_payload))
+        await repo.enqueue_resolution_event(
+            event_id=delivery["event_contract"]["event_id"],
+            tenant_id=context.tenant_id, aggregate_id=str(incident.id),
+            topic=RESOLUTION_EVENTS, partition_key=str(incident.id),
+            payload=delivery, available_after_seconds=0,
+        )
+
         await session.commit()
     knowledge_id = str(context.metadata.get("context_knowledge_id") or "").strip()
     if not knowledge_id:
@@ -1497,6 +1543,12 @@ async def startup(app: FastAPI) -> None:
         consumers.append(
             (f"rabbitmq-w{worker + 1}", RabbitMQConsumer(settings, CONTEXT_EVENTS), consume_rabbitmq_forever)
         )
+    if settings.queue_backlog_enabled:
+        # One bounded recovery slot prevents parked work waiting behind a
+        # constantly replenished active FIFO. It shares the ordinary handler,
+        # retries and DLQ, and does not subscribe to fresh topic publications.
+        consumers.append(("rabbitmq-deferred", RabbitMQConsumer(settings, CONTEXT_EVENTS, deferred=True),
+                          consume_rabbitmq_forever))
     if settings.kafka_enabled and MESSAGE_BUS_DUAL_CONSUME_ENABLED:
         for worker in range(workers):
             consumers.insert(
@@ -1504,9 +1556,16 @@ async def startup(app: FastAPI) -> None:
                 (f"kafka-w{worker + 1}", KafkaConsumer(settings, CONTEXT_EVENTS), consume_kafka_forever),
             )
 
-    async def handle(payload: dict, _supersede_attempt: int = 0) -> None:
+    async def handle_attempt(payload: dict) -> None:
         context = Context.model_validate(payload["context"])
         incident = Incident.model_validate(payload["incident"])
+        request_id = str(context.metadata.get("analysis_request_id") or "").strip()
+        if request_id and settings.database_enabled:
+            async with app.state.session_factory() as session:
+                await IncidentRepository(session).mark_analysis_request_progress(
+                    request_id, tenant_id=context.tenant_id, stage="running",
+                )
+                await session.commit()
         completed = await _completed_analysis_for_replay(context)
         if completed is not None:
             bound_context, recommendation = completed
@@ -1515,11 +1574,30 @@ async def startup(app: FastAPI) -> None:
             # recomputing or overwriting the committed immutable analysis.
             await _persist_resolution_event(app=app, context=bound_context, incident=incident,
                 recommendation=recommendation, decision_payload=decision)
-            await app.state.producer.publish(RESOLUTION_EVENTS, _build_resolution_event_payload(
-                context=bound_context, incident=incident, recommendation=recommendation,
-                decision_payload=decision), key=str(context.incident_id))
+            if not settings.database_enabled:
+                await app.state.producer.publish(RESOLUTION_EVENTS, _build_resolution_event_payload(
+                    context=bound_context, incident=incident, recommendation=recommendation,
+                    decision_payload=decision), key=str(context.incident_id))
             EVENTS_PROCESSED.labels(settings.service_name, CONTEXT_EVENTS, "ok").inc()
             return
+        if settings.database_enabled:
+            try:
+                snapshot_id = UUID(str(context.metadata.get("context_snapshot_id") or ""))
+                analysis_id = UUID(str(context.metadata.get("analysis_request_id") or ""))
+            except ValueError:
+                pass  # Ordinary snapshot validation below reports invalid input.
+            else:
+                async with app.state.session_factory() as session:
+                    successor = await IncidentRepository(session).coalesce_superseded_background_rca(
+                        tenant_id=context.tenant_id, incident_id=context.incident_id,
+                        snapshot_id=snapshot_id, request_id=analysis_id,
+                    )
+                    await session.commit()
+                if successor:
+                    logger.info("coalesced obsolete background RCA incident_id=%s request_id=%s successor=%s",
+                                context.incident_id, analysis_id, successor)
+                    EVENTS_PROCESSED.labels(settings.service_name, CONTEXT_EVENTS, "coalesced").inc()
+                    return
         context, initial_snapshot = await _initial_snapshot_for_replay(context)
         # Context-agent's progressive enrichment can publish several
         # successive newer snapshots for the same incident within seconds.
@@ -1604,28 +1682,7 @@ async def startup(app: FastAPI) -> None:
         if settings.database_enabled:
             async with app.state.session_factory() as session:
                 repo = IncidentRepository(session)
-                try:
-                    await repo.save_recommendation_as_audit(recommendation, tenant_id=context.tenant_id)
-                except ValueError as exc:
-                    if "superseded" in str(exc) and _supersede_attempt < 2:
-                        await session.rollback()
-                        refreshed = await _refresh_context_to_latest_snapshot(context)
-                        if refreshed is not None:
-                            logger.info(
-                                "context snapshot superseded during investigation, re-investigating "
-                                "against the latest snapshot incident_id=%s attempt=%s",
-                                context.incident_id, _supersede_attempt + 1,
-                            )
-                            await handle(
-                                {
-                                    "context": refreshed.model_dump(mode="json"),
-                                    "incident": incident.model_dump(mode="json"),
-                                    "decision": decision_payload,
-                                },
-                                _supersede_attempt + 1,
-                            )
-                            return
-                    raise
+                await repo.save_recommendation_as_audit(recommendation, tenant_id=context.tenant_id)
                 await session.commit()
         await _persist_resolution_event(
             app=app,
@@ -1651,8 +1708,20 @@ async def startup(app: FastAPI) -> None:
             recommendation=recommendation,
             decision_payload=decision_payload,
         )
-        await app.state.producer.publish(RESOLUTION_EVENTS, payload_out, key=str(context.incident_id))
+        if not settings.database_enabled:
+            await app.state.producer.publish(RESOLUTION_EVENTS, payload_out, key=str(context.incident_id))
         EVENTS_PROCESSED.labels(settings.service_name, CONTEXT_EVENTS, "ok").inc()
+
+    async def handle(payload: dict) -> None:
+        from resolution_agent.snapshot_retry import run_with_snapshot_refresh
+
+        async def refresh_payload(current: dict) -> dict | None:
+            refreshed = await _refresh_context_to_latest_snapshot(Context.model_validate(current["context"]))
+            return {**current, "context": refreshed.model_dump(mode="json")} if refreshed is not None else None
+
+        # Include final snapshot persistence as well as recommendation commit
+        # in the same retry boundary. No transaction remains open on retry.
+        await run_with_snapshot_refresh(payload, handle_attempt, refresh_payload)
 
     async def record_terminal_failure(payload: dict[str, Any], error: str) -> None:
         context_payload = payload.get("context") if isinstance(payload.get("context"), dict) else {}
@@ -2213,6 +2282,19 @@ async def select_resolution(request: ResolutionSelectionRequest) -> dict[str, An
 
 @app.post("/resolve", response_model=Recommendation)
 async def resolve(context: Context, publish_events: bool = True) -> Recommendation:
+    from resolution_agent.snapshot_retry import run_with_snapshot_refresh
+
+    async def attempt(payload: dict) -> Recommendation:
+        return await _resolve_attempt(Context.model_validate(payload), publish_events=publish_events)
+
+    async def refresh(payload: dict) -> dict | None:
+        latest = await _refresh_context_to_latest_snapshot(Context.model_validate(payload))
+        return latest.model_dump(mode="json") if latest is not None else None
+
+    return await run_with_snapshot_refresh(context.model_dump(mode="json"), attempt, refresh)
+
+
+async def _resolve_attempt(context: Context, publish_events: bool = True) -> Recommendation:
     initial_snapshot = await _require_context_snapshot_binding(context)
     context = await _bind_next_rca_version(context)
     investigated_context, investigation_report = await investigate_context(context)

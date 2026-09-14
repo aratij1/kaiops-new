@@ -12,8 +12,8 @@ try {
   await page.goto("http://localhost:8501/incidents", {waitUntil:"domcontentloaded"});
   await page.locator('input[autocomplete="username"]').fill("admin");
   await page.locator('input[autocomplete="current-password"]').fill(session.password);
+  await page.getByRole("combobox", {name:"Application workspace"}).selectOption("KaiMS", {timeout:60000});
   await page.getByRole("button", {name:/sign in/i}).click();
-  await page.locator(".kai-shell select").first().selectOption("KaiMS", {timeout:60000});
   await page.getByRole("button", {name:"Incidents",exact:true}).first().click();
   const row=page.locator("tbody tr").filter({hasText:"ACTION REQUIRED"}).first();
   await row.getByRole("button",{name:/View details/i}).click({timeout:30000});

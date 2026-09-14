@@ -161,3 +161,31 @@ async def test_prometheus_historical_rerun_queries_alert_observation_window(monk
     params = captured["request"].url.params
     assert float(params["start"]) == pytest.approx(alert_time.timestamp() - 300)
     assert float(params["end"]) == pytest.approx(alert_time.timestamp() + 300)
+
+
+@pytest.mark.asyncio
+async def test_probe_evidence_uses_named_series_for_exact_endpoint(monkeypatch):
+    transport = httpx.MockTransport(lambda request: httpx.Response(200, json={
+        "status": "success", "data": {"resultType": "matrix", "result": []},
+    }))
+    real_client = httpx.AsyncClient
+    monkeypatch.setattr(httpx, "AsyncClient", lambda **kwargs: real_client(transport=transport, **kwargs))
+    target = "https://httpbin.org/status/503"
+    alert = Alert(
+        tenant_id="tenant-a", source="prometheus", name="HighNetworkPacketLoss",
+        service="httpbin-failure-lab", environment="public-internet", severity=AlertSeverity.HIGH,
+        description="HTTP probe failed",
+        labels={"job": "blackbox", "instance": target},
+        metadata={
+            "context_requirement_category": "metrics",
+            "prometheus_expression": 'avg_over_time(probe_success{job="blackbox"}[5m]) < 0.95',
+            "connector_resolution": {"status": "completed"},
+            "resolved_context_connectors": [{"provider": "prometheus", "endpoint_identity": "http://prometheus:9090"}],
+        },
+    )
+    incident = Incident(tenant_id=alert.tenant_id, service=alert.service, severity=alert.severity, title=alert.name)
+    result = await PrometheusConnector().fetch(alert, incident)
+    assert 'instance="https://httpbin.org/status/503"' in result["query"]
+    assert "probe_http_status_code" in result["query"]
+    assert "__name__" in result["query"]
+    assert "avg_over_time" not in result["query"]

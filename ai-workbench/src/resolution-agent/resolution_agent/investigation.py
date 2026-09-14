@@ -433,7 +433,7 @@ class IterativeInvestigator:
             related_to = str(metadata.get("related_to") or "").lower()
             return (
                 metadata.get("healthy") is False
-                and bool(target)
+                and bool(target) and bool(related_to)
                 and target != related_to
                 and str(metadata.get("runtime_state") or "").lower() != "running"
             )
@@ -449,10 +449,16 @@ class IterativeInvestigator:
         spans = metadata.get("slowest_spans") if isinstance(metadata.get("slowest_spans"), list) else []
         edges = metadata.get("dependency_edges") if isinstance(metadata.get("dependency_edges"), list) else []
         if "dependency" in claim or "upstream" in claim or "downstream" in claim:
-            return bool(edges) and any(
+            downstream = {
+                str(edge.get("downstream") or "").lower()
+                for edge in edges if isinstance(edge, dict)
+                and edge.get("upstream") and edge.get("downstream")
+                and edge["upstream"] != edge["downstream"]
+            }
+            return any(
                 float(span.get("duration_ms") or 0) >= 500
-                for span in spans
-                if isinstance(span, dict)
+                and str(span.get("service") or "").lower() in downstream
+                for span in spans if isinstance(span, dict)
             )
         if any(token in claim for token in ("resource", "data-path", "database", "mysql", "query")):
             return any(
@@ -478,7 +484,7 @@ class IterativeInvestigator:
             return False
         target = str(metadata.get("service") or row.get("service") or "").lower()
         related_to = str(metadata.get("related_to") or "").lower()
-        return metadata.get("healthy") is True and bool(target) and target != related_to
+        return metadata.get("healthy") is True and bool(target) and bool(related_to) and target != related_to
 
     @staticmethod
     def _initial_evidence(context: Context) -> list[dict[str, Any]]:
@@ -486,9 +492,9 @@ class IterativeInvestigator:
         buckets = metadata.get("context_evidence") if isinstance(metadata.get("context_evidence"), dict) else {}
         discovery = metadata.get("discovery_report") if isinstance(metadata.get("discovery_report"), dict) else {}
         rows: list[dict[str, Any]] = []
-        for values in buckets.values():
+        for category, values in buckets.items():
             if isinstance(values, list):
-                rows.extend(item for item in values if isinstance(item, dict))
+                rows.extend({"category": category, **item} for item in values if isinstance(item, dict))
         if isinstance(discovery.get("evidence"), list):
             rows.extend(item for item in discovery["evidence"] if isinstance(item, dict))
         unique: dict[str, dict[str, Any]] = {}
@@ -537,7 +543,12 @@ class IterativeInvestigator:
         context: Context, evidence: list[dict[str, Any]],
     ) -> list[EvidenceBoundClaim]:
         claims: list[EvidenceBoundClaim] = []
-        if leading:
+        # A fallback diagnostic observation is not a causal mechanism. Keep it
+        # in investigation evidence/hypotheses, but never promote it into the
+        # typed causal authority consumed by operator views and execution gates.
+        if leading and leading.get("source") != "derived_observation" and not str(
+            leading.get("claim") or ""
+        ).startswith("Observed signal requiring causal confirmation:"):
             statement = str(leading.get("claim") or "").strip()
             supporting = list(dict.fromkeys(leading.get("supporting_evidence_ids") or []))
             contradicting = list(dict.fromkeys(leading.get("contradicting_evidence_ids") or []))
@@ -563,31 +574,12 @@ class IterativeInvestigator:
                         "This causal claim is not established and cannot authorize remediation."
                     ],
                 ))
-        alert_text = " ".join((context.alert.name, context.alert.description)).lower()
-        observed_signal = next((
-            row for row in evidence
-            if cls._source(row) in {"telemetry", "logs", "traces", "data"}
-            and bool(row.get("current_operational_evidence", True))
-            and str(row.get("evidence_id") or "").strip()
-        ), None)
-        observed_signal_id = str((observed_signal or {}).get("evidence_id") or "").strip()
-        if observed_signal and "latency" in alert_text:
-            service = str(context.alert.service or "the affected service")
-            detail = cls._human_evidence_summary(
-                observed_signal.get("snippet") or observed_signal.get("summary") or observed_signal.get("relevant_content")
-            )
-            impact_statement = (
-                f"Observed technical impact: elevated latency affected {service}. {detail} "
-                "Customer and business impact are not established by the available evidence."
-            )
-            impact_status = ClaimStatus.OBSERVED
-            impact_support = [observed_signal_id]
-            impact_limitations = ["The metric establishes service degradation, not customer or business impact."]
-        else:
-            impact_statement = "Customer or business impact has not been established by accepted evidence."
-            impact_status = ClaimStatus.NOT_ESTABLISHED
-            impact_support = []
-            impact_limitations = ["An alert signal is not proof of customer or business impact."]
+        # An alert name and an arbitrary telemetry row cannot establish impact.
+        # Direct, incident-bound impact evidence must be evaluated separately.
+        impact_statement = "Customer or business impact has not been established by accepted evidence."
+        impact_status = ClaimStatus.NOT_ESTABLISHED
+        impact_support = []
+        impact_limitations = ["An alert signal is not proof of customer or business impact."]
         claims.append(EvidenceBoundClaim(
             claim_id=cls._claim_id(ClaimKind.IMPACT, impact_statement),
             kind=ClaimKind.IMPACT,

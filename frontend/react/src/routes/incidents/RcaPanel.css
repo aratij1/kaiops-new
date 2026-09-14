@@ -1183,3 +1183,5 @@
 .investigation-view-tabs strong { font-size: .78rem; }
 .investigation-view-tabs small { color: var(--k-text-subtle); font-size: .64rem; }
 @media(max-width:800px) { .canonical-investigation-gates { grid-template-columns: 1fr; }.canonical-investigation-ledger { grid-template-columns: repeat(2,1fr); }.investigation-scoreboard { grid-template-columns: repeat(2,1fr); }.investigation-scoreboard article { border-bottom: 1px solid var(--k-border-subtle); }.investigation-view-tabs { grid-template-columns: repeat(2,1fr); } }
+
+.context-enrichment-evidence-list { max-height: 16rem; overflow-y: auto; padding-left: 1.5rem; overflow-wrap: anywhere; }

@@ -14,10 +14,10 @@ groups:
           source_system: telemetry
         annotations:
           summary: OpenTelemetry Collector is unavailable
-          description: Telemetry Prometheus cannot scrape the collector metrics endpoint.
+          description: Collector self-telemetry has not reached Telemetry Prometheus.
 
       - alert: TelemetryApplicationSignalsMissing
-        expr: absent(otelcol_receiver_accepted_spans_total{receiver="otlp"})
+        expr: absent(otelcol_receiver_accepted_spans_total{receiver="otlp",service_name="otelcol-contrib"}) or sum(rate(otelcol_receiver_accepted_spans_total{receiver="otlp",service_name="otelcol-contrib"}[2m])) == 0
         for: 30s
         labels:
           severity: warning
@@ -29,4 +29,21 @@ groups:
           source_system: telemetry
         annotations:
           summary: Telemetry application signals are missing
-          description: The telemetry observability tier is running, but no application metric points have been accepted by the collector.
+          description: The collector is not reporting accepted OTLP spans or its accepted-span rate is zero over two minutes.
+
+
+  - name: independent-monitoring-health
+    rules:
+      - alert: KaiMSMonitoringUnavailable
+        expr: up{job="kaims-monitoring"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          project: kaims
+          application: KaiMS
+          service: prometheus
+          environment: prod
+          source_system: prometheus
+        annotations:
+          summary: KaiMS monitoring is unavailable
+          description: The independent Telemetry monitor cannot scrape KaiMS Prometheus. Incident metrics and KaiMS alert evaluation are unavailable.

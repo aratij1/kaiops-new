@@ -78,69 +78,67 @@ async def _reconcile_stale_remediating(app: FastAPI) -> int:
         return 0
     timeout_minutes = max(5, int(os.getenv("REMEDIATION_STALE_TIMEOUT_MINUTES", "20")))
     active = "'pending','policy_checked','approved','dispatching','running'"
-    async with session_factory() as session:
-        lock_acquired = await session.scalar(text("SELECT GET_LOCK('kaiops_remediation_watchdog', 0)"))
-        if int(lock_acquired or 0) != 1:
+    from common.advisory_lock import advisory_session
+    async with advisory_session(session_factory, "kaiops_remediation_watchdog") as session:
+        if session is None:
             return 0
-        try:
-            blocked_waiting = await session.execute(
-                text(
-                    "UPDATE incident_projections p SET p.status='awaiting_approval', p.updated_at=UTC_TIMESTAMP(), "
-                    "p.projection_payload=JSON_SET(COALESCE(p.projection_payload, JSON_OBJECT()), "
-                    "'$.status', 'awaiting_approval', '$.state', 'awaiting_approval') "
-                    "WHERE p.status='remediating' "
-                    "AND EXISTS (SELECT 1 FROM actions a WHERE a.incident_id=p.incident_id "
-                    "AND a.status IN ('awaiting_approval','policy_blocked'))"
-                )
+        blocked_waiting = await session.execute(
+            text(
+                "UPDATE incident_projections p SET p.status='awaiting_approval', p.updated_at=UTC_TIMESTAMP(), "
+                "p.projection_payload=JSON_SET(COALESCE(p.projection_payload, JSON_OBJECT()), "
+                "'$.status', 'awaiting_approval', '$.state', 'awaiting_approval') "
+                "WHERE p.status='remediating' "
+                "AND EXISTS (SELECT 1 FROM actions a WHERE a.incident_id=p.incident_id "
+                "AND a.status IN ('awaiting_approval','policy_blocked'))"
             )
-            false_remediating = await session.execute(
-                text(
-                    "UPDATE incident_projections p SET "
-                    "p.status=CASE WHEN COALESCE(p.requires_approval, 0)=1 THEN 'awaiting_approval' ELSE 'approved' END, "
-                    "p.updated_at=UTC_TIMESTAMP(), "
-                    "p.projection_payload=JSON_SET(COALESCE(p.projection_payload, JSON_OBJECT()), "
-                    "'$.status', CASE WHEN COALESCE(p.requires_approval, 0)=1 THEN 'awaiting_approval' ELSE 'approved' END, "
-                    "'$.state', CASE WHEN COALESCE(p.requires_approval, 0)=1 THEN 'awaiting_approval' ELSE 'approved' END) "
-                    "WHERE p.status='remediating' "
-                    "AND NOT EXISTS (SELECT 1 FROM actions a WHERE a.incident_id=p.incident_id "
-                    "AND a.status NOT IN ('failed','execution_failed','dispatch_failed','validation_failed','timed_out','cancelled','skipped','policy_blocked','rolled_back','rollback_failed'))"
-                )
+        )
+        false_remediating = await session.execute(
+            text(
+                "UPDATE incident_projections p SET "
+                "p.status=CASE WHEN COALESCE(p.requires_approval, 0)=1 THEN 'awaiting_approval' ELSE 'approved' END, "
+                "p.updated_at=UTC_TIMESTAMP(), "
+                "p.projection_payload=JSON_SET(COALESCE(p.projection_payload, JSON_OBJECT()), "
+                "'$.status', CASE WHEN COALESCE(p.requires_approval, 0)=1 THEN 'awaiting_approval' ELSE 'approved' END, "
+                "'$.state', CASE WHEN COALESCE(p.requires_approval, 0)=1 THEN 'awaiting_approval' ELSE 'approved' END) "
+                "WHERE p.status='remediating' "
+                "AND NOT EXISTS (SELECT 1 FROM actions a WHERE a.incident_id=p.incident_id "
+                "AND a.status NOT IN ('failed','execution_failed','dispatch_failed','validation_failed','timed_out','cancelled','skipped','policy_blocked','rolled_back','rollback_failed'))"
             )
-            await session.execute(
-                text(
-                    f"UPDATE actions SET status='timed_out', updated_at=UTC_TIMESTAMP() "
-                    f"WHERE status IN ({active}) "
-                    "AND updated_at < TIMESTAMPADD(MINUTE, -:timeout_minutes, UTC_TIMESTAMP())"
-                ),
-                {"timeout_minutes": timeout_minutes},
-            )
-            result = await session.execute(
-                text(
-                    f"UPDATE incident_projections p SET "
-                    "p.status='approved', p.latest_event_type='incident.remediation.stale_reconciled', "
-                    "p.latest_event_at=UTC_TIMESTAMP(), p.updated_at=UTC_TIMESTAMP(), "
-                    "p.projection_payload=JSON_SET(COALESCE(p.projection_payload, JSON_OBJECT()), "
-                    "'$.status', 'approved', '$.state', 'approved', "
-                    "'$.remediation_status', 'stale_reconciled') "
-                    "WHERE p.status='remediating' "
-                    "AND p.updated_at < TIMESTAMPADD(MINUTE, -:timeout_minutes, UTC_TIMESTAMP()) "
-                    "AND EXISTS (SELECT 1 FROM approvals ap WHERE ap.incident_id=p.incident_id "
-                    "AND ap.decision='approved') "
-                    f"AND NOT EXISTS (SELECT 1 FROM actions a WHERE a.incident_id=p.incident_id AND a.status IN ({active}))"
-                ),
-                {"timeout_minutes": timeout_minutes},
-            )
-            await session.commit()
-            reconciled = (
-                int(result.rowcount or 0)
-                + int(false_remediating.rowcount or 0)
-                + int(blocked_waiting.rowcount or 0)
-            )
-            if reconciled:
-                logger.warning("reconciled %s stale remediating incident(s) to approved", reconciled)
-            return reconciled
-        finally:
-            await session.execute(text("SELECT RELEASE_LOCK('kaiops_remediation_watchdog')"))
+        )
+        await session.execute(
+            text(
+                f"UPDATE actions SET status='timed_out', updated_at=UTC_TIMESTAMP() "
+                f"WHERE status IN ({active}) "
+                "AND updated_at < TIMESTAMPADD(MINUTE, -:timeout_minutes, UTC_TIMESTAMP())"
+            ),
+            {"timeout_minutes": timeout_minutes},
+        )
+        result = await session.execute(
+            text(
+                f"UPDATE incident_projections p SET "
+                "p.status='approved', p.latest_event_type='incident.remediation.stale_reconciled', "
+                "p.latest_event_at=UTC_TIMESTAMP(), p.updated_at=UTC_TIMESTAMP(), "
+                "p.projection_payload=JSON_SET(COALESCE(p.projection_payload, JSON_OBJECT()), "
+                "'$.status', 'approved', '$.state', 'approved', "
+                "'$.remediation_status', 'stale_reconciled') "
+                "WHERE p.status='remediating' "
+                "AND p.updated_at < TIMESTAMPADD(MINUTE, -:timeout_minutes, UTC_TIMESTAMP()) "
+                "AND EXISTS (SELECT 1 FROM approvals ap WHERE ap.incident_id=p.incident_id "
+                "AND ap.decision='approved') "
+                f"AND NOT EXISTS (SELECT 1 FROM actions a WHERE a.incident_id=p.incident_id AND a.status IN ({active}))"
+            ),
+            {"timeout_minutes": timeout_minutes},
+        )
+        await session.commit()
+        reconciled = (
+            int(result.rowcount or 0)
+            + int(false_remediating.rowcount or 0)
+            + int(blocked_waiting.rowcount or 0)
+        )
+        if reconciled:
+            logger.warning("reconciled %s stale remediating incident(s) to approved", reconciled)
+        return reconciled
+
 
 
 async def _remediation_watchdog(app: FastAPI) -> None:
@@ -422,33 +420,8 @@ async def _publish_remediation_event(app: FastAPI, payload: dict[str, Any], *, k
 
 
 async def _flush_remediation_outbox(app: FastAPI) -> int:
-    if not settings.database_enabled or getattr(app.state, "session_factory", None) is None:
-        return 0
-    published = 0
-    async with app.state.session_factory() as session:
-        lock_acquired = await session.scalar(text("SELECT GET_LOCK('kaiops_resolution_outbox_dispatch', 0)"))
-        if int(lock_acquired or 0) != 1:
-            return 0
-        try:
-            repo = IncidentRepository(session)
-            rows = await repo.list_pending_resolution_events(
-                limit=int(getattr(settings, "resolution_outbox_batch_size", 100) or 100)
-            )
-            for row in rows:
-                # The outbox is shared by resolution producers. A dispatcher
-                # may publish any pending topic because the row carries its
-                # destination and partition key.
-                try:
-                    await app.state.producer.publish(row.topic, row.payload, key=row.partition_key)
-                    await repo.mark_resolution_event_published(row.event_id)
-                    published += 1
-                except Exception as exc:
-                    await repo.mark_resolution_event_retry(row.event_id, str(exc))
-                await session.commit()
-        finally:
-            await session.execute(text("SELECT RELEASE_LOCK('kaiops_resolution_outbox_dispatch')"))
-            await session.commit()
-    return published
+    from common.outbox_dispatch import flush_resolution_outbox
+    return await flush_resolution_outbox(app, settings)
 
 
 async def _remediation_outbox_dispatch_loop(app: FastAPI) -> None:
@@ -2070,54 +2043,48 @@ async def _reserve_target_execution(app: FastAPI, action: RemediationAction) -> 
     }
     process_lock = target_execution_locks.setdefault(scope, asyncio.Lock())
     async with process_lock:
-        async with app.state.session_factory() as session:
-            dialect = session.bind.dialect.name if session.bind is not None else ""
-            db_lock_name = f"kaiops_target_{hashlib.sha256(scope.encode('utf-8')).hexdigest()[:40]}"
-            acquired = True
-            if dialect == "mysql":
-                acquired = int(await session.scalar(text("SELECT GET_LOCK(:name, 5)"), {"name": db_lock_name}) or 0) == 1
-            if not acquired:
+        from common.advisory_lock import advisory_session
+        db_lock_name = f"kaiops_target_{hashlib.sha256(scope.encode('utf-8')).hexdigest()[:40]}"
+        async with advisory_session(app.state.session_factory, db_lock_name, wait_seconds=5) as session:
+            if session is None:
                 raise HTTPException(status_code=409, detail=f"Target execution is busy; retry after the active remediation completes. scope={scope}")
-            try:
-                rows = (
-                    await session.execute(
-                        select(ActionRecord).where(
-                            ActionRecord.tenant_id == (action.tenant_id or "default"),
-                            ActionRecord.target == action.target,
-                            ActionRecord.status.in_(ACTIVE_EXECUTION_STATUSES),
-                        )
+            rows = (
+                await session.execute(
+                    select(ActionRecord).where(
+                        ActionRecord.tenant_id == (action.tenant_id or "default"),
+                        ActionRecord.target == action.target,
+                        ActionRecord.status.in_(ACTIVE_EXECUTION_STATUSES),
                     )
-                ).scalars().all()
-                for row in rows:
-                    if row.id == action.id or (action.idempotency_key and row.idempotency_key == action.idempotency_key):
-                        continue
-                    payload = row.payload if isinstance(row.payload, dict) else {}
-                    try:
-                        active = RemediationAction.model_validate(payload)
-                        active_scope = _target_execution_scope(active)
-                    except Exception:
-                        # Legacy active rows without a complete payload are
-                        # conservatively target-wide until the watchdog expires them.
-                        active_scope = scope
-                    if active_scope == scope:
-                        raise HTTPException(
-                            status_code=409,
-                            detail={
-                                "code": "target_execution_busy",
-                                "message": "Another remediation is already mutating this target.",
-                                "scope": scope,
-                                "active_action_id": str(row.id),
-                                "active_incident_id": str(row.incident_id),
-                                "retryable": True,
-                            },
-                        )
-                repo = IncidentRepository(session)
-                await repo.save_action(action)
-                await repo.save_action_audit(action)
-                await session.commit()
-            finally:
-                if dialect == "mysql" and acquired:
-                    await session.execute(text("SELECT RELEASE_LOCK(:name)"), {"name": db_lock_name})
+                )
+            ).scalars().all()
+            for row in rows:
+                if row.id == action.id or (action.idempotency_key and row.idempotency_key == action.idempotency_key):
+                    continue
+                payload = row.payload if isinstance(row.payload, dict) else {}
+                try:
+                    active = RemediationAction.model_validate(payload)
+                    active_scope = _target_execution_scope(active)
+                except Exception:
+                    # Legacy active rows without a complete payload are
+                    # conservatively target-wide until the watchdog expires them.
+                    active_scope = scope
+                if active_scope == scope:
+                    raise HTTPException(
+                        status_code=409,
+                        detail={
+                            "code": "target_execution_busy",
+                            "message": "Another remediation is already mutating this target.",
+                            "scope": scope,
+                            "active_action_id": str(row.id),
+                            "active_incident_id": str(row.incident_id),
+                            "retryable": True,
+                        },
+                    )
+            repo = IncidentRepository(session)
+            await repo.save_action(action)
+            await repo.save_action_audit(action)
+            await session.commit()
+
 
 
 def _rca_and_resolution_confidence(payload: dict[str, Any]) -> tuple[float | None, float | None]:

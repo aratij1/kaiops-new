@@ -46,6 +46,19 @@ def extract_processing_identities(payload: dict[str, Any]) -> list[str]:
     envelope = payload.get("event_envelope") if isinstance(payload.get("event_envelope"), dict) else {}
     contract = payload.get("event_contract") if isinstance(payload.get("event_contract"), dict) else {}
     candidates = [payload.get("alert_id"), payload.get("incident_id"), payload.get("id"), envelope.get("alert_id"), envelope.get("incident_id"), contract.get("alert_id"), contract.get("incident_id"), extract_message_identity(payload)]
+    # Workflow producers carry subjects under alert/incident/context and the
+    # canonical envelope's identity object, not just top-level scalar IDs.
+    for parent in (payload, envelope, contract, payload.get("context")):
+        if not isinstance(parent, dict):
+            continue
+        identity = parent.get("identity")
+        if isinstance(identity, dict):
+            candidates.extend([identity.get("alert_id"), identity.get("incident_id")])
+        for key in ("alert", "incident"):
+            subject = parent.get(key)
+            if isinstance(subject, dict):
+                candidates.extend([subject.get("id"), subject.get(f"{key}_id")])
+        candidates.extend([parent.get("alert_id"), parent.get("incident_id")])
     return list(dict.fromkeys(str(value).strip() for value in candidates if str(value or "").strip()))
 
 
@@ -67,6 +80,9 @@ async def processing_cancelled(settings: Settings, payload: dict[str, Any]) -> b
     except Exception:
         # Queue processing must fail open if the cancellation control store is
         # temporarily unavailable; broker durability remains authoritative.
+        # Cache this fail-open decision for the same short window as success.
+        # Otherwise every delivery pays another network timeout during outages.
+        _cancelled_cache[settings.redis_url] = (monotonic(), set())
         return False
 
 

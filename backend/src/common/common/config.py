@@ -29,16 +29,22 @@ class Settings(BaseSettings):
     kafka_consumer_max_retries: int = Field(default=3, alias="KAFKA_CONSUMER_MAX_RETRIES")
     kafka_dlq_suffix: str = Field(default=".dlq", alias="KAFKA_DLQ_SUFFIX")
     rabbitmq_url: str = Field(default="amqp://guest:guest@localhost/", alias="RABBITMQ_URL")
+    queue_backlog_enabled: bool = Field(default=True, alias="QUEUE_BACKLOG_ENABLED")
+    queue_backlog_high: int = Field(default=50, ge=2, alias="QUEUE_BACKLOG_HIGH")
+    queue_backlog_low: int = Field(default=10, ge=0, alias="QUEUE_BACKLOG_LOW")
+    queue_backlog_age_seconds: float = Field(default=300, ge=0, alias="QUEUE_BACKLOG_AGE_SECONDS")
+    queue_backlog_batch: int = Field(default=10, ge=1, le=100, alias="QUEUE_BACKLOG_BATCH")
+    queue_backlog_poll_seconds: float = Field(default=15, ge=1, alias="QUEUE_BACKLOG_POLL_SECONDS")
     rabbitmq_exchange: str = Field(default="kaiops.events", alias="RABBITMQ_EXCHANGE")
     rabbitmq_queue_prefix: str = Field(default="kaiops", alias="RABBITMQ_QUEUE_PREFIX")
-    rabbitmq_consumer_max_retries: int = Field(default=3, alias="RABBITMQ_CONSUMER_MAX_RETRIES")
-    rabbitmq_consumer_prefetch_count: int = Field(default=10, alias="RABBITMQ_CONSUMER_PREFETCH_COUNT")
+    rabbitmq_consumer_max_retries: int = Field(default=3, ge=0, alias="RABBITMQ_CONSUMER_MAX_RETRIES")
+    rabbitmq_consumer_prefetch_count: int = Field(default=10, ge=1, alias="RABBITMQ_CONSUMER_PREFETCH_COUNT")
     rabbitmq_transient_requeue_enabled: bool = Field(default=False, alias="RABBITMQ_TRANSIENT_REQUEUE_ENABLED")
-    rabbitmq_handler_timeout_seconds: float = Field(default=120.0, alias="RABBITMQ_HANDLER_TIMEOUT_SECONDS")
+    rabbitmq_handler_timeout_seconds: float = Field(default=120.0, gt=0, alias="RABBITMQ_HANDLER_TIMEOUT_SECONDS")
     rabbitmq_dlq_suffix: str = Field(default=".dlq", alias="RABBITMQ_DLQ_SUFFIX")
     rabbitmq_startup_attempts: int = Field(default=30, alias="RABBITMQ_STARTUP_ATTEMPTS")
     rabbitmq_startup_retry_seconds: float = Field(default=2.0, alias="RABBITMQ_STARTUP_RETRY_SECONDS")
-    rabbitmq_publisher_channel_pool_size: int = Field(default=4, alias="RABBITMQ_PUBLISHER_CHANNEL_POOL_SIZE")
+    rabbitmq_publisher_channel_pool_size: int = Field(default=4, ge=1, alias="RABBITMQ_PUBLISHER_CHANNEL_POOL_SIZE")
     redis_url: str = Field(default="redis://localhost:6379/0", alias="REDIS_URL")
     database_url: str = Field(
         default=_LOCAL_MYSQL_DEFAULT_URL,
@@ -392,6 +398,13 @@ class Settings(BaseSettings):
         if placeholder_fields:
             fields = ", ".join(sorted(placeholder_fields))
             raise ValueError(f"Missing production auth secrets: {fields}")
+
+
+    @model_validator(mode="after")
+    def validate_backlog_thresholds(self):
+        if self.queue_backlog_low >= self.queue_backlog_high:
+            raise ValueError("QUEUE_BACKLOG_LOW must be below QUEUE_BACKLOG_HIGH")
+        return self
 
 
 @lru_cache

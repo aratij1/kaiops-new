@@ -459,7 +459,8 @@ async def test_resolution_ingests_current_enrichment_evidence_categories() -> No
 
     assert "METRIC-DOWN-1" in evidence
     assert "TOPOLOGY-1" in evidence
-    assert evidence["METRIC-DOWN-1"]["source"] == "prometheus"
+    assert evidence["METRIC-DOWN-1"]["source"] == "metrics"
+    assert evidence["METRIC-DOWN-1"]["connector"] == "prometheus"
     assert evidence["METRIC-DOWN-1"]["uri"] == "prometheus://query?expr=up"
     assert '"value": 0' in evidence["METRIC-DOWN-1"]["snippet"]
 
@@ -608,7 +609,8 @@ async def test_resolution_agent_generates_recommendation(governed_rag_root) -> N
     assert "confirm the rollout diff" in recommendation.root_cause
     assert 0.5 <= recommendation.confidence < 0.9
     assert "evidence" in recommendation.rationale.lower()
-    assert "latency for payments" in recommendation.impact
+    assert "No direct customer or service impact is established" in recommendation.impact
+    assert recommendation.metadata["impact_analysis"]["observed_impact"] == ""
     assert recommendation.recommended_action == "Rollback deployment"
 
 
@@ -730,9 +732,8 @@ async def test_resolution_agent_propagates_readiness_and_blocks_mutation_when_rc
     assert rca["context_readiness"] == {"score": 0.46, "ready": False, "source_coverage": 0.375}
     assert impact["context_readiness"] == {"score": 0.41, "ready": False}
     assert impact["confidence_score"] <= 0.49
-    assert recommendation.impact == (
-        "Observed alert condition indicates latency for payments; customer impact is not established."
-    )
+    assert recommendation.impact.startswith("No direct customer or service impact is established")
+    assert impact["observed_impact"] == ""
     assert plan["execution_ready"] is False
     assert any("46% RCA-ready" in reason for reason in plan["readiness_blocks"])
 

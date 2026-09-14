@@ -84,10 +84,11 @@ for (const file of routeOwnedFiles) {
 }
 
 const incidentCommand = source("frontend/react/src/features/incidents/IncidentCommand.tsx");
-for (const phrase of ["Not provided by backend", "does not invent confidence", "Evidence provenance", "Execution safety envelope"]) {
+for (const phrase of ["Not recorded", "IncidentCommandWorkspaceSchema", "requestValidated", "isRcaGrounded"]) {
   if (!incidentCommand.includes(phrase)) failures.push(`Incident Command truth contract is missing: ${phrase}`);
 }
-if (/Math\.random|setInterval\s*\(/.test(incidentCommand)) failures.push("Incident Command may not fabricate progress with random or timer-driven state");
+// Network polling is legitimate; synthetic progress and stage setters are not.
+if (/Math\.random|set(?:Progress|Stage|Journey)\s*\(/.test(incidentCommand)) failures.push("Incident Command may not fabricate progress or stages");
 
 if (existsSync(join(repositoryRoot, "services", "ui", "react"))) notes.push("legacy services/ui/react remains present but is not referenced by the production UI Dockerfile");
 if (existsSync(join(frontendRoot, "src", "app", "LegacyApplicationShell.tsx"))) notes.push("LegacyApplicationShell remains as a migration adapter; feature work is budgeted under src/features");

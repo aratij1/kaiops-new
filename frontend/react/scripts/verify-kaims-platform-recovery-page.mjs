@@ -15,8 +15,8 @@ try {
   await page.goto("http://localhost:8501/incidents?inbox_view=resolved", {waitUntil:"domcontentloaded"});
   await page.locator('input[autocomplete="username"]').fill("admin");
   await page.locator('input[autocomplete="current-password"]').fill(session.password);
+  await page.getByRole("combobox", {name:"Application workspace"}).selectOption("KaiMS", {timeout:60000});
   await page.getByRole("button", {name:/sign in/i}).click();
-  await page.locator(".kai-shell select").first().selectOption("KaiMS", {timeout:60000});
   const selected="4b1bcd2f-04b4-42ff-82d8-4f35bdc5a10a";
   let workspaceCalls=0;
   page.on("response",r=>{if(r.url().includes(`/incidents/${selected}/command`) && r.status()===200) workspaceCalls++;});

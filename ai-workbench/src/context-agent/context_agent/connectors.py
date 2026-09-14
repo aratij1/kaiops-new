@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common.evidence_source_policy import is_alert_artifact_reference, log_observed_at
+
 import asyncio
 import hashlib
 import heapq
@@ -187,6 +189,21 @@ class PrometheusConnector(BaseConnector):
                 "",
             )
             expression = expression or generator_expression
+            # Targeted external-probe evidence needs named, endpoint-bound
+            # series. Aggregated alert expressions drop __name__ and can mix
+            # multiple endpoints; they cannot satisfy this evidence request.
+            probe_target = str(labels.get("instance") or "").strip()
+            if (
+                metadata.get("context_requirement_category") == "metrics"
+                and str(labels.get("job") or "").lower() == "blackbox"
+                and urlsplit(probe_target).scheme in {"http", "https"}
+                and urlsplit(probe_target).netloc
+            ):
+                expression = (
+                    '{__name__=~"probe_success|probe_http_status_code|probe_http_ssl|'
+                    'probe_dns_lookup_time_seconds|probe_duration_seconds",job="blackbox",instance='
+                    + json.dumps(probe_target) + '}'
+                )
             metric_name = str(
                 metadata.get("metric_name") or labels.get("__name__") or labels.get("metric") or ""
             ).strip()
@@ -206,7 +223,7 @@ class PrometheusConnector(BaseConnector):
                 }
             window_seconds = max(60, min(int(config.get("observation_window_seconds") or 900), 86400))
             now = datetime.now(UTC)
-            alert_time = alert.created_at
+            alert_time = alert.starts_at or alert.created_at
             source_started_at = str(annotations.get("startsAt") or annotations.get("starts_at") or "").strip()
             if source_started_at:
                 try:
@@ -224,9 +241,20 @@ class PrometheusConnector(BaseConnector):
                 end = min(now, alert_time + timedelta(seconds=window_seconds / 2))
             else:
                 end = now
+            start = end - timedelta(seconds=window_seconds)
+            requested_start = alert.metadata.get("context_observation_start")
+            requested_end = alert.metadata.get("context_observation_end")
+            if requested_start or requested_end:
+                try:
+                    start = datetime.fromisoformat(str(requested_start).replace("Z", "+00:00"))
+                    end = datetime.fromisoformat(str(requested_end).replace("Z", "+00:00"))
+                    if start.tzinfo is None or end.tzinfo is None or end <= start:
+                        raise ValueError("invalid observation window")
+                except (TypeError, ValueError):
+                    return {"_source_status": "misconfigured", "evidence_gap": "INVALID_OBSERVATION_WINDOW"}
             params = {
                 "query": expression,
-                "start": (end - timedelta(seconds=window_seconds)).timestamp(),
+                "start": start.timestamp(),
                 "end": end.timestamp(),
                 "step": max(15, min(int(config.get("step_seconds") or 60), 3600)),
             }
@@ -254,6 +282,8 @@ class PrometheusConnector(BaseConnector):
                     "query_kind": "range",
                     "endpoint_identity": endpoint,
                     "observation_window": {"start": params["start"], "end": params["end"], "step": params["step"]},
+                    "observation_window_start": start.isoformat(),
+                    "observation_window_end": end.isoformat(),
                     "series": result,
                     "preserved_labels": {
                         key: labels.get(key)
@@ -364,7 +394,7 @@ class LocalEvidenceConnector(BaseConnector):
             "CODE_DISCOVERY_ROOTS",
             "/app/backend/src,/app/ai-workbench/src,/app/scripts,/app/config,/app/observability,/app/backend/rag,/app/fault-lab",
         )
-        self.log_roots = self._roots("LOG_DISCOVERY_ROOTS", "/data/fault-lab/runtime,/data/landing,/app/fault-lab/runtime")
+        self.log_roots = self._roots("LOG_DISCOVERY_ROOTS", "/data/fault-lab/runtime,/app/fault-lab/runtime")
         self.max_files = max(10, min(int(os.getenv("DISCOVERY_MAX_FILES", "180")), 1000))
         self.max_matches = max(1, min(int(os.getenv("DISCOVERY_MAX_MATCHES", "12")), 50))
 
@@ -402,6 +432,8 @@ class LocalEvidenceConnector(BaseConnector):
                 if scanned >= self.max_files:
                     break
                 if any(part in excluded_dirs for part in path.parts):
+                    continue
+                if kind == "log" and is_alert_artifact_reference(path):
                     continue
                 if not path.is_file() or path.suffix.lower() not in suffixes:
                     continue
@@ -443,6 +475,7 @@ class LocalEvidenceConnector(BaseConnector):
                                     # every log match here was rejected as EVIDENCE_REQUIRED_FIELD_MISSING
                                     # even when the search itself found a real, relevant line.
                                     "message": match_text,
+                                    **({"observed_at": log_observed_at(line)} if kind == "log" and log_observed_at(line) else {}),
                                     "matched_terms": [term for term in terms if term in lowered],
                                     "evidence_id": self._evidence_id(kind, path_str, line_number, match_text),
                                 },
@@ -474,6 +507,7 @@ class DiscoveryMCPConnector(BaseConnector):
         "runbooks.search",
         "topology.search",
         "dependency-health.search",
+        "resource-health.search",
         "mysql.search",
         "telemetry.search",
         "traces.search",
@@ -814,8 +848,9 @@ class DiscoveryMCPConnector(BaseConnector):
             "limit": 8,
             "service": alert.service,
             "trace_id": str(alert.trace_id or ""),
-            "application": str(alert.labels.get("application") or ""),
-            "project": str(alert.labels.get("project") or ""),
+            "evidence_category": str(alert.metadata.get("context_requirement_category") or ""),
+            "application": str(alert.metadata.get("application") or alert.labels.get("application") or ""),
+            "project": str(alert.metadata.get("project_id") or alert.metadata.get("project") or alert.labels.get("project_id") or alert.labels.get("project") or ""),
             "environment": alert.environment,
             "operation": str(alert.labels.get("operation") or alert.metadata.get("operation") or ""),
             "start_time": str(alert.metadata.get("context_observation_start") or ""),

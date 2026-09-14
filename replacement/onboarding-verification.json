@@ -1,0 +1,39 @@
+{
+  "kaims": {
+    "state": "context_ready",
+    "services": 24,
+    "telemetry_sources": [
+      "kaims-requests",
+      "kaims-traces"
+    ],
+    "documents": 3,
+    "baseline_ready": true,
+    "source_outcomes": [
+      {
+        "rejected": 0,
+        "required": true,
+        "source_id": "kaims-docs",
+        "status": "collected"
+      }
+    ]
+  },
+  "telemetry": {
+    "state": "context_ready",
+    "services": 14,
+    "telemetry_sources": [
+      "telemetry-http-requests",
+      "telemetry-traces"
+    ],
+    "documents": 3,
+    "baseline_ready": true,
+    "source_outcomes": [
+      {
+        "rejected": 0,
+        "required": true,
+        "source_id": "telemetry-docs",
+        "status": "collected"
+      }
+    ]
+  },
+  "broker_ready": true
+}

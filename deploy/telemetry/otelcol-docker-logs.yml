@@ -46,6 +46,7 @@ extensions:
 
 exporters:
   opensearch:
+    logs_index: otel-logs-v2
     # Buffer failed exports on disk while OpenSearch is starting or temporarily
     # unavailable. The previous in-memory queue dropped these records.
     retry_on_failure:
@@ -65,5 +66,5 @@ service:
   pipelines:
     logs:
       receivers: [otlp, filelog/docker]
-      processors: [resourcedetection, memory_limiter, transform/sanitize_logs]
+      processors: [resource_detection, memory_limiter, transform/sanitize_logs]
       exporters: [debug, opensearch]

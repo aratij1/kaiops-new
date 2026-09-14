@@ -37,3 +37,15 @@ def test_small_resolution_payload_is_not_marked_trimmed() -> None:
 
     assert compacted == payload
     assert budget["trimmed"] is False
+
+
+def test_nested_investigation_payload_keeps_citations_within_budget():
+    gateway = HttpModelGateway("http://model-router", max_payload_bytes=8000)
+    payload = {"service": "api-gateway", "iterative_investigation": {
+        "hypotheses": [{"claim": "slow dependency", "details": "x" * 12000} for _ in range(20)],
+        "conclusion": {"evidence_ids": ["TRACE-1"], "claim": "slow dependency"},
+    }, "discovery_evidence": [{"evidence_id": "TRACE-1", "citation": "jaeger://trace/1", "snippet": "x" * 12000}]}
+    compacted, budget = gateway._compact_payload(payload)
+    assert budget["sent_bytes"] <= 8000
+    assert compacted["discovery_evidence"][0]["evidence_id"] == "TRACE-1"
+    assert compacted["iterative_investigation"]["conclusion"]["evidence_ids"] == ["TRACE-1"]

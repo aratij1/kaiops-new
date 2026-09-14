@@ -15,8 +15,8 @@ try {
   await page.goto("http://localhost:8501/incidents?inbox_view=resolved", {waitUntil:"domcontentloaded"});
   await page.locator('input[autocomplete="username"]').fill("admin");
   await page.locator('input[autocomplete="current-password"]').fill(session.password);
+  await page.getByRole("combobox", {name:"Application workspace"}).selectOption("KaiMS", {timeout:60000});
   await page.getByRole("button", {name:/sign in/i}).click();
-  await page.locator(".kai-shell select").first().selectOption("KaiMS", {timeout:60000});
   await page.getByRole("button", {name:"Incidents",exact:true}).first().click({timeout:30000});
   await page.evaluate(() => { history.pushState({}, "", "/incidents/55705c30-a2b9-4d69-b0d6-9eb532c1a719"); window.dispatchEvent(new PopStateEvent("popstate")); });
   const heading=page.getByRole("heading",{name:"Evidence library",exact:true});

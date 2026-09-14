@@ -7,7 +7,7 @@ from time import perf_counter
 from typing import Any
 from uuid import UUID, uuid4
 
-from sqlalchemy import Index, JSON, BigInteger, Boolean, DateTime, ForeignKey, Integer, MetaData, Numeric, String, Text, UniqueConstraint, Uuid, event, text
+from sqlalchemy import Computed, func, literal_column, Index, JSON, BigInteger, Boolean, DateTime, ForeignKey, Integer, MetaData, Numeric, String, Text, UniqueConstraint, Uuid, event, text
 from sqlalchemy.dialects.mysql import LONGTEXT
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -66,6 +66,8 @@ class ObjectStorageRecord(Base, TimestampMixin):
 class AlertRecord(Base, TimestampMixin):
     __tablename__ = "alerts"
     __table_args__ = (
+        Index("idx_alerts_inbox_scope", "tenant_id", "inbox_canonical_incident_id", "inbox_project", "created_at"),
+        Index("idx_alerts_inbox_cover", "tenant_id", "inbox_canonical_incident_id", "inbox_project", "service", "severity", "created_at"),
         Index("idx_alerts_created_at", "created_at"),
         Index("idx_alerts_tenant_updated", "tenant_id", "updated_at"),
         Index("idx_alerts_tenant_created", "tenant_id", "created_at"),
@@ -82,6 +84,22 @@ class AlertRecord(Base, TimestampMixin):
     fingerprint: Mapped[str | None] = mapped_column(String(255), index=True)
     correlation_id: Mapped[str | None] = mapped_column(String(255), index=True)
     payload: Mapped[dict[str, Any]] = mapped_column(JSON)
+    # Indexed generated fields keep queue reads independent of large alert JSON.
+    # The database updates them for every writer, including older service images.
+    inbox_project: Mapped[str | None] = mapped_column(String(255), Computed(
+        func.lower(func.coalesce(*[
+            literal_column("payload", type_=JSON)[key].as_string()
+            for key in ("project_id", "project", "project_name", "application")
+        ], *[
+            literal_column("payload", type_=JSON)["labels"][key].as_string()
+            for key in ("project_id", "project", "project_name", "application")
+        ], "")), persisted=False,
+    ))
+    inbox_canonical_incident_id: Mapped[str | None] = mapped_column(String(64), Computed(
+        literal_column("payload", type_=JSON)["metadata"]["deduplication"]["canonical_incident_id"].as_string(),
+        persisted=False,
+    ))
+
 
 
 class IncidentRecord(Base, TimestampMixin):
@@ -258,6 +276,7 @@ class ResolutionOutboxRecord(Base, TimestampMixin):
     __tablename__ = "resolution_outbox"
     __table_args__ = (
         Index("idx_resolution_outbox_pending", "status", "next_attempt_at", "created_at"),
+        Index("idx_resolution_outbox_retention", "status", "published_at", "event_id"),
         Index("idx_resolution_outbox_aggregate", "tenant_id", "aggregate_id", "created_at"),
     )
 
@@ -422,6 +441,8 @@ class ContextSnapshotRecord(Base):
     __tablename__ = "context_snapshots"
     __table_args__ = (
         Index("idx_context_snapshots_incident_collected", "tenant_id", "incident_id", "collected_at"),
+        Index("idx_context_snapshots_retention", "collected_at", "expires_at", "snapshot_id"),
+        Index("idx_context_snapshots_incident_version", "tenant_id", "incident_id", "snapshot_version", "collected_at"),
         Index("idx_context_snapshots_subject_collected", "tenant_id", "subject_fingerprint", "collected_at"),
     )
 
@@ -1097,6 +1118,7 @@ class IncidentEventRecord(Base):
     __tablename__ = "incident_events"
     __table_args__ = (
         Index("idx_incident_events_incident_created", "incident_id", "created_at"),
+        Index("idx_incident_events_created", "created_at", "id"),
         # Declared on the live MySQL table by 20260708_incident_metadata_layer.sql
         # (uq_incident_events_idempotency) but never mirrored here, so a SQLite
         # test/dev database silently allowed duplicate events that production
@@ -1761,6 +1783,8 @@ class ContextEnrichmentJobRecord(Base, TimestampMixin):
     __table_args__ = (
         UniqueConstraint("tenant_id", "idempotency_key", name="uq_context_enrichment_job"),
         Index("idx_context_enrichment_job_work", "tenant_id", "status", "available_at"),
+        Index("idx_context_enrichment_incident", "tenant_id", "incident_id", "created_at", "job_id"),
+        Index("idx_context_enrichment_job_requirement", "tenant_id", "requirement_id", "connector_id", "created_at"),
     )
 
     job_id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
@@ -1816,7 +1840,10 @@ class ContextReconciliationRunRecord(Base):
 
 class HumanEvidenceRequestRecord(Base, TimestampMixin):
     __tablename__ = "human_evidence_requests"
-    __table_args__ = (UniqueConstraint("tenant_id", "requirement_id", name="uq_human_evidence_requirement"),)
+    __table_args__ = (
+        UniqueConstraint("tenant_id", "requirement_id", name="uq_human_evidence_requirement"),
+        Index("idx_human_evidence_incident", "tenant_id", "incident_id", "created_at", "request_id"),
+    )
 
     request_id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
     tenant_id: Mapped[str] = mapped_column(String(128), index=True)

@@ -1,0 +1,58 @@
+name: kaims-next-preview
+services:
+  api:
+    build: .
+    ports: ["127.0.0.1:8502:8000"]
+    environment:
+      NEXT_API_TOKEN: ${NEXT_API_TOKEN:?Set a random API token of at least 32 characters}
+      NEXT_AUTO_INCIDENT_APPLICATIONS: ${NEXT_AUTO_INCIDENT_APPLICATIONS:-kaims,telemetry}
+      NEXT_INCIDENT_POLL_SECONDS: 30
+      NEXT_TENANT_ID: ${NEXT_TENANT_ID:?Set the preview tenant}
+      NEXT_DATABASE_URL: sqlite:////state/next.db
+      NEXT_RABBITMQ_URL: amqp://preview:${NEXT_BROKER_PASSWORD:?Set preview broker password}@rabbitmq/
+      NEXT_RABBITMQ_NAMESPACE: kaims-next-v1
+      NEXT_TELEMETRY_SOURCES_FILE: /app/telemetry-sources.json
+      NEXT_DOCUMENT_ROOTS_FILE: /app/document-roots.json
+      NEXT_RESOLUTION_POLICIES_FILE: /app/resolution-policies.json
+    volumes:
+      - ${NEXT_TELEMETRY_CONFIG_PATH:-./telemetry-sources.example.json}:/app/telemetry-sources.json:ro
+      - ./resolution-policies.local.json:/app/resolution-policies.json:ro
+      - next-state:/state
+      - ./document-roots.example.json:/app/document-roots.json:ro
+      - ${NEXT_DOCUMENT_DIRECTORY:?Set the application document directory}:/documents:ro
+    depends_on:
+      rabbitmq: {condition: service_healthy}
+    restart: unless-stopped
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+  validation-target:
+    image: kaims-next-preview-api:latest
+    profiles: [validation]
+    command: [python, -m, kaims_next.validation_target]
+    volumes: [validation-target-state:/state]
+    mem_limit: 64m
+    logging:
+      driver: json-file
+      options: {max-size: "2m", max-file: "2"}
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    environment:
+      RABBITMQ_DEFAULT_USER: preview
+      RABBITMQ_DEFAULT_PASS: ${NEXT_BROKER_PASSWORD:?Set preview broker password}
+    volumes: [next-broker:/var/lib/rabbitmq]
+    restart: unless-stopped
+    mem_limit: 512m
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    logging:
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+volumes:
+  validation-target-state:
+  next-state:
+  next-broker:

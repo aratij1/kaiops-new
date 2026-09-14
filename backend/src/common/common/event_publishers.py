@@ -260,12 +260,12 @@ class KafkaPublisher(EventPublisher):
     async def stop(self) -> None:
         if self._producer is not None:
             await self._producer.stop()
+        self._producer = None
 
     async def publish(self, topic: str, event: BaseModel | dict[str, Any], key: str | None = None) -> None:
         payload = normalize_payload(event)
         if self._producer is None:
-            logger.info("kafka publisher unavailable; event logged", extra={"topic": topic, "payload": payload})
-            return
+            raise RuntimeError("Kafka publisher is not started; event was not delivered")
 
         async def send() -> None:
             assert self._producer is not None

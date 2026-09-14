@@ -5,7 +5,7 @@
       "display_name": "KaiOps Platform",
       "environment": "prod",
       "platform": true,
-      "aliases": ["kaiops-platform", "kaiops core", "kaiops-core"],
+      "aliases": ["kaims", "kaims-core", "kaiops-platform", "kaiops core", "kaiops-core"],
       "code_roots": [
         "/workspace/backend/src",
         "/workspace/ai-workbench/src",
@@ -33,8 +33,8 @@
       "code_roots": ["/workspace/external/telemetry/opentelemetry-demo"],
       "service_catalog_root": "/workspace/external/telemetry/opentelemetry-demo/src",
       "telemetry": {
-        "prometheus_url": "http://host.docker.internal:19090",
-        "jaeger_url": "http://host.docker.internal:16686",
+        "prometheus_url": "http://telemetry-prometheus:9090",
+        "jaeger_url": "http://host.docker.internal:26686/jaeger/ui",
         "opensearch_url": "http://host.docker.internal:9200",
         "opensearch_index": "otel-*"
       },

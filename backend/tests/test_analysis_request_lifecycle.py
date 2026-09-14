@@ -134,3 +134,38 @@ async def test_expired_analysis_stops_polling(sqlite_session_factory) -> None:
     assert changed is True
     assert row.status == "timed_out"
     assert row.terminal_reason == "analysis_deadline_exceeded"
+
+
+@pytest.mark.parametrize('initial', ['accepted','queued','running','complete','failed','timed_out','superseded'])
+async def test_outbox_publication_preserves_later_request_states(sqlite_session_factory,initial):
+    request_id=uuid4()
+    async with sqlite_session_factory() as session:
+        repo=IncidentRepository(session)
+        row,_=await repo.create_or_reuse_analysis_request(request_id=request_id,tenant_id='tenant-a',incident_id=uuid4(),alert_id=uuid4(),expected_recommendation_id=uuid4(),mode='fresh')
+        row.status=initial
+        await repo.enqueue_resolution_event(event_id='analysis-regeneration:'+str(request_id),tenant_id='tenant-a',aggregate_id=str(row.incident_id),topic='orchestration-events',partition_key='test',payload={},available_after_seconds=0)
+        await session.flush()
+        await repo.mark_resolution_event_published('analysis-regeneration:'+str(request_id))
+        await session.refresh(row)
+        assert row.delivery=='published'
+        assert row.status==('published' if initial in ('accepted','queued') else initial)
+
+
+async def test_worker_receipt_advances_once_and_is_tenant_scoped(sqlite_session_factory):
+    request_id=uuid4()
+    async with sqlite_session_factory() as session:
+        repo=IncidentRepository(session)
+        row,_=await repo.create_or_reuse_analysis_request(request_id=request_id,tenant_id='tenant-a',incident_id=uuid4(),alert_id=uuid4(),expected_recommendation_id=uuid4(),mode='fresh')
+        await session.flush()
+        assert not await repo.mark_analysis_request_progress(request_id,tenant_id='other',stage='running')
+        await session.refresh(row)
+        assert row.status=='accepted'
+        await repo.mark_analysis_request_progress(request_id,tenant_id='tenant-a',stage='running')
+        await repo.mark_analysis_request_progress(request_id,tenant_id='tenant-a',stage='published')
+        await session.refresh(row)
+        assert row.status=='running'
+        assert row.delivery=='published'
+        row.status='complete';await session.flush()
+        await repo.mark_analysis_request_progress(request_id,tenant_id='tenant-a',stage='running')
+        await session.refresh(row)
+        assert row.status=='complete'

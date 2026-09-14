@@ -1,6 +1,6 @@
 import { gzipSync } from "node:zlib";
 import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+
 
 const assetsDirectory = new URL("../dist/assets/", import.meta.url);
 // Route styles must stay in route chunks instead of accumulating in the shell.
@@ -10,7 +10,7 @@ const failures = [];
 const moduleGraph = new Map();
 
 for (const name of assets) {
-  const content = readFileSync(join(assetsDirectory.pathname, name));
+  const content = readFileSync(new URL(name, assetsDirectory));
   const gzipBytes = gzipSync(content).byteLength;
   const limit = name.endsWith(".css") ? limits.maxCssGzipBytes : limits.maxChunkGzipBytes;
   console.log(`${name}: ${(gzipBytes / 1024).toFixed(2)} KiB gzip`);

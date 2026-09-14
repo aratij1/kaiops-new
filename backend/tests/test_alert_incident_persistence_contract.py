@@ -511,6 +511,11 @@ async def test_unified_inbox_filters_and_paginates_in_database_with_snapshot_con
             payload={"project_id": "commerce", "name": "Orphan alert"},
         ))
         session.add(AlertRecord(
+            id=uuid4(), tenant_id="tenant-inbox", source="prometheus", name="Warning live alert",
+            service="checkout", environment="prod", severity="warning", fingerprint="warning-only",
+            payload={"project_id": "commerce"},
+        ))
+        session.add(AlertRecord(
             id=uuid4(), tenant_id="other-tenant", source="prometheus", name="Hidden alert",
             service="checkout", environment="prod", severity="critical", fingerprint="hidden",
             payload={"project_id": "commerce"},
@@ -551,6 +556,49 @@ async def test_unified_inbox_filters_and_paginates_in_database_with_snapshot_con
                 tenant_id="tenant-inbox", project_id="commerce", service="checkout",
                 severity="warning", limit=2, cursor=first["next_cursor"], record_type="all",
             )
+        assert second["previous_cursor"]
+        previous = await repository.list_unified_inbox(
+            tenant_id="tenant-inbox", project_id="commerce", service="checkout", limit=2,
+            cursor=second["previous_cursor"], record_type="all",
+        )
+        assert [row["row"]["id"] for row in previous["rows"]] == [row["row"]["id"] for row in first["rows"]]
+        assert previous["previous_cursor"] is None
+        needs_me = await repository.list_unified_inbox(
+            tenant_id="tenant-inbox", project_id="commerce", service="checkout", limit=25,
+            inbox_view="needs_me", record_type="all",
+        )
+        assert needs_me["total_count"] == 3
+        assert needs_me["filtered_count"] == len(needs_me["rows"]) == 2
+        projection = await session.get(IncidentProjectionRecord, incident_ids[2])
+        projection.status = "waiting_for_human"
+        await session.commit()
+        waiting = await repository.list_unified_inbox(
+            tenant_id="tenant-inbox", project_id="commerce", service="checkout", limit=25,
+            inbox_view="needs_me", record_type="incidents",
+        )
+        assert any(row["row"]["status"] == "waiting_for_human" for row in waiting["rows"])
+        from common.database import ContextEvidenceRequirementRecord, HumanEvidenceRequestRecord
+        requirement_id = uuid4()
+        projection.status = "rca_ready"
+        session.add(ContextEvidenceRequirementRecord(
+            requirement_id=requirement_id, tenant_id="tenant-inbox", incident_id=incident_ids[2],
+            rca_version=1, requirement_key="incident-metrics", category="metrics", question="Incident-window metrics", reason="Confirm cause",
+            priority="high", collection_mode="automatic", status="human_requested",
+            candidate_connectors=["prometheus"],
+        ))
+        session.add(HumanEvidenceRequestRecord(
+            tenant_id="tenant-inbox", incident_id=incident_ids[2], requirement_id=requirement_id,
+            due_at=now + timedelta(hours=1), acceptable_format="source reference", hypothesis_impact="Confirm cause",
+            status="pending",
+        ))
+        await session.commit()
+        current_work = await repository.list_unified_inbox(
+            tenant_id="tenant-inbox", project_id="commerce", service="checkout", record_type="incidents",
+            inbox_view="needs_me",
+        )
+        assert current_work["filtered_count"] == 2
+        assert next(row["row"]["status"] for row in current_work["rows"]
+                    if row["row"]["id"] == str(incident_ids[2])) == "waiting_for_human"
         warning_only = await repository.list_unified_inbox(
             tenant_id="tenant-inbox", project_id="commerce", service="checkout",
             severity="warning", limit=2, record_type="incidents",
@@ -599,8 +647,8 @@ async def test_unified_inbox_does_not_starve_new_alerts_behind_older_attention_i
         new_alert_id = uuid4()
         session.add(AlertRecord(
             id=new_alert_id, tenant_id="tenant-recency", source="prometheus",
-            name="Newest warning", service="checkout", environment="prod",
-            severity="warning", fingerprint="newest-warning",
+            name="Newest actionable alert", service="checkout", environment="prod",
+            severity="high", fingerprint="newest-high",
             payload={"project_id": "commerce"}, created_at=now,
         ))
         await session.commit()
@@ -633,3 +681,31 @@ async def test_closed_history_pages_include_older_rows_and_exclude_other_tenants
         assert len(first) == 2 and len(second) == 1
         found = [row["incident_id"] for row in first + second]
         assert found == sorted([str(i) for i in ids[:3]], reverse=True)
+
+
+@pytest.mark.asyncio
+async def test_inbox_search_matches_partial_service_project_and_signal_without_crossing_scope(sqlite_session_factory):
+    now = datetime.now(UTC)
+    iid = uuid4()
+    async with sqlite_session_factory() as session:
+        session.add(IncidentCorrelationOwnershipRecord(
+            tenant_id="search-test", project_id="telemetry", environment="prod", service="frontend-proxy",
+            correlation_key="search", correlation_family_id=uuid4(), correlation_generation=1,
+            canonical_incident_id=iid, first_seen_at=now, last_seen_at=now,
+            correlation_window_expires_at=now + timedelta(hours=1), lifecycle_state="investigating",
+        ))
+        session.add(IncidentProjectionRecord(incident_id=iid, tenant_id="search-test", service="frontend-proxy",
+            environment="prod", severity="critical", status="investigating", first_seen_at=now,
+            projection_payload={"title": "TelemetryApplicationUnavailable"}))
+        session.add(AlertRecord(id=uuid4(), tenant_id="search-test", source="prometheus", name="TelemetryApplicationUnavailable",
+            service="frontend-proxy", environment="prod", severity="critical", fingerprint="search-alert", payload={"project": "telemetry"}))
+        await session.commit()
+    async with sqlite_session_factory() as session:
+        repo = IncidentRepository(session)
+        for query in ["front", "TELEMETRY", "ApplicationUnavailable"]:
+            page = await repo.list_unified_inbox(tenant_id="search-test", project_id="telemetry", service=query, record_type="all")
+            assert page["record_counts"] == {"incidents": 1, "alerts": 1}
+        for query in ["%", "_"]:
+            assert (await repo.list_unified_inbox(tenant_id="search-test", service=query))["filtered_count"] == 0
+        assert (await repo.list_unified_inbox(tenant_id="other", service="front"))["filtered_count"] == 0
+        assert (await repo.list_unified_inbox(tenant_id="search-test", project_id="kaims", service="front"))["filtered_count"] == 0
