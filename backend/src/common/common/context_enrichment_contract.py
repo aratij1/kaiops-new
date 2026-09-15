@@ -601,7 +601,7 @@ class HitlRoutingConfiguration(BaseModel):
     default_approver_group: str
     l2_group: str
     l3_group: str
-    service_owner: str
+    service_owner: str | None = None
     escalation_manager: str | None = None
     timezone: str
     business_hours: dict
@@ -619,7 +619,9 @@ class HitlRoutingConfiguration(BaseModel):
         "fallback_assignment_group",
     )
     @classmethod
-    def reject_placeholder_assignees(cls, value: str) -> str:
+    def reject_placeholder_assignees(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
         normalized = str(value or "").strip()
         if not normalized or normalized.lower() in {
             "admin", "operator", "unknown", "incident-owner", "incident_owner", "unassigned",
@@ -677,6 +679,7 @@ class HumanEvidenceJiraRequest(BaseModel):
     request_id: UUID
     requirement_id: UUID
     assignee_id: str = Field(min_length=1, max_length=255)
+    assignment_type: Literal["user", "group"] = "user"
     due_at: datetime
     requested_evidence: str = Field(min_length=1, max_length=4000)
     reason: str = Field(min_length=1, max_length=4000)

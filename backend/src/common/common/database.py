@@ -1850,6 +1850,7 @@ class HumanEvidenceRequestRecord(Base, TimestampMixin):
     incident_id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), index=True)
     requirement_id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), index=True)
     expected_responder: Mapped[str | None] = mapped_column(String(255), index=True)
+    assignment_type: Mapped[str] = mapped_column(String(32), default="user", server_default="user", nullable=False)
     assignment_source: Mapped[str | None] = mapped_column(String(64), index=True)
     assignment_failure_reason: Mapped[str | None] = mapped_column(String(512))
     due_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True)

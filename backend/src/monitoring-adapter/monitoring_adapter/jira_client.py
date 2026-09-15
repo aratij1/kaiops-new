@@ -128,6 +128,45 @@ class JiraClient:
             json={"accountId": account_id},
         )
 
+    async def find_assignable_user(self, query: str) -> str | None:
+        """Searches assignable users for the project and returns the matched accountId."""
+        cleaned = str(query or "").strip()
+        if not cleaned:
+            return None
+        response = await self._request(
+            "GET",
+            "/rest/api/3/user/assignable/search",
+            params={"project": self.project_key, "query": cleaned, "maxResults": 50},
+        )
+        candidates = response.json() if isinstance(response.json(), list) else []
+        normalized = cleaned.casefold()
+        match = next((item for item in candidates if normalized in {
+            str(item.get("accountId") or "").casefold(),
+            str(item.get("emailAddress") or "").casefold(),
+            str(item.get("displayName") or "").casefold(),
+        }), candidates[0] if candidates else None)
+        if isinstance(match, dict) and match.get("accountId"):
+            return str(match["accountId"]).strip()
+        return None
+
+    async def add_labels(self, issue_key: str, labels: list[str]) -> None:
+        """Adds labels to an existing Jira issue."""
+        if not labels:
+            return
+        safe_labels = [re.sub(r"[^a-zA-Z0-9_.-]", "-", l)[:255] for l in labels if l]
+        if not safe_labels:
+            return
+        payload = {
+            "update": {
+                "labels": [{"add": label} for label in safe_labels]
+            }
+        }
+        await self._request(
+            "PUT",
+            f"/rest/api/3/issue/{issue_key}",
+            json=payload,
+        )
+
     async def transition_issue(self, issue_key: str, *, transition_id: str) -> None:
         await self._request(
             "POST",
