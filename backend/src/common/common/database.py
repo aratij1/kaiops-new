@@ -244,6 +244,8 @@ class ApprovalAssignmentRecord(Base, TimestampMixin):
     estimated_hours: Mapped[int] = mapped_column(Integer, default=1)
     status: Mapped[str] = mapped_column(String(32), default="assigned", index=True)
     assignment_reason: Mapped[str] = mapped_column(Text)
+    jira_synced: Mapped[bool] = mapped_column(Boolean, default=False, index=True)
+
 
 
 class ActionRecord(Base, TimestampMixin):

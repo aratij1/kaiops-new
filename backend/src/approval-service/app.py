@@ -233,6 +233,78 @@ async def startup(app: FastAPI) -> None:
             return
         PENDING_INCIDENTS[cache_key] = payload
 
+        if settings.database_enabled:
+            assignment = None
+            try:
+                async with app.state.session_factory() as session:
+                    assignment = await session.scalar(
+                        select(ApprovalAssignmentRecord).where(
+                            ApprovalAssignmentRecord.tenant_id == tenant_id,
+                            ApprovalAssignmentRecord.incident_id == incident_id,
+                        )
+                    )
+            except Exception:
+                logger.warning("failed to query assignment for incident %s", incident_id, exc_info=True)
+
+            should_attempt_jira_sync = bool(assignment) and not getattr(assignment, "jira_synced", False) and getattr(assignment, "status", "") != "jira_sync_failed"
+
+            if should_attempt_jira_sync:
+                fingerprint = None
+                context_payload = payload.get("context", {}) if isinstance(payload.get("context"), dict) else {}
+                alert_payload = context_payload.get("alert", {}) if isinstance(context_payload.get("alert"), dict) else {}
+                fingerprint = alert_payload.get("fingerprint")
+                if not fingerprint:
+                    alerts_list = (payload.get("incident") or {}).get("alerts", [])
+                    if alerts_list and isinstance(alerts_list, list) and isinstance(alerts_list[0], dict):
+                        fingerprint = alerts_list[0].get("fingerprint")
+
+                issue_key = None
+                if fingerprint:
+                    try:
+                        async with app.state.session_factory() as session:
+                            repo = IncidentRepository(session)
+                            link = await repo.get_open_jira_ticket_link(tenant_id, fingerprint)
+                            if link:
+                                issue_key = link.get("jira_issue_key")
+                    except Exception:
+                        logger.warning("failed to query jira link for fingerprint %s", fingerprint, exc_info=True)
+
+                if issue_key and assignment and assignment.assignee and assignment.assignee != "unassigned":
+                    client = _jira_api_client()
+                    if client:
+                        try:
+                            account_id = await client.find_user_account_id(assignment.assignee)
+                            if account_id:
+                                await client.assign_issue(issue_key, account_id)
+                                async with app.state.session_factory() as session:
+                                    db_assignment = await session.merge(assignment)
+                                    db_assignment.jira_synced = True
+                                    await session.commit()
+                            else:
+                                logger.warning(
+                                    "Jira user lookup for assignee %s returned zero or multiple matches. Failing sync closed.",
+                                    assignment.assignee,
+                                )
+                                async with app.state.session_factory() as session:
+                                    db_assignment = await session.merge(assignment)
+                                    db_assignment.status = "jira_sync_failed"
+                                    db_assignment.jira_synced = False
+                                    db_assignment.assignment_reason = (
+                                        f"{assignment.assignment_reason or ''} | Jira sync failed: User lookup returned "
+                                        "zero or multiple matching Jira Cloud accounts."
+                                    )
+                                    await session.commit()
+                        except Exception as exc:
+                            logger.exception("Failed to assign Jira ticket %s to %s", issue_key, assignment.assignee)
+                            async with app.state.session_factory() as session:
+                                db_assignment = await session.merge(assignment)
+                                db_assignment.status = "jira_sync_failed"
+                                db_assignment.jira_synced = False
+                                db_assignment.assignment_reason = (
+                                    f"{assignment.assignment_reason or ''} | Jira sync failed with error: {str(exc)}"
+                                )
+                                await session.commit()
+
     for source, consumer, consume_forever in consumers:
         task = asyncio.create_task(consume_forever(consumer, handle), name=f"approval-service-{source}-consumer")
         tasks.append(task)
@@ -742,6 +814,30 @@ async def _resolve_recommendation_id(incident_id: UUID, *, tenant_id: str) -> UU
     )
 
 
+def _jira_api_client():
+    import os
+    base_url = str(os.environ.get("JIRA_URL") or os.environ.get("JIRA_API_BASE_URL") or "").rstrip("/")
+    email = str(os.environ.get("JIRA_EMAIL") or os.environ.get("JIRA_API_EMAIL") or "").strip()
+    token = str(os.environ.get("JIRA_API_TOKEN") or os.environ.get("JIRA_TOKEN") or "").strip()
+    project_key = str(os.environ.get("JIRA_PROJECT_KEY") or os.environ.get("JIRA_PROJECT") or "KAN").strip()
+    if base_url and email and token:
+        try:
+            from monitoring_adapter.jira_client import JiraClient
+            return JiraClient(base_url=base_url, email=email, api_token=token, project_key=project_key)
+        except Exception:
+            logger.warning("failed to initialize JiraClient for approval-service", exc_info=True)
+            return None
+    return None
+
+
+def _jira_issue_url(issue_key: str | None) -> str | None:
+    if not issue_key:
+        return None
+    import os
+    base = str(os.environ.get("JIRA_URL") or os.environ.get("JIRA_API_BASE_URL") or "").rstrip("/")
+    return f"{base}/browse/{issue_key}" if base else None
+
+
 @app.get("/incident/{incident_id}")
 async def get_incident(incident_id: str, tenant_id: str = Query(min_length=1, max_length=128)) -> dict:
     normalized_incident_id = str(incident_id or "").strip()
@@ -760,16 +856,61 @@ async def get_incident(incident_id: str, tenant_id: str = Query(min_length=1, ma
                 incident = await repo.get_incident(normalized_incident_id, tenant_id=normalized_tenant)
                 pending = await repo.get_pending_workflow(normalized_incident_id)
                 recommendation = await repo.get_latest_recommendation_for_incident(normalized_incident_id, tenant_id=normalized_tenant)
+
+                # Fetch assignment info
+                assignment = await session.scalar(
+                    select(ApprovalAssignmentRecord).where(
+                        ApprovalAssignmentRecord.tenant_id == normalized_tenant,
+                        ApprovalAssignmentRecord.incident_id == normalized_incident_id,
+                    )
+                )
+
+                # Fetch linked Jira ticket
+                fingerprint = None
+                if isinstance(memory_payload, dict):
+                    fingerprint = memory_payload.get("context", {}).get("alert", {}).get("fingerprint")
+                if not fingerprint and isinstance(recommendation, dict):
+                    fingerprint = recommendation.get("context", {}).get("alert", {}).get("fingerprint")
+                if not fingerprint and isinstance(incident, dict):
+                    alerts_list = incident.get("alerts") or incident.get("payload", {}).get("alerts", [])
+                    if alerts_list and isinstance(alerts_list, list) and isinstance(alerts_list[0], dict):
+                        fingerprint = alerts_list[0].get("fingerprint")
+
+                jira_issue_key = None
+                jira_sync_failed = False
+                if fingerprint:
+                    link = await repo.get_open_jira_ticket_link(normalized_tenant, fingerprint)
+                    if link:
+                        jira_issue_key = link.get("jira_issue_key")
+
+                if assignment and assignment.status == "jira_sync_failed":
+                    jira_sync_failed = True
+
+                enrichment = {}
+                if assignment:
+                    enrichment["assignee"] = assignment.assignee
+                    enrichment["assignment_status"] = assignment.status
+                    enrichment["assignment_reason"] = assignment.assignment_reason
+                if jira_issue_key:
+                    enrichment["jira_issue_key"] = jira_issue_key
+                    jira_issue_url = _jira_issue_url(jira_issue_key)
+                    if jira_issue_url:
+                        enrichment["jira_issue_url"] = jira_issue_url
+                enrichment["jira_sync_failed"] = jira_sync_failed
+
                 if isinstance(recommendation, dict):
                     memory_payload = {
                         **(memory_payload if isinstance(memory_payload, dict) else {}),
                         "recommendation": recommendation,
                         "recommendation_id": _recommendation_id_from_repository_payload(recommendation),
                     }
+                base_context = {}
                 if isinstance(incident, dict):
-                    return _build_incident_context({**incident, **(memory_payload or {})}, pending)
-                if isinstance(pending, dict):
-                    return _build_incident_context(memory_payload or {"incident_id": normalized_incident_id}, pending)
+                    base_context = _build_incident_context({**incident, **(memory_payload or {})}, pending)
+                elif isinstance(pending, dict):
+                    base_context = _build_incident_context(memory_payload or {"incident_id": normalized_incident_id}, pending)
+                if base_context:
+                    return {**base_context, **enrichment}
         except Exception:
             logger.exception("failed to load incident context", extra={"incident_id": normalized_incident_id})
 

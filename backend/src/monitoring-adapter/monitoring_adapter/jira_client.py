@@ -121,11 +121,12 @@ class JiraClient:
         )
         return issue_key, "created"
 
-    async def assign_issue(self, issue_key: str, *, account_id: str) -> None:
+    async def assign_issue(self, issue_key: str, account_id: str | None = None, **kwargs: Any) -> None:
+        target_account_id = account_id or kwargs.get("account_id")
         await self._request(
             "PUT",
             f"/rest/api/3/issue/{issue_key}/assignee",
-            json={"accountId": account_id},
+            json={"accountId": target_account_id},
         )
 
     async def find_assignable_user(self, query: str) -> str | None:
@@ -280,3 +281,5 @@ class JiraClient:
         payload = response.json()
         issues = payload.get("issues", []) if isinstance(payload, dict) else []
         return [issue for issue in issues if isinstance(issue, dict)]
+
+    find_user_account_id = find_assignable_user
