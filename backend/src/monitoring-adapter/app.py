@@ -4122,8 +4122,9 @@ def _build_alert_from_payload(payload: dict[str, Any], trace_id: str | None = No
     service_value = str(payload.get("service", labels.get("service", labels.get("job", "unknown"))) or "unknown")
     environment_value = str(payload.get("environment", labels.get("env", labels.get("environment", "prod"))) or "prod")
     description_value = str(payload.get("description", annotations.get("summary", "")) or "")
+    tenant_id_value = str(payload.get("tenant_id") or labels.get("tenant_id") or "").strip()
 
-    return Alert(
+    alert_kwargs: dict[str, Any] = dict(
         source=source_value,
         name=name_value,
         service=service_value,
@@ -4135,26 +4136,19 @@ def _build_alert_from_payload(payload: dict[str, Any], trace_id: str | None = No
         correlation_id=str(payload.get("correlation_id") or labels.get("incident_correlation_id") or "") or None,
         trace_id=trace_id,
     )
+    if tenant_id_value:
+        alert_kwargs["tenant_id"] = tenant_id_value
+    return Alert(**alert_kwargs)
 
 
 async def _publish_ingested_alert(alert: Alert, *, topic: str = RAW_ALERTS) -> None:
-    if alert.severity.value == "warning":
-        alert.labels = {**alert.labels, "pipeline_outcome": "live_alert_only", "pipeline_reason": "Warning severity does not start investigation"}
-        factory = getattr(app.state, "session_factory", None)
-        if settings.database_enabled:
-            if factory is None:
-                raise RuntimeError("Cannot retain warning alert without database storage")
-            async with factory() as session:
-                await IncidentRepository(session).save_alert(alert)
-                await session.commit()
-    else:
-        payload = _build_raw_alert_event_payload(alert)
-        started = perf_counter()
-        await app.state.producer.publish(topic, payload, key=alert.service)
-        EVENT_PUBLISH_LATENCY.labels(settings.service_name, topic, "monitoring-adapter").observe(
-            max(0.0, perf_counter() - started)
-        )
-        EVENT_CONTRACTS_EMITTED.labels(settings.service_name, topic, "monitoring-adapter", "v1").inc()
+    payload = _build_raw_alert_event_payload(alert)
+    started = perf_counter()
+    await app.state.producer.publish(topic, payload, key=alert.service)
+    EVENT_PUBLISH_LATENCY.labels(settings.service_name, topic, "monitoring-adapter").observe(
+        max(0.0, perf_counter() - started)
+    )
+    EVENT_CONTRACTS_EMITTED.labels(settings.service_name, topic, "monitoring-adapter", "v1").inc()
     RECENT_ALERTS.appendleft(
         {
             "id": str(alert.id),
@@ -5407,7 +5401,20 @@ async def create_hitl_jira_assignment(request: HitlJiraRequest) -> dict[str, Any
             labels={"tenant": request.tenant_id, "service": request.service,
                     "environment": request.environment},
         )
-        await client.assign_issue(issue_key, account_id=assignment.assignee)
+        if assignment.assignment_type == "user":
+            resolved_account = await client.find_assignable_user(assignment.assignee)
+            if not resolved_account and "@" not in assignment.assignee and " " not in assignment.assignee:
+                resolved_account = assignment.assignee
+            if resolved_account:
+                await client.assign_issue(issue_key, account_id=resolved_account)
+            else:
+                logger.warning("could not resolve Jira accountId for user assignee %s", assignment.assignee)
+        else:
+            await client.add_comment(
+                issue_key,
+                f"[KaiMS Governance] Governed HITL approval routed to group: {assignment.assignee}. Jira issue remains unassigned for team triage.",
+            )
+            await client.add_labels(issue_key, [f"kaiops-team-{assignment.assignee}"])
         await client.add_comment(issue_key, description)
         if request.evidence_summary_url.startswith(("https://", "http://")):
             await client.add_remote_link(
@@ -5459,7 +5466,20 @@ async def create_human_evidence_jira_request(request: HumanEvidenceJiraRequest) 
             labels={"tenant": request.tenant_id, "incident": str(request.incident_id),
                     "requirement": str(request.requirement_id), "kind": "human-evidence"},
         )
-        await client.assign_issue(issue_key, account_id=request.assignee_id)
+        if request.assignment_type == "user":
+            resolved_account = await client.find_assignable_user(request.assignee_id)
+            if not resolved_account and "@" not in request.assignee_id and " " not in request.assignee_id:
+                resolved_account = request.assignee_id
+            if resolved_account:
+                await client.assign_issue(issue_key, account_id=resolved_account)
+            else:
+                logger.warning("could not resolve Jira accountId for user assignee %s", request.assignee_id)
+        else:
+            await client.add_comment(
+                issue_key,
+                f"[KaiMS Governance] Evidence requested from team/group: {request.assignee_id}. Assigned to group in KaiMS; Jira ticket remains unassigned for team triage.",
+            )
+            await client.add_labels(issue_key, [f"kaiops-team-{request.assignee_id}"])
         issue = await client.get_issue(issue_key)
         fields = issue.get("fields") if isinstance(issue.get("fields"), dict) else {}
         jira_version = str(issue.get("version") or fields.get("updated") or "") or None
@@ -5913,11 +5933,23 @@ def _jira_payload_to_alert_payload(payload: dict[str, Any]) -> tuple[dict[str, A
     assignee = fields.get("assignee", {}) if isinstance(fields.get("assignee"), dict) else {}
     webhook_event = str(payload.get("webhookEvent") or "").strip()
     jira_labels = fields.get("labels") if isinstance(fields.get("labels"), list) else []
-    managed = "managed_by_kaiops" in jira_labels
     kaiops_incident_label = next(
         (str(label) for label in jira_labels if str(label).startswith("kaiops_incident_")),
         "",
     )
+    # Tenant routing for the general alert-ingestion path. This is
+    # independent of _governed_jira_scope's project_key gate (which scopes
+    # lifecycle governance actions — approve/reject/resolve — to tickets
+    # KAIMS already tracks a binding for). Every inbound Jira ticket that
+    # carries a kaiops-tenant-<id> label should route to that tenant when it
+    # becomes an alert/incident, regardless of which Jira project it lives
+    # in; without this the tenant label was silently dropped and every
+    # Jira-sourced alert landed under tenant_id="default".
+    tenant_label = next(
+        (str(label) for label in jira_labels if str(label).startswith("kaiops-tenant-")), ""
+    )
+    tenant_id = tenant_label.removeprefix("kaiops-tenant-").strip()
+    managed = _is_kaiops_managed_jira_update(payload)
 
     mapped_payload = {
         "source": "jira",
@@ -5926,6 +5958,7 @@ def _jira_payload_to_alert_payload(payload: dict[str, Any]) -> tuple[dict[str, A
         "environment": "prod",
         "severity": _jira_priority_to_severity(str(priority.get("name") or "")),
         "description": str(fields.get("description") or summary),
+        **({"tenant_id": tenant_id} if tenant_id else {}),
         "labels": {
             "alert_status": "firing",
             "ticket_id": issue_key,
@@ -5953,7 +5986,15 @@ def _is_kaiops_managed_jira_update(payload: dict[str, Any]) -> bool:
     labels = fields.get("labels") if isinstance(fields.get("labels"), list) else []
     comment = payload.get("comment", {}) if isinstance(payload.get("comment"), dict) else {}
     comment_body = str(comment.get("body") or "")
-    return "managed_by_kaiops" in labels and (
+    if any(
+        str(label) in {"managed_by_kaiops", "kaiops-managed-by-kaiops", "kaiops-auto-created"}
+        or str(label).startswith("kaiops_incident_")
+        or str(label).startswith("kaiops-incident-")
+        or str(label).startswith("kaiops-candidate-")
+        for label in labels
+    ):
+        return True
+    return (
         "[kaiops-managed-update]" in comment_body
         or str(payload.get("event_origin") or "").lower() == "kaiops"
     )
@@ -6783,19 +6824,17 @@ async def get_agent_work_items(limit: int = 100) -> dict[str, Any]:
 
 
 @app.get("/incidents/closed")
-async def get_closed_incidents(tenant_id: str, limit: int = 100, offset: int = 0) -> dict[str, Any]:
+async def get_closed_incidents(tenant_id: str, limit: int = 100) -> dict[str, Any]:
     safe_limit = max(1, min(int(limit), 500))
-    safe_offset = max(0, int(offset))
     session_factory = getattr(app.state, "session_factory", None)
     if settings.database_enabled and session_factory is not None:
         async with session_factory() as session:
             repo = IncidentRepository(session)
-            rows = await repo.list_closed_incidents(limit=safe_limit + 1, tenant_id=tenant_id, offset=safe_offset)
-    else:
-        rows = list(CLOSED_INCIDENTS)[safe_offset:safe_offset + safe_limit + 1]
-    has_more = len(rows) > safe_limit
-    rows = rows[:safe_limit]
-    return {"rows": rows, "count": len(rows), "next_offset": safe_offset + len(rows) if has_more else None}
+            rows = await repo.list_closed_incidents(limit=safe_limit, tenant_id=tenant_id)
+        return {"rows": rows, "count": len(rows)}
+
+    rows = list(CLOSED_INCIDENTS)[:safe_limit]
+    return {"rows": rows, "count": len(rows)}
 
 
 @app.get("/incidents/metadata")

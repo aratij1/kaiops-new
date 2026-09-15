@@ -110,3 +110,130 @@ def test_discovery_gate_does_not_consume_jira_creation_budget(tmp_path) -> None:
     assert second.action == "discover"
     assert jira.allowed is True
     assert jira.action == "create"
+
+
+def _load_monitoring_app():
+    import importlib.util
+    from pathlib import Path
+    app_path = Path(__file__).resolve().parents[1] / "src" / "monitoring-adapter" / "app.py"
+    spec = importlib.util.spec_from_file_location("monitoring_adapter_app_test", app_path)
+    assert spec is not None and spec.loader is not None
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_kaiops_managed_jira_webhook_loop_prevention() -> None:
+    app = _load_monitoring_app()
+    _is_kaiops_managed_jira_update = app._is_kaiops_managed_jira_update
+    _jira_payload_to_alert_payload = app._jira_payload_to_alert_payload
+
+    for label in [
+        "kaiops-auto-created",
+        "kaiops-managed-by-kaiops",
+        "managed_by_kaiops",
+        "kaiops_incident_11111111-1111-4111-8111-111111111111",
+        "kaiops-candidate-22222222-2222-4222-8222-222222222222",
+    ]:
+        payload = {
+            "webhookEvent": "jira:issue_updated",
+            "issue": {
+                "key": "KAN-100",
+                "id": "10100",
+                "fields": {
+                    "summary": "Service degradation test",
+                    "description": "Auto-created incident",
+                    "labels": [label, "kaiops-severity-critical"],
+                    "status": {"name": "In Progress"},
+                    "priority": {"name": "High"},
+                    "project": {"key": "KAN"},
+                },
+            },
+        }
+        assert _is_kaiops_managed_jira_update(payload) is True, f"Failed for label {label}"
+
+        mapped, key = _jira_payload_to_alert_payload(payload)
+        assert key == "KAN-100"
+        assert mapped["labels"]["managed_by_kaiops"] == "true"
+        assert mapped["labels"]["event_origin"] == "kaiops"
+
+
+def test_external_jira_webhook_allowed_as_unmanaged() -> None:
+    app = _load_monitoring_app()
+    _is_kaiops_managed_jira_update = app._is_kaiops_managed_jira_update
+    _jira_payload_to_alert_payload = app._jira_payload_to_alert_payload
+
+    payload = {
+        "webhookEvent": "jira:issue_created",
+        "issue": {
+            "key": "KAN-200",
+            "id": "10200",
+            "fields": {
+                "summary": "Customer reported checkout error",
+                "description": "Checkout page returning 500",
+                "labels": ["bug", "user-reported"],
+                "status": {"name": "Open"},
+                "priority": {"name": "Highest"},
+                "project": {"key": "KAN"},
+            },
+        },
+    }
+    assert _is_kaiops_managed_jira_update(payload) is False
+    mapped, key = _jira_payload_to_alert_payload(payload)
+    assert key == "KAN-200"
+    assert mapped["labels"]["managed_by_kaiops"] == "false"
+    assert mapped["labels"]["event_origin"] == "jira"
+
+
+import pytest
+
+@pytest.mark.asyncio
+async def test_jira_client_account_id_assignment_and_search() -> None:
+    from unittest.mock import patch, MagicMock
+    import httpx
+    from monitoring_adapter.jira_client import JiraClient
+    
+    client = JiraClient(
+        base_url="https://mockjira.atlassian.net",
+        email="test@mock.com",
+        api_token="token",
+        project_key="KAN"
+    )
+    
+    # 1. Test search_users and find_assignable_user (Single Match)
+    mock_response = MagicMock(spec=httpx.Response)
+    mock_response.status_code = 200
+    mock_response.json.return_value = [{"accountId": "account-123", "emailAddress": "test@mock.com"}]
+    
+    with patch("httpx.AsyncClient.request", return_value=mock_response) as mock_req:
+        account_id = await client.find_assignable_user("test@mock.com")
+        assert account_id == "account-123"
+        mock_req.assert_called_once_with(
+            "GET",
+            "https://mockjira.atlassian.net/rest/api/3/user/assignable/search",
+            params={"project": "KAN", "query": "test@mock.com", "maxResults": 50}
+        )
+
+    # 2. Test search_users and find_assignable_user (Zero Matches -> Fail Closed)
+    mock_response_zero = MagicMock(spec=httpx.Response)
+    mock_response_zero.status_code = 200
+    mock_response_zero.json.return_value = []
+    
+    with patch("httpx.AsyncClient.request", return_value=mock_response_zero):
+        account_id = await client.find_assignable_user("nonexistent")
+        assert account_id is None
+
+    # 3. Test assign_issue (Sends accountId only, no username fallback)
+    mock_put_response = MagicMock(spec=httpx.Response)
+    mock_put_response.status_code = 204
+    
+    with patch("httpx.AsyncClient.request", return_value=mock_put_response) as mock_req:
+        await client.assign_issue("KAN-101", account_id="account-123")
+        mock_req.assert_called_once_with(
+            "PUT",
+            "https://mockjira.atlassian.net/rest/api/3/issue/KAN-101/assignee",
+            json={"accountId": "account-123"}
+        )
+
+
+

@@ -10596,7 +10596,7 @@ class ContextEnrichmentRepository(EvaluationRepository):
         expected_responder: str | None, due_at: datetime, acceptable_format: str,
         evidence_already_checked: list[str], hypothesis_impact: str,
         investigation_can_continue: bool = True, assignment_source: str | None = None,
-        assignment_failure_reason: str | None = None,
+        assignment_failure_reason: str | None = None, assignment_type: str = "user",
     ) -> HumanEvidenceRequestRecord:
         tenant = require_tenant_id(tenant_id, source="human evidence request")
         requirement_uuid = self._to_uuid(requirement_id)
@@ -10613,7 +10613,7 @@ class ContextEnrichmentRepository(EvaluationRepository):
         blocked = responder is None
         row = HumanEvidenceRequestRecord(
             tenant_id=tenant, incident_id=self._to_uuid(incident_id), requirement_id=requirement_uuid,
-            expected_responder=responder, due_at=due_at,
+            expected_responder=responder, assignment_type=assignment_type or "user", due_at=due_at,
             assignment_source=assignment_source,
             assignment_failure_reason=(
                 str(assignment_failure_reason or "NO_AUTHORIZED_RESPONDER")[:512] if blocked else None
@@ -10683,16 +10683,17 @@ class ContextEnrichmentRepository(EvaluationRepository):
             IncidentProjectionRecord.tenant_id == tenant,
             IncidentProjectionRecord.incident_id == incident_uuid,
         ))
-        candidates: list[tuple[Any, str]] = []
+        candidates: list[tuple[Any, str, str]] = []
         if projection is not None:
-            candidates.append((projection.owner, "incident_assignment"))
+            candidates.append((projection.owner, "incident_assignment", "user"))
         assignment = await self.session.scalar(select(ApprovalAssignmentRecord).where(
             ApprovalAssignmentRecord.tenant_id == tenant,
             ApprovalAssignmentRecord.incident_id == str(incident_uuid),
             ApprovalAssignmentRecord.status.in_(("assigned", "active")),
         ).order_by(ApprovalAssignmentRecord.updated_at.desc()).limit(1))
         if assignment is not None:
-            candidates.append((assignment.assignee, "incident_assignment"))
+            kind = getattr(assignment, "assignment_type", "user") or "user"
+            candidates.append((assignment.assignee, "incident_assignment", kind))
         service = str(getattr(projection, "service", None) or "").strip()
         if service:
             application = await self.session.scalar(select(ApplicationRecord).where(
@@ -10701,29 +10702,32 @@ class ContextEnrichmentRepository(EvaluationRepository):
                 ApplicationRecord.status.in_(("registered", "active", "ready")),
             ).order_by(ApplicationRecord.updated_at.desc()).limit(1))
             if application is not None:
-                candidates.append((application.owner_email, "service_ownership"))
-                candidates.append((application.owner_team, "service_ownership"))
+                candidates.append((application.owner_email, "service_ownership", "user"))
+                candidates.append((application.owner_team, "service_ownership", "group"))
             onboarding = await self.session.scalar(select(OnboardingStateRecord).where(
                 OnboardingStateRecord.tenant_id == tenant,
                 OnboardingStateRecord.project_name == service,
             ).order_by(OnboardingStateRecord.updated_at.desc()).limit(1))
             if onboarding is not None:
-                candidates.append((onboarding.owner_team, "service_onboarding"))
+                candidates.append((onboarding.owner_team, "service_onboarding", "group"))
         control = await self.session.scalar(select(OnboardingControlPlaneRecord).where(
             OnboardingControlPlaneRecord.tenant_id == tenant,
             OnboardingControlPlaneRecord.status.in_(("ACTIVE", "COMPLETED", "READY")),
         ).order_by(OnboardingControlPlaneRecord.updated_at.desc()).limit(1))
         payload = dict(control.payload or {}) if control and isinstance(control.payload, dict) else {}
         candidates.extend([
-            (payload.get("escalation_responder") or payload.get("escalation_manager"), "escalation_policy"),
-            (payload.get("default_responder") or payload.get("default_approver_group"), "tenant_default"),
+            (payload.get("escalation_responder") or payload.get("escalation_manager"), "escalation_policy", "user"),
+            (payload.get("default_responder"), "tenant_default", "user"),
+            (payload.get("default_approver_group"), "tenant_default", "group"),
         ])
         placeholders = {"", "incident-owner", "incident_owner", "unassigned", "admin", "operator", "unknown"}
-        for value, source in candidates:
+        for value, source, kind in candidates:
             identity = str(value or "").strip()
             if identity.lower() not in placeholders:
-                return {"identity": identity, "source": source}
+                return {"identity": identity, "source": source, "kind": kind}
         return None
+
+    resolve_human_evidence_assignee = resolve_human_evidence_responder
 
     async def claim_human_evidence_jira_requests(self, *, limit: int = 20) -> list[dict[str, Any]]:
         now = datetime.now(UTC)
@@ -10755,7 +10759,9 @@ class ContextEnrichmentRepository(EvaluationRepository):
             result.append({
                 "tenant_id": row.tenant_id, "incident_id": str(row.incident_id),
                 "request_id": str(row.request_id), "requirement_id": str(row.requirement_id),
-                "assignee_id": row.expected_responder, "due_at": row.due_at,
+                "assignee_id": row.expected_responder,
+                "assignment_type": getattr(row, "assignment_type", "user") or "user",
+                "due_at": row.due_at,
                 "requested_evidence": requirement.question if requirement else row.acceptable_format,
                 "reason": requirement.reason if requirement else row.hypothesis_impact,
             })
@@ -10920,7 +10926,7 @@ class ContextEnrichmentRepository(EvaluationRepository):
                 }, current_observation=True, contradiction_status=None,
                 content_digest=hashlib.sha256(json.dumps(content, sort_keys=True).encode()).hexdigest(),
             ))
-        request.response_payload = {**dict(response), "source_type": "human_assertion", "evidence_id": evidence_id}
+        request.response_payload = json.loads(json.dumps({**dict(response), "source_type": "human_assertion", "evidence_id": evidence_id}, default=str))
         request.status = "answered"
         request.version += 1
         requirement.status = "collected"

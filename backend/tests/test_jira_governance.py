@@ -1,10 +1,23 @@
 from datetime import UTC, datetime, timedelta
 from types import SimpleNamespace
+from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-from common.context_enrichment_contract import HitlRoutingConfiguration, TicketClosurePolicy
-from common.database import ExecutionPlanRecord, IncidentInvestigationBindingRecord
+from common.context_enrichment_contract import (
+    EvidenceRequirement,
+    HitlJiraRequest,
+    HitlRoutingConfiguration,
+    HumanEvidenceJiraRequest,
+    TicketClosurePolicy,
+)
+from common.database import (
+    ApplicationRecord,
+    ExecutionPlanRecord,
+    IncidentInvestigationBindingRecord,
+    IncidentProjectionRecord,
+    OnboardingControlPlaneRecord,
+)
 from common.hitl_routing import resolve_hitl_assignee
 from common.jira_governance import (
     governed_jira_action,
@@ -13,6 +26,18 @@ from common.jira_governance import (
     validate_jira_approval,
 )
 from common.repository import ContextEnrichmentRepository
+import importlib.util
+from pathlib import Path
+
+_APP_PATH = Path(__file__).resolve().parents[1] / "src" / "monitoring-adapter" / "app.py"
+_spec = importlib.util.spec_from_file_location("monitoring_adapter_app", _APP_PATH)
+assert _spec and _spec.loader
+_mod = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_mod)
+
+app = _mod.app
+create_hitl_jira_assignment = _mod.create_hitl_jira_assignment
+create_human_evidence_jira_request = _mod.create_human_evidence_jira_request
 
 
 def routing() -> HitlRoutingConfiguration:
@@ -164,3 +189,218 @@ def test_ticket_closure_authority_is_fail_closed():
     kaims_policy = TicketClosurePolicy(ownership="kaims", kaims_may_close=True)
     assert kaims_may_close_ticket(kaims_policy, ready_state) == (True, [])
     assert kaims_may_close_ticket(kaims_policy, {**ready_state, "alerts_cleared": False})[0] is False
+
+
+@pytest.mark.asyncio
+async def test_resolve_human_evidence_responder_returns_typed_user_and_group(sqlite_session_factory):
+    incident_id = uuid4()
+    async with sqlite_session_factory() as session:
+        # 1. User from projection owner
+        session.add(IncidentProjectionRecord(
+            tenant_id="tenant-a", incident_id=incident_id,
+            owner="alice@example.com", service="payments", environment="prod", status="open",
+        ))
+        await session.flush()
+        repo = ContextEnrichmentRepository(session)
+        res = await repo.resolve_human_evidence_responder(tenant_id="tenant-a", incident_id=incident_id)
+        assert res == {"identity": "alice@example.com", "source": "incident_assignment", "kind": "user"}
+
+    # 2. Group from application owner_team when owner_email is absent
+    incident_id_2 = uuid4()
+    async with sqlite_session_factory() as session:
+        session.add(IncidentProjectionRecord(
+            tenant_id="tenant-a", incident_id=incident_id_2,
+            owner=None, service="checkout", environment="prod", status="open",
+        ))
+        session.add(ApplicationRecord(
+            tenant_id="tenant-a", name="checkout", owner_email=None,
+            owner_team="core-payments", status="active", environment="prod",
+            namespace="default", region="us-east-1", technology="python", metrics_endpoint="http://prometheus:9090",
+        ))
+        await session.flush()
+        repo = ContextEnrichmentRepository(session)
+        res = await repo.resolve_human_evidence_responder(tenant_id="tenant-a", incident_id=incident_id_2)
+        assert res == {"identity": "core-payments", "source": "service_ownership", "kind": "group"}
+
+    # 3. Group from control plane default_approver_group
+    incident_id_3 = uuid4()
+    async with sqlite_session_factory() as session:
+        session.add(IncidentProjectionRecord(
+            tenant_id="tenant-a", incident_id=incident_id_3,
+            owner=None, service="", environment="prod", status="open",
+        ))
+        session.add(OnboardingControlPlaneRecord(
+            tenant_id="tenant-a", project_name="platform", status="ACTIVE",
+            payload={"default_approver_group": "platform-approvers"},
+        ))
+        await session.flush()
+        repo = ContextEnrichmentRepository(session)
+        res = await repo.resolve_human_evidence_responder(tenant_id="tenant-a", incident_id=incident_id_3)
+        assert res == {"identity": "platform-approvers", "source": "tenant_default", "kind": "group"}
+
+
+@pytest.mark.asyncio
+async def test_create_human_evidence_jira_request_group_never_calls_assignee(sqlite_session_factory):
+    incident_id = uuid4()
+    requirement_id = uuid4()
+    request_id = uuid4()
+
+    mock_client = MagicMock()
+    mock_client.create_or_update_incident = AsyncMock(return_value=("KAN-2004", "created"))
+    mock_client.assign_issue = AsyncMock()
+    mock_client.add_comment = AsyncMock()
+    mock_client.add_labels = AsyncMock()
+    mock_client.get_issue = AsyncMock(return_value={"fields": {"updated": "2026-09-07T12:00:00Z"}})
+
+    app.state.session_factory = sqlite_session_factory
+
+    async with sqlite_session_factory() as session:
+        repo = ContextEnrichmentRepository(session)
+        await repo.upsert_context_evidence_requirements([
+            EvidenceRequirement(
+                requirement_id=requirement_id, tenant_id="tenant-a", incident_id=incident_id,
+                rca_version=1, category="business_impact", question="Team question",
+                reason="Team reason", priority="high", collection_mode="human_required",
+                created_at=datetime.now(UTC), updated_at=datetime.now(UTC),
+            )
+        ])
+        created_req = await repo.create_human_evidence_request(
+            tenant_id="tenant-a", incident_id=incident_id,
+            requirement_id=requirement_id, expected_responder="core-payments",
+            assignment_type="group", assignment_source="service_ownership",
+            due_at=datetime.now(UTC) + timedelta(hours=1), acceptable_format="format",
+            evidence_already_checked=[], hypothesis_impact="impact",
+        )
+        await session.commit()
+
+    req = HumanEvidenceJiraRequest(
+        tenant_id="tenant-a", incident_id=incident_id, request_id=created_req.request_id,
+        requirement_id=requirement_id, assignee_id="core-payments", assignment_type="group",
+        due_at=datetime.now(UTC) + timedelta(hours=1), requested_evidence="Metrics snapshot",
+        reason="Verify core payments status", kaims_deep_link="http://localhost:8080/incidents/1",
+    )
+
+    with patch.object(_mod, "_jira_api_client", return_value=mock_client), \
+         patch.object(_mod, "JIRA_PROJECT_KEY", "KAN"):
+        result = await create_human_evidence_jira_request(req)
+
+    # Asserts that assign_issue is NEVER called for group assignments
+    mock_client.assign_issue.assert_not_called()
+    # Asserts that team comment and label are attached
+    mock_client.add_comment.assert_called_once()
+    assert "core-payments" in mock_client.add_comment.call_args[0][1]
+    mock_client.add_labels.assert_called_once_with("KAN-2004", ["kaiops-team-core-payments"])
+    # Asserts binding is synchronized
+    assert result["jira_sync_status"] == "synchronized"
+    assert result["jira_assignee_id"] == "core-payments"
+
+
+@pytest.mark.asyncio
+async def test_create_hitl_jira_assignment_group_never_calls_assignee(sqlite_session_factory):
+    mock_client = MagicMock()
+    mock_client.create_or_update_incident = AsyncMock(return_value=("KAN-2005", "created"))
+    mock_client.assign_issue = AsyncMock()
+    mock_client.add_comment = AsyncMock()
+    mock_client.add_labels = AsyncMock()
+    mock_client.add_remote_link = AsyncMock()
+    mock_client.transition_issue = AsyncMock()
+
+    app.state.session_factory = sqlite_session_factory
+
+    async with sqlite_session_factory() as session:
+        identity = await seed_identity(session)
+        await session.commit()
+
+    req = HitlJiraRequest(
+        tenant_id="tenant-a",
+        incident_id=identity["incident_id"],
+        recommendation_id=identity["recommendation_id"],
+        rca_version=identity["rca_version"],
+        context_snapshot_id=identity["context_snapshot_id"],
+        context_fingerprint=identity["context_fingerprint"],
+        resolution_selection_id=identity["resolution_selection_id"],
+        execution_plan_id=identity["execution_plan_id"],
+        plan_fingerprint=identity["plan_fingerprint"],
+        risk="low",
+        rollback_plan="revert",
+        approval_expires_at=datetime.now(UTC) + timedelta(hours=1),
+        summary="Restart service",
+        service="payments",
+        environment="prod",
+        severity="critical",
+        approval_type="remediation",
+        evidence_summary_url="http://localhost:8080/evidence",
+        closure_policy=TicketClosurePolicy(ownership="human", kaims_may_close=False),
+        routing=HitlRoutingConfiguration(
+            default_approver_group="payments-l2",
+            l2_group="payments-l2",
+            l3_group="payments-l3",
+            service_owner=None,
+            timezone="UTC",
+            business_hours={},
+            severity_sla_minutes={"critical": 15},
+            jira_project_key="KAN",
+            jira_issue_type="Bug",
+            jira_transition_mapping={"approval_pending": "11"},
+            fallback_assignment_group="payments-l2",
+        ),
+    )
+
+    with patch.object(_mod, "_jira_api_client", return_value=mock_client), \
+         patch.object(_mod, "JIRA_PROJECT_KEY", "KAN"):
+        result = await create_hitl_jira_assignment(req)
+
+    # Asserts assign_issue is NEVER called for group assignments
+    mock_client.assign_issue.assert_not_called()
+    assert mock_client.add_comment.call_count >= 1
+    mock_client.add_labels.assert_called_once_with("KAN-2005", ["kaiops-team-payments-l2"])
+    assert result["binding"]["assignee_group"] == "payments-l2"
+
+
+@pytest.mark.asyncio
+async def test_group_evidence_response_authorization_enforces_strict_boundary(sqlite_session_factory):
+    incident_id = uuid4()
+    requirement_id = uuid4()
+
+    async with sqlite_session_factory() as session:
+        repo = ContextEnrichmentRepository(session)
+        await repo.upsert_context_evidence_requirements([
+            EvidenceRequirement(
+                requirement_id=requirement_id, tenant_id="tenant-a", incident_id=incident_id,
+                rca_version=1, category="business_impact", question="Group question",
+                reason="Group reason", priority="high", collection_mode="human_required",
+                created_at=datetime.now(UTC), updated_at=datetime.now(UTC),
+            )
+        ])
+        request = await repo.create_human_evidence_request(
+            tenant_id="tenant-a", incident_id=incident_id,
+            requirement_id=requirement_id, expected_responder="core-payments",
+            assignment_type="group", assignment_source="service_ownership",
+            due_at=datetime.now(UTC) + timedelta(hours=1), acceptable_format="format",
+            evidence_already_checked=[], hypothesis_impact="impact",
+        )
+        await repo.bind_human_evidence_jira(
+            tenant_id="tenant-a", incident_id=incident_id, request_id=request.request_id,
+            requirement_id=requirement_id, jira_issue_key="KAN-2004", jira_issue_url="http://jira/KAN-2004",
+            jira_version="1", jira_assignee_id="core-payments", sync_status="synchronized",
+        )
+
+        # 1. Unassigned group direct submission by user-456 fails (strict authorization preserved)
+        with pytest.raises(PermissionError, match="authenticated responder is not assigned to this evidence request"):
+            await repo.record_human_evidence_response(
+                tenant_id="tenant-a", incident_id=incident_id, requirement_id=requirement_id,
+                response={"response": "Metrics looking good", "responder_id": "user-456", "responded_at": datetime.now(UTC), "source_reference": "jira://KAN-2004"},
+            )
+
+        # 2. Jira user claims ticket in Jira UI -> Jira webhook synchronizes user-456
+        await repo.synchronize_human_evidence_jira_assignee(
+            tenant_id="tenant-a", jira_issue_key="KAN-2004", jira_assignee_id="user-456",
+            jira_version="2", sync_status="synchronized",
+        )
+
+        # 3. user-456 is now authorized and can submit response
+        recorded = await repo.record_human_evidence_response(
+            tenant_id="tenant-a", incident_id=incident_id, requirement_id=requirement_id,
+            response={"response": "Metrics looking good", "responder_id": "user-456", "responded_at": datetime.now(UTC), "source_reference": "jira://KAN-2004"},
+        )
+        assert recorded["status"] == "answered"
