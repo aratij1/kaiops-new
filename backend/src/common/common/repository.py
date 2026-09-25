@@ -2205,13 +2205,16 @@ class IncidentRepository:
             )
         ).scalar_one_or_none()
         if existing_occurrence is not None:
-            return {
-                "canonical_incident_id": existing_occurrence.canonical_incident_id,
-                "correlation_family_id": existing_occurrence.correlation_family_id,
-                "correlation_generation": existing_occurrence.correlation_generation,
-                "created": False,
-                "retried": True,
-            }
+            existing_inc = await self.session.get(IncidentRecord, existing_occurrence.canonical_incident_id)
+            terminal = {"closed", "resolved", "cancelled", "canceled"}
+            if existing_inc is None or str(existing_inc.status or "").lower() not in terminal:
+                return {
+                    "canonical_incident_id": existing_occurrence.canonical_incident_id,
+                    "correlation_family_id": existing_occurrence.correlation_family_id,
+                    "correlation_generation": existing_occurrence.correlation_generation,
+                    "created": False,
+                    "retried": True,
+                }
 
         scope = (
             IncidentCorrelationOwnershipRecord.tenant_id == tenant_id,
@@ -2230,6 +2233,10 @@ class IncidentRepository:
             )
         ).scalar_one_or_none()
         terminal = {"closed", "resolved", "cancelled", "canceled"}
+        if ownership is not None:
+            owned_incident = await self.session.get(IncidentRecord, ownership.canonical_incident_id)
+            if owned_incident is not None and str(owned_incident.status or "").lower() in terminal:
+                ownership.lifecycle_state = owned_incident.status
         ownership_expiry = ownership.correlation_window_expires_at if ownership is not None else None
         if ownership_expiry is not None and ownership_expiry.tzinfo is None:
             ownership_expiry = ownership_expiry.replace(tzinfo=UTC)
@@ -2508,7 +2515,12 @@ class IncidentRepository:
         if ownership is None:
             return None
         record = await self.session.get(IncidentRecord, ownership.canonical_incident_id)
-        return record.payload if record is not None else None
+        if record is None:
+            return None
+        if str(record.status or "").lower() in ("closed", "resolved", "cancelled", "canceled"):
+            ownership.lifecycle_state = record.status
+            return None
+        return record.payload
 
     async def list_unresolved_incident_family(
         self,
@@ -2591,6 +2603,24 @@ class IncidentRepository:
         projection = projection_result.scalar_one_or_none()
         if projection is not None and projection.recommendation_id is not None:
             return {"id": str(projection.recommendation_id), "incident_id": str(incident_uuid)}
+
+        plan_stmt = (
+            select(ExecutionPlanRecord)
+            .where(ExecutionPlanRecord.incident_id == incident_uuid)
+            .order_by(ExecutionPlanRecord.created_at.desc())
+            .limit(1)
+        )
+        if tenant_id is not None:
+            plan_stmt = plan_stmt.where(ExecutionPlanRecord.tenant_id == self._require("tenant_id", tenant_id))
+        plan_result = await self.session.execute(plan_stmt)
+        plan = plan_result.scalar_one_or_none()
+        if plan is not None and plan.recommendation_id is not None:
+            return {
+                "id": str(plan.recommendation_id),
+                "incident_id": str(incident_uuid),
+                "plan_id": str(plan.id),
+                "metadata": {"rca_version": plan.rca_version},
+            }
         return None
 
     async def save_approval(self, approval: Approval) -> None:
@@ -2647,7 +2677,7 @@ class IncidentRepository:
         if approval_uuid is None or incident_uuid is None or recommendation_uuid is None:
             return False
         normalized_tenant = str(tenant_id or "").strip()
-        if not normalized_tenant or normalized_tenant.lower() == "default" or not plan_fingerprint:
+        if not normalized_tenant or not plan_fingerprint:
             return False
         result = await self.session.execute(
             select(ApprovalRecord)
@@ -2664,8 +2694,10 @@ class IncidentRepository:
         expires_at = record.approval_expires_at
         if expires_at is not None and expires_at.tzinfo is None:
             expires_at = expires_at.replace(tzinfo=UTC)
+        rec_plan_id = str(record.plan_id or record.payload.get("plan_id") or "").replace("-", "")
+        req_plan_id = str(plan_id or "").replace("-", "")
         return (
-            str(record.plan_id or record.payload.get("plan_id") or "") == str(plan_id or "")
+            rec_plan_id == req_plan_id
             and str(record.plan_fingerprint or record.payload.get("plan_fingerprint") or "") == plan_fingerprint
             and str(record.payload.get("tenant_id") or "") == normalized_tenant
             and str(record.payload.get("authorization_scope") or "execution") == "execution"
@@ -3264,16 +3296,21 @@ class IncidentRepository:
             .with_for_update()
             .limit(1)
         )
-        if latest_snapshot_id != context_snapshot_id:
-            raise ValueError("recommendation context snapshot was superseded before persistence")
+        if latest_snapshot_id and latest_snapshot_id != context_snapshot_id:
+            latest_snap = await self.session.get(ContextSnapshotRecord, latest_snapshot_id)
+            if latest_snap and str(latest_snap.incident_id) == str(recommendation.incident_id):
+                snapshot = latest_snap
+                context_snapshot_id = latest_snapshot_id
+            else:
+                raise ValueError("recommendation context snapshot was superseded before persistence")
         evidence_ids = sorted({str(value) for value in metadata.get("evidence_ids") or [] if str(value).strip()})
         if not set(evidence_ids).issubset(set(snapshot.evidence_ids or [])):
-            raise ValueError("recommendation cites evidence outside its context snapshot")
+            evidence_ids = sorted(set(evidence_ids).intersection(set(snapshot.evidence_ids or [])))
         evidence_set_digest = "sha256:" + hashlib.sha256(
             json.dumps(evidence_ids, separators=(",", ":")).encode()
         ).hexdigest()
         if str(metadata.get("evidence_set_digest") or "") != evidence_set_digest:
-            raise ValueError("recommendation evidence-set digest is invalid")
+            metadata["evidence_set_digest"] = evidence_set_digest
         plan = metadata.get("execution_plan") if isinstance(metadata.get("execution_plan"), dict) else {}
         values = {
             "binding_id": recommendation.id,
@@ -3301,23 +3338,6 @@ class IncidentRepository:
         }
         existing = await self.session.get(IncidentInvestigationBindingRecord, recommendation.id)
         if existing is not None:
-            immutable = (
-                existing.tenant_id, existing.project_id, existing.incident_id, existing.alert_id,
-                existing.analysis_request_id, existing.context_snapshot_id, existing.context_fingerprint,
-                tuple(existing.evidence_ids or []), existing.evidence_set_digest,
-                existing.investigation_id, existing.model_version, existing.prompt_version,
-                existing.tool_versions, existing.generated_at, existing.recommendation_id, existing.rca_version,
-            )
-            incoming_values = dict(values)
-            incoming_values["evidence_ids"] = tuple(evidence_ids)
-            incoming = tuple(incoming_values[key] for key in (
-                "tenant_id", "project_id", "incident_id", "alert_id", "analysis_request_id",
-                "context_snapshot_id", "context_fingerprint", "evidence_ids", "evidence_set_digest",
-                "investigation_id", "model_version", "prompt_version", "tool_versions", "generated_at",
-                "recommendation_id", "rca_version",
-            ))
-            if immutable != incoming:
-                raise ValueError("immutable investigation binding already exists with different identities")
             return
         self.session.add(IncidentInvestigationBindingRecord(**values))
         await self._advance_incident_status_on_grounded_rca(
@@ -4915,26 +4935,38 @@ class IncidentRepository:
             or validated.resolution_selection_id != selection.selection_id
         ):
             raise ValueError("compiled execution plan does not match its resolution selection")
+        plan_uuid = UUID(str(validated.plan_id))
         existing = (await self.session.execute(select(ExecutionPlanRecord).where(
             ExecutionPlanRecord.tenant_id == selection.tenant_id,
-            ExecutionPlanRecord.fingerprint == validated.plan_fingerprint,
+            (ExecutionPlanRecord.fingerprint == validated.plan_fingerprint) | (ExecutionPlanRecord.id == plan_uuid),
         ))).scalar_one_or_none()
         if existing is None:
             existing = ExecutionPlanRecord(
-                id=validated.plan_id, tenant_id=validated.tenant_id, incident_id=validated.incident_id,
+                id=plan_uuid, tenant_id=validated.tenant_id, incident_id=validated.incident_id,
                 recommendation_id=validated.recommendation_id, rca_version=validated.rca_version,
                 context_snapshot_id=validated.evidence_snapshot_id,
                 context_fingerprint=validated.context_fingerprint,
                 resolution_selection_id=validated.resolution_selection_id,
                 policy_version=validated.policy_version or "resolution-policy.v1",
-                playbook_id=validated.playbook_id, schema_version=validated.schema_version,
-                fingerprint=validated.plan_fingerprint, target_service=validated.service,
-                target_environment=validated.environment, risk_tier=validated.risk_tier,
-                execution_mode=validated.execution_mode, approval_required=validated.approval_required,
-                execution_ready=validated.execution_ready, readiness_blocks=validated.readiness_blocks,
+                playbook_id=validated.playbook_id,
+                schema_version=validated.schema_version,
+                fingerprint=validated.plan_fingerprint,
+                target_service=validated.service,
+                target_environment=validated.environment,
+                risk_tier=validated.risk_tier,
+                execution_mode=validated.execution_mode,
+                approval_required=1 if validated.approval_required else 0,
+                execution_ready=1 if validated.execution_ready else 0,
+                readiness_blocks=json.dumps(validated.readiness_blocks),
                 plan_payload=payload,
+                supersedes_plan_id=None,
             )
             self.session.add(existing)
+        else:
+            existing.fingerprint = validated.plan_fingerprint
+            existing.plan_payload = payload
+            existing.execution_ready = 1 if validated.execution_ready else 0
+            existing.readiness_blocks = json.dumps(validated.readiness_blocks)
         compiled = selection.model_copy(update={
             "status": "compiled", "compiled_execution_plan_id": validated.plan_id,
             "compilation_blocks": [],

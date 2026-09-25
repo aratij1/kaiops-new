@@ -3,8 +3,23 @@ from __future__ import annotations
 import hashlib
 import json
 from typing import Any, Literal
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
+
+
+def normalize_incident_id(value: Any) -> str:
+    """Normalize hyphenated or 32-character hex UUID to standard hyphenated form.
+
+    Non-UUID values (such as test identifiers) are returned stripped without modification.
+    """
+    token = str(value or "").strip()
+    if not token:
+        return ""
+    try:
+        return str(UUID(token))
+    except (ValueError, AttributeError):
+        return token
 
 
 class IncidentEvidenceCounts(BaseModel):
@@ -76,13 +91,14 @@ class IncidentCommandWorkspace(BaseModel):
 
     @model_validator(mode="after")
     def validate_identity(self) -> IncidentCommandWorkspace:
-        incident_identity = str(
+        incident_identity = normalize_incident_id(
             self.incident.get("incident_id") or self.incident.get("id") or ""
-        ).strip()
-        operations_identity = str(self.operations.get("incident_id") or "").strip()
-        if incident_identity != self.incident_id:
+        )
+        operations_identity = normalize_incident_id(self.operations.get("incident_id") or "")
+        expected_identity = normalize_incident_id(self.incident_id)
+        if incident_identity != expected_identity:
             raise ValueError("incident projection identity does not match command workspace")
-        if operations_identity != self.incident_id:
+        if operations_identity != expected_identity:
             raise ValueError("operations identity does not match command workspace")
         return self
 
@@ -109,7 +125,7 @@ def build_incident_command_workspace(
         ):
             projection.pop("context_metadata")
         incident = {**incident, "projection_payload": projection}
-    normalized_incident_id = str(incident_id or "").strip()
+    normalized_incident_id = normalize_incident_id(incident_id)
     workspace = operations.get("investigation_workspace")
     workspace = workspace if isinstance(workspace, dict) else {}
     binding = workspace.get("binding")

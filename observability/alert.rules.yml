@@ -470,14 +470,15 @@ groups:
   - name: robot-shop
     rules:
       - alert: RobotShopServiceDown
-        expr: up{job=~"robot-shop-.*"} == 0
+        expr: up{job="robot-shop-cart"} == 0
         for: 20s
         labels:
           severity: critical
           source: robot-shop
+          service: robot-shop-cart
         annotations:
-          summary: "Robot Shop dependency {{ $labels.job }} is unreachable"
-          description: "Prometheus cannot scrape {{ $labels.job }} for more than 20s."
+          summary: "Robot Shop dependency robot-shop-cart is unreachable"
+          description: "Prometheus cannot scrape robot-shop-cart for more than 20s."
 
       - alert: RobotShopMySQLTooManyConnections
         expr: mysql_global_status_threads_connected{job="robot-shop-mysql"} > 50

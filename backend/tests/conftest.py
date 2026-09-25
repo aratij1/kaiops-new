@@ -43,6 +43,7 @@ def isolate_model_provider_environment(monkeypatch: pytest.MonkeyPatch):
     for name in tuple(os.environ):
         if name.startswith(prefixes):
             monkeypatch.delenv(name, raising=False)
+    monkeypatch.setenv("ENVIRONMENT", "test")
     get_settings.cache_clear()
     yield
     get_settings.cache_clear()

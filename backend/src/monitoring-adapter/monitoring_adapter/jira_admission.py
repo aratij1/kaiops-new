@@ -156,7 +156,7 @@ class JiraAdmissionState:
                 occurrence_count,
             )
         last_discovery = self._parse(item.get("last_discovery_at"))
-        if last_discovery is not None and current - last_discovery < self.comment_cooldown:
+        if severity.lower() != "critical" and last_discovery is not None and current - last_discovery < self.comment_cooldown:
             self._save(state)
             return AdmissionDecision(False, "suppressed", "Discovery cooldown active", occurrence_count)
         item["last_discovery_at"] = current.isoformat()

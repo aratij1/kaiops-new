@@ -1,4 +1,4 @@
-﻿import importlib.util
+import importlib.util
 from pathlib import Path
 
 import pytest
@@ -31,7 +31,7 @@ class StaticProvider(ModelProvider):
 
         content_obj = {
             "root_cause": "Deployment 2.5",
-            "confidence_score": 0.85,
+            "confidence_score": 0.70,
             "evidence_used": evidence_ids,
             "alternative_causes": [],
             "grounding_notes": "Grounding based on Deployment 2.5 context.",

@@ -636,7 +636,10 @@ async def _resolve_context(context: Context) -> Recommendation:
                 recommendation.metadata["confidence_kind"] = "leading_hypothesis"
                 recommendation.metadata["confidence_actionable"] = False
             analysis = dict(recommendation.metadata.get("rca_analysis") or {})
-            analysis["missing_evidence"] = blocking_investigation_gaps(analysis, investigation_report)
+            if investigation_report.get("conclusive"):
+                analysis["missing_evidence"] = []
+            else:
+                analysis["missing_evidence"] = blocking_investigation_gaps(analysis, investigation_report)
             recommendation.metadata["rca_analysis"] = analysis
             _attach_resolution_options(recommendation, context, investigation_report)
             # The impact graph runs after the iterative investigator. Replace

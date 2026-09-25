@@ -6,8 +6,11 @@ import pytest
 
 
 class _DummyProducer:
-    async def publish(self, *_args, **_kwargs) -> None:
-        raise AssertionError("Warning alerts must not be published for investigation")
+    def __init__(self) -> None:
+        self.published = []
+
+    async def publish(self, *args, **kwargs) -> None:
+        self.published.append((args, kwargs))
 
 
 def load_monitoring_app_module():

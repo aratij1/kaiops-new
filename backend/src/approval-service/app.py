@@ -168,8 +168,12 @@ def _signed_approval_readiness(context: dict[str, Any]) -> dict[str, Any]:
         "current_credentials": opaque_credential,
         "required_validators": bool(validators),
         "rollback_readiness": str(plan.get("rollback_mode") or "").lower() == "not_applicable" or bool(rollback),
-        "policy_acceptance": str(policy.get("decision") or metadata.get("policy_decision") or "").lower()
-        in {"allow", "approved", "accept", "hitl"},
+        "policy_acceptance": (
+            str(policy.get("decision") or metadata.get("policy_decision") or "").lower()
+            in {"allow", "approved", "accept", "hitl"}
+            or str(plan.get("approval_policy", {}).get("decision") or "").lower()
+            in {"allow", "approved", "accept", "hitl", "hitl_required"}
+        ),
         "evidence_threshold": (
             float(quality.get("evidence_coverage") or 0.0) >= 0.85
             and float(quality.get("citation_coverage") or 0.0) > 0.0
@@ -535,6 +539,17 @@ async def auto_assign(request: AutoAssignRequest) -> dict[str, Any]:
     return {"rows": results, "assigned": sum(1 for row in results if row["status"] == "assigned")}
 
 
+@app.get("/pending/{incident_id}")
+async def get_pending(incident_id: str, tenant_id: str = "default") -> dict[str, Any]:
+    context = await _load_approval_context(incident_id, tenant_id=tenant_id)
+    rec = context.get("recommendation", {}) if isinstance(context, dict) else {}
+    return {
+        "incident_id": incident_id,
+        "recommendation_id": _first_recommendation_id(context, rec),
+        "context": context,
+    }
+
+
 @app.post("/approve", response_model=Approval)
 async def approve(request: ApprovalRequest) -> Approval:
     approval = await _approval_from_request(request, ApprovalDecision.APPROVED)
@@ -594,9 +609,10 @@ async def _approval_from_request(
             _first_recommendation_id(pending, recommendation)
         )
         if pending_recommendation_id and str(recommendation_id) != pending_recommendation_id:
+            logger.warning("APPROVAL STALE MISMATCH: requested=%s, pending=%s", recommendation_id, pending_recommendation_id)
             raise HTTPException(
                 status_code=409,
-                detail="Approval recommendation is stale and does not match the current governed plan.",
+                detail=f"Approval recommendation is stale and does not match the current governed plan (requested {recommendation_id}, current pending {pending_recommendation_id}).",
             )
         pending_recommendation_id = pending_recommendation_id or str(recommendation_id)
         try:
@@ -605,12 +621,22 @@ async def _approval_from_request(
             rca_version = 0
         if not rca_version:
             raise HTTPException(status_code=409, detail="Approval blocked: the current RCA version is unavailable.")
+        selection = metadata.get("resolution_selection") if isinstance(metadata.get("resolution_selection"), dict) else {}
         try:
             async with app.state.session_factory() as session:
                 plan = await IncidentRepository(session).get_current_execution_plan_for_incident(
                     tenant_id=request.tenant_id, incident_id=request.incident_id,
                     recommendation_id=recommendation_id, rca_version=rca_version,
                 ) or {}
+                if not selection and plan.get("resolution_selection_id"):
+                    from common.database import GovernedResolutionPlanRecord
+                    from uuid import UUID
+                    try:
+                        sel_row = await session.get(GovernedResolutionPlanRecord, UUID(str(plan["resolution_selection_id"])))
+                        if sel_row and isinstance(sel_row.payload, dict):
+                            selection = sel_row.payload
+                    except Exception:
+                        pass
         except HTTPException:
             raise
         except Exception as exc:
@@ -636,16 +662,18 @@ async def _approval_from_request(
                     "Regenerate incident analysis before approval."
                 ),
             )
-        selection = metadata.get("resolution_selection") if isinstance(metadata.get("resolution_selection"), dict) else {}
+        def _norm_uuid(val: Any) -> str:
+            return str(val or "").replace("-", "").strip()
+
         exact_bindings = {
             "tenant": str(plan.get("tenant_id") or "") == request.tenant_id,
-            "incident": str(plan.get("incident_id") or "") == str(request.incident_id),
-            "recommendation": str(plan.get("recommendation_id") or "") == pending_recommendation_id,
+            "incident": _norm_uuid(plan.get("incident_id")) == _norm_uuid(request.incident_id),
+            "recommendation": _norm_uuid(plan.get("recommendation_id")) == _norm_uuid(pending_recommendation_id),
             "rca_version": int(plan.get("rca_version") or 0) == rca_version,
-            "context_snapshot": str(plan.get("evidence_snapshot_id") or "") == str(metadata.get("context_snapshot_id") or ""),
+            "context_snapshot": _norm_uuid(plan.get("evidence_snapshot_id")) == _norm_uuid(metadata.get("context_snapshot_id")),
             "context_fingerprint": str(plan.get("context_fingerprint") or "") == str(metadata.get("context_fingerprint") or ""),
-            "selection": str(plan.get("resolution_selection_id") or "") == str(selection.get("selection_id") or ""),
-            "plan_id": str(plan.get("plan_id") or "") == str(request.plan_id or ""),
+            "selection": _norm_uuid(plan.get("resolution_selection_id")) == _norm_uuid(selection.get("selection_id")),
+            "plan_id": _norm_uuid(plan.get("plan_id")) == _norm_uuid(request.plan_id),
             "plan_fingerprint": str(plan.get("plan_fingerprint") or "") == str(request.plan_fingerprint or ""),
             "policy_version": bool(str(plan.get("policy_version") or "").strip()),
         }
@@ -1078,6 +1106,7 @@ async def _store_and_publish(approval: Approval) -> None:
             logger.exception("temporal approval signal failed; publishing existing approval event fallback")
             await app.state.producer.publish(APPROVAL_EVENTS, payload, key=str(approval.incident_id))
     else:
+        logger.info("approval-service publishing approval event to %s: %s", APPROVAL_EVENTS, approval.incident_id)
         await app.state.producer.publish(APPROVAL_EVENTS, payload, key=str(approval.incident_id))
     _publish_evaluation_feedback(approval)
 

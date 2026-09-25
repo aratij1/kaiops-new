@@ -173,9 +173,30 @@ class JenkinsRollbackPlugin(BasePlugin):
     def _execution_plan_envelope(action: RemediationAction) -> tuple[str, str, int]:
         plan = action.parameters.get("execution_plan")
         plan = plan if isinstance(plan, dict) else {}
-        serialized = json.dumps(plan, sort_keys=True, separators=(",", ":"))
-        digest = f"sha256:{hashlib.sha256(serialized.encode('utf-8')).hexdigest()}"
+        commands = plan.get("commands") if isinstance(plan.get("commands"), list) else []
         scripts = plan.get("scripts") if isinstance(plan.get("scripts"), list) else []
+        preflight = plan.get("preflight") if isinstance(plan.get("preflight"), list) else (
+            plan.get("preflight_commands") if isinstance(plan.get("preflight_commands"), list) else []
+        )
+        validation = plan.get("validation_commands") if isinstance(plan.get("validation_commands"), list) else (
+            plan.get("validation") if isinstance(plan.get("validation"), list) else []
+        )
+        rollback = plan.get("rollback_commands") if isinstance(plan.get("rollback_commands"), list) else (
+            plan.get("rollback") if isinstance(plan.get("rollback"), list) else []
+        )
+        rollback_mode = str(plan.get("rollback_mode") or "not_applicable")
+
+        envelope = {
+            "schema_version": "kaiops.remediation.v2",
+            "commands": commands,
+            "scripts": scripts,
+            "preflight": preflight,
+            "validation_commands": validation,
+            "rollback_commands": rollback,
+            "rollback_mode": rollback_mode,
+        }
+        serialized = json.dumps(envelope, sort_keys=True, separators=(",", ":"))
+        digest = f"sha256:{hashlib.sha256(serialized.encode('utf-8')).hexdigest()}"
         return serialized, digest, len(scripts)
 
     @staticmethod
@@ -1241,25 +1262,31 @@ class RemediationEngine(BaseAgent):
             internal_services = {
                 "api-gateway", "approval-service", "closure-service", "context-agent",
                 "discovery-mcp", "monitoring-adapter", "orchestrator", "remediation-engine",
-                "resolution-agent",
+                "resolution-agent", "payments", "checkout", "cart", "rs-cart", "robot-shop-cart",
             }
-            unqualified_service = safe_service.removeprefix("kaiops-")
-            if unqualified_service in internal_services:
+            unqualified_service = safe_service.removeprefix("kaiops-").removeprefix("robot-shop-")
+            if unqualified_service in internal_services or safe_service in {"cart", "rs-cart", "robot-shop-cart"}:
                 safe_service = unqualified_service
             compose_project = re.sub(
                 r"[^a-zA-Z0-9_.-]", "",
-                os.getenv("REMEDIATION_COMPOSE_PROJECT", "kaiops_azure"),
+                os.getenv("REMEDIATION_COMPOSE_PROJECT", "kaims-latest"),
+            ) or "kaims-latest"
+            compose_service = "rs-cart" if safe_service in {"cart", "rs-cart", "robot-shop-cart"} else safe_service
+            docker_plan = docker_compose_restart_plan(project=compose_project, service=compose_service)
+            validation_url = (
+                f"http://{compose_service}:8080/metrics"
+                if safe_service in {"cart", "rs-cart", "robot-shop-cart"}
+                else f"http://{compose_service}:8000/healthz"
             )
-            docker_plan = docker_compose_restart_plan(project=compose_project, service=safe_service)
             return {
                 "schema_version": "kaiops.remediation.v2",
                 "commands": [*docker_plan["commands"],
-                    f"curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 2 http://{safe_service}:8000/healthz",
+                    f"curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 2 {validation_url}",
                 ],
                 "scripts": [],
-                "queries": [f"http://{safe_service}:8000/healthz"],
+                "queries": [validation_url],
                 "preflight": docker_plan["preflight"],
-                "validation_commands": [f"curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 2 http://{safe_service}:8000/healthz"],
+                "validation_commands": [f"curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 2 {validation_url}"],
                 # A process restart has no meaningful inverse operation. Do
                 # not label a read-only container inspection as a rollback.
                 "rollback_commands": [],

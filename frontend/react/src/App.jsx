@@ -1,6 +1,3 @@
-import { hasPendingDecision } from "./domain/pendingDecision";
-import { visibleManagedApplication } from "./app/visibleManagedApplication";
-import { availableApplication } from "./domain/applicationSelection";
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -58,7 +55,7 @@ import {
   summarizeUploadedDocument,
 } from "./onboardingUtils";
 import {
-  DEFAULT_ALERT, REAL_USE_CASE_SCOPE, TEST_USE_CASE_SCOPE, CORE_MONITOR_PROJECTS,
+  DEFAULT_ALERT, REAL_USE_CASE_SCOPE, TEST_USE_CASE_SCOPE, CORE_MONITOR_PROJECTS, FIXED_MONITOR_SCOPES,
   SERVICE_TOPIC_FLOW, RECOMMENDED_WORKER_PROFILE, SCALE_CAPACITY_GUIDE, AGENT_DISPLAY_ALIASES, AGENT_ROUTE_ALIASES,
   PREFERENCE_STORAGE_KEY, UI_THEME_VALUES, extractObservedRoutingMetrics, normalizeMatchTokens, hasTokenOverlap,
   KAIOPS_CORE_SERVICE_SET, normalizeMonitorToken, isKaiopsCoreSelection, isKaiopsCoreAlert, PROMPT_FRAGMENT_PATTERNS,
@@ -367,13 +364,32 @@ function KaiMSBrand({ compact = false, inverse = false, onActivate = null }) {
   );
 }
 
+function visibleManagedApplication(row) {
+  const rawName = String(typeof row === "string" ? row : row?.name || row?.application || "").trim();
+  const name = rawName.toLowerCase();
+  const status = String(typeof row === "string" ? "" : row?.status || "").trim().toLowerCase();
+  // The applications API is the onboarding system of record. Failed and
+  // deleted registrations must never become selectable workspaces.
+  if (["failed", "deleted"].includes(status)) return null;
+  if (["kaims", "kaiops", "kaims-core", "kaiops-core"].includes(name)) return typeof row === "string" ? "KaiMS" : { ...row, name: "KaiMS" };
+  if (name === "telemetry") return typeof row === "string" ? "Telemetry" : { ...row, name: "Telemetry" };
+  // Alert-derived strings are not authoritative application registrations and
+  // can contain hundreds of transient service/project identities. Registered
+  // application objects are authoritative and belong in the workspace picker.
+  if (typeof row === "string" || !rawName) return null;
+  // ParaBank is an intentionally onboarded public banking application, not a
+  // generated UX fixture, despite "Demo" being part of its product name.
+  if (name.includes("parabank")) return { ...row, name: rawName };
+  return isTestApplicationRecord(row) ? null : { ...row, name: rawName };
+}
 
 export default function App({ initialTab = "home", currentPath = "/", currentSearch = "", onActiveTabChange, onNavigatePath, routeOutlet = null } = {}) {
   const queryClient = useQueryClient();
   const skipNextActiveTabNavigationRef = useRef(false);
   const skipInitialPreferencesPersistRef = useRef(true);
+  const defaultMonitorApplications = FIXED_MONITOR_SCOPES;
   const [applicationToMonitor, setApplicationToMonitor] = useState("KaiMS");
-  const [monitorApplications, setMonitorApplications] = useState([]);
+  const [monitorApplications, setMonitorApplications] = useState(defaultMonitorApplications);
   const [activeTab, setActiveTab] = useState(() => (VALID_LEGACY_TABS.has(initialTab) ? initialTab : "home"));
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const [uiDensity, setUiDensity] = useState("comfortable");
@@ -1317,7 +1333,6 @@ export default function App({ initialTab = "home", currentPath = "/", currentSea
     // This action owns the complete cockpit URL below. Prevent the legacy tab
     // synchronization effect from racing it with a navigation to plain `/`,
     // which would remove workspace=alert and leave the details view hidden.
-    const incidentDestination = /^\/incidents\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(currentPath) ? currentPath : "/";
     skipNextActiveTabNavigationRef.current = true;
     setActiveTab("home");
     setHomeDetailTab(initialTab === "rca" ? "evidence" : initialTab);
@@ -1450,6 +1465,7 @@ export default function App({ initialTab = "home", currentPath = "/", currentSea
     } else if (["Incident", "Assigned incident", "Approval", "Failed action", "Approval reminder", "Resolved", "Reopened"].includes(item.kind)) {
       openAlertDetailsFromIncident(item.row);
     } else if (item.kind === "Application") {
+      setApplicationToMonitor(String(item.row?.name || item.row?.id || "all"));
       setActiveTab("home");
     } else if (item.kind === "Service") {
       setDashboardAlertQuery(String(item.row.service || ""));
@@ -1924,15 +1940,43 @@ export default function App({ initialTab = "home", currentPath = "/", currentSea
         ? { headers: { Accept: "application/json" }, maxAttempts: 1, staleTimeMs: 0 }
         : authenticatedOptions();
       const payload = await fetchJson("/api-gateway/applications", requestOptions);
+      const discoveredPayload = preLogin
+        ? null
+        : await fetchJson("/api-gateway/alerts/applications?limit=1000", authenticatedOptions()).catch(() => null);
       const data = unwrap(payload);
+      const discoveredData = unwrap(discoveredPayload);
       const applicationRows = (Array.isArray(data?.rows) ? data.rows : []).map(visibleManagedApplication).filter(Boolean);
+      const discoveredRows = (Array.isArray(discoveredData?.rows) ? discoveredData.rows : []).map(visibleManagedApplication).filter(Boolean);
       setMonitoringApps({ loading: false, rows: applicationRows, error: "" });
-      const options = uniqueMonitorApplications(applicationRows.map((row) => String(row?.name || row?.application || "").trim()).filter(Boolean));
-      setMonitorApplications(options);
-      if (preLogin) setApplicationToMonitor((current) => availableApplication(current, options));
+      const registered = [
+        ...applicationRows.map((row) => String(row?.name || row?.application || "").trim()),
+        ...discoveredRows.map((row) => String(row?.name || row?.application || "").trim()),
+        ...alerts.rows.map(projectIdentityFromAlert).map(visibleManagedApplication).filter(Boolean),
+      ]
+        .filter(Boolean);
+      // `registered` already contains names taken from authoritative,
+      // visibility-checked application objects. Running those names through
+      // visibleManagedApplication again treats them as untrusted alert-derived
+      // Before authentication, show projects returned by the onboarding
+      // registry. If no customer projects are registered yet, keep the built-in
+      // workspace options available so administrators can sign in and onboard projects.
+      const options = uniqueMonitorApplications([
+        ...(preLogin && registered.length ? [] : defaultMonitorApplications),
+        ...registered,
+      ]);
+      const availableOptions = options.length ? options : defaultMonitorApplications;
+      setMonitorApplications(availableOptions);
+      setApplicationToMonitor((current) => (
+        availableOptions.some((item) => item.toLowerCase() === String(current || "").toLowerCase())
+          ? current
+          : availableOptions[0] || "KaiMS"
+      ));
     } catch (_error) {
-      // A failed request is not proof that the selected application was removed.
-      setMonitoringApps((current) => ({ ...current, loading: false, error: "Unable to refresh application workspaces. Retry when the registry is available." }));
+      const fallback = defaultMonitorApplications;
+      setMonitorApplications(fallback);
+      setApplicationToMonitor((current) => (
+        fallback.includes(current) ? current : fallback[0] || "KaiMS"
+      ));
     }
   }
 
@@ -2334,7 +2378,7 @@ export default function App({ initialTab = "home", currentPath = "/", currentSea
     // App is intentionally kept mounted while the login screen is visible, so
     // selections from the previous session would otherwise survive a new
     // authentication. Reset every persistent workspace to its first tab and
-    // preserve explicit incident links while resetting prior session selections.
+    // make the router land on the canonical Home page.
     skipNextActiveTabNavigationRef.current = true;
     setActiveTab("home");
     setGlobalOperationsView("search");
@@ -2347,7 +2391,7 @@ export default function App({ initialTab = "home", currentPath = "/", currentSea
     setAlertKnowledgeView("onboarding");
     setSelectedAlertId("");
     setSelectedApprovalIncidentId("");
-    onNavigatePath?.(incidentDestination);
+    onNavigatePath?.("/");
   }
 
   async function adminLogin(event) {
@@ -2660,6 +2704,7 @@ export default function App({ initialTab = "home", currentPath = "/", currentSea
   async function openOnboardedApplicationDashboard(url = "") {
     const appName = currentOnboardedApplicationName();
     if (appName) {
+      setApplicationToMonitor(REAL_USE_CASE_SCOPE);
       const row = findMonitoringApplicationForName(appName);
       const appId = String(row?.id || "").trim();
       if (appId) {
@@ -2727,7 +2772,8 @@ export default function App({ initialTab = "home", currentPath = "/", currentSea
       setOnboardingState((current) => ({ ...current, success: `Project onboarding saved. Documents approved: ${summary.ingested}/${summary.total}.` }));
       const appName = currentOnboardedApplicationName();
       if (appName) {
-        }
+        setApplicationToMonitor(REAL_USE_CASE_SCOPE);
+      }
       setProjectSetupStep("status");
     } catch (error) {
       setOnboardingDocApprovalState({ loading: false, error: error.message, success: "", approved: false });
@@ -5153,8 +5199,7 @@ export default function App({ initialTab = "home", currentPath = "/", currentSea
     // Do not silently cross a tenant/project boundary while the authenticated
     // registry is refreshing. loadMonitorApplications owns explicit fallback
     // selection once its authoritative response is available.
-    // Do not clear the saved selection while the initial list is empty.
-    // Only loadMonitorApplications may select a fallback after a successful response.
+    if (!adminSession.accessToken) setApplicationToMonitor(monitorApplications[0] || "");
   }, [adminSession.accessToken, monitorApplications, applicationToMonitor]);
 
   useEffect(() => {
@@ -7219,7 +7264,14 @@ export default function App({ initialTab = "home", currentPath = "/", currentSea
   }
 
   const pendingApprovals = useMemo(() => {
-    return monitorScopedIncidentMetadata.filter(hasPendingDecision);
+    return monitorScopedIncidentMetadata.filter((row) => {
+      const mode = String(row?.execution_mode || "").toLowerCase();
+      const status = String(row?.status || "").toLowerCase();
+      if (isApprovalPendingStatus(status)) {
+        return true;
+      }
+      return mode === "human-approval" && !isApprovalResolvedStatus(status);
+    });
   }, [monitorScopedIncidentMetadata]);
 
   const globalOperationalData = useMemo(() => {
@@ -9953,14 +10005,125 @@ export default function App({ initialTab = "home", currentPath = "/", currentSea
         restrictedDestination={restrictedDestination}
       >
       <div className={`app-layout kai-legacy-frame ${routeOutlet ? "kai-routed-frame" : ""}`}>
-        {null}
+        {!routeOutlet ? <aside className="sidebar panel sidebar-panel">
+          <div className="sidebar-head">
+            <KaiMSBrand onActivate={() => onNavigatePath?.("/")} />
+            <p className="sidebar-mission">From signal to verified resolution.</p>
+          </div>
+
+          <details className="sidebar-group sidebar-preferences">
+            <summary>Display preferences</summary>
+            <h3>View Density</h3>
+            <div className="density-switch" role="group" aria-label="Density options">
+              <button
+                type="button"
+                className={`density-option ${uiDensity === "comfortable" ? "active" : ""}`}
+                onClick={() => setUiDensity("comfortable")}
+              >
+                Comfortable
+              </button>
+              <button
+                type="button"
+                className={`density-option ${uiDensity === "compact" ? "active" : ""}`}
+                onClick={() => setUiDensity("compact")}
+              >
+                Compact
+              </button>
+            </div>
+            <h3 style={{ marginTop: 10 }}>Theme</h3>
+            <div className="theme-switch" role="group" aria-label="Theme options">
+              <button
+                type="button"
+                className={`density-option ${uiTheme === "auto" ? "active" : ""}`}
+                onClick={() => setUiTheme("auto")}
+              >
+                Auto
+              </button>
+              <button
+                type="button"
+                className={`density-option ${uiTheme === "light" ? "active" : ""}`}
+                onClick={() => setUiTheme("light")}
+              >
+                Light
+              </button>
+              <button
+                type="button"
+                className={`density-option ${uiTheme === "dark" ? "active" : ""}`}
+                onClick={() => setUiTheme("dark")}
+              >
+                Dark
+              </button>
+            </div>
+          </details>
+
+          <nav className="sidebar-group" aria-label="Primary navigation">
+            <div className="sidebar-sections-wrap">
+              <div className="sidebar-navigation-groups">
+                {navigationGroups.map((group) => <div className={`sidebar-navigation-group sidebar-navigation-group-${group.id}`} key={group.id}>
+                  <h3>{group.label}</h3>
+                  <div className="sidebar-sections">
+                    {group.items.map((item) => {
+                      const SidebarIcon = NAVIGATION_ICONS[item.icon] || Database;
+                      return <button
+                        key={`sidebar-${item.id}`}
+                        type="button"
+                        className={`sidebar-section ${currentPath === item.path ? "active" : ""}`}
+                        onClick={() => openNavigationItem(item)}
+                        title={item.label}
+                        aria-current={currentPath === item.path ? "page" : undefined}
+                      >
+                        <span className={`sidebar-icon sidebar-icon-${item.group}`} aria-hidden="true"><SidebarIcon /></span>
+                        <span>{item.label}</span>
+                      </button>;
+                    })}
+                  </div>
+                </div>)}
+              </div>
+            </div>
+          </nav>
+
+        </aside> : null}
 
         <section className="content-area" id="legacy-workspace-content" tabIndex={-1}>
           {/* KaiOperationsShell (the wrapping topbar) already renders this page's breadcrumb,
               title, health badge, user menu with logout, command palette, and Ask Kai action.
               Render the legacy hero header only when no modern shell is wrapping this view
               (e.g. an unrouted/storybook mount), so routed sessions don't show it twice. */}
-          {null}
+          {!routeOutlet ? <header className="hero">
+            <nav className="route-breadcrumbs" aria-label="Breadcrumb">
+              {currentBreadcrumb.map((item, index) => <span key={`${item.label}-${index}`}>
+                {index ? <span aria-hidden="true">/</span> : null}{item.label}
+              </span>)}
+            </nav>
+            <h1>{currentNavigationItem.pageTitle}</h1>
+            <p className="subtitle">{currentNavigationItem.description}</p>
+            {restrictedDestination ? <div className="permission-navigation-notice" role="status">{restrictedDestination} is not available to your current role. Ask an administrator if your responsibilities require access.</div> : null}
+            <label className="mobile-navigation">
+              <span>Navigate to</span>
+              <select value={currentNavigationItem.path} onChange={(event) => {
+                const item = navigationGroups.flatMap((group) => group.items).find((candidate) => candidate.path === event.target.value);
+                if (item) openNavigationItem(item);
+              }}>
+                {navigationGroups.map((group) => <optgroup key={group.id} label={group.label}>{group.items.map((item) => <option key={item.id} value={item.path}>{item.label}</option>)}</optgroup>)}
+              </select>
+            </label>
+            <div className="hero-actions">
+              <HealthBadge ok={health.ok} label={health.message} />
+              <span className="hero-user" title={`Signed in as ${adminSession?.user?.username || "-"}`}>{adminSession?.user?.username || "-"} · {adminSession?.user?.role_name || "-"}</span>
+              <KaiCommandPalette role={currentRole} onNavigate={(path) => onNavigatePath?.(path)} />
+              <button className="button-primary" type="button" onClick={() => setIsCopilotOpen(!isCopilotOpen)}>
+                <Bot size={16} /> {isCopilotOpen ? "Close KAI" : "Ask KAI"}
+              </button>
+              <button className="button-secondary" type="button" onClick={adminLogout}>Logout</button>
+            </div>
+            {currentNavigationItem.related?.length ? <nav className="contextual-navigation" aria-label="Related workflow destinations">
+              <span>Continue workflow:</span>
+              {currentNavigationItem.related.map((relatedId) => {
+                const item = navigationGroups.flatMap((group) => group.items).find((candidate) => candidate.id === relatedId);
+                return item ? <button className="button-secondary" type="button" key={item.id} onClick={() => openNavigationItem(item)}>{item.label}</button> : null;
+              })}
+            </nav> : null}
+          </header> : null}
 
           <details className="global-operations-bar panel" aria-label="Global operational capabilities">
             <summary className="global-operations-summary"><span>Search &amp; personal work</span><small>Find records, assignments, and notifications</small></summary>
@@ -9988,7 +10151,50 @@ export default function App({ initialTab = "home", currentPath = "/", currentSea
             </div>
           </details>
 
-          {null}
+          {!routeOutlet && activeTab !== "home" ? <section className="report-banner panel">
+            <div className="panel-head">
+              <div>
+                <h2>{reportConfig.title}</h2>
+                <p>{reportConfig.caption}</p>
+                <p className="scope-note">Scope: {selectedMonitorScopeLabel}</p>
+              </div>
+            </div>
+            <div className="report-tools">
+              <button className="button-secondary" type="button" onClick={reportConfig.refresh}>
+                Refresh Report
+              </button>
+              {activeTab === "home" ? (
+                <button className="button-secondary" type="button" onClick={downloadFullHtmlReportPack}>
+                  Export Incident Report
+                </button>
+              ) : null}
+            </div>
+            <div className="report-metrics">
+              {reportConfig.metrics.map(([label, value]) => (
+                <div className="report-metric" key={`metric-${label}`}>
+                  <strong>{label}</strong>
+                  <span>{String(value)}</span>
+                </div>
+              ))}
+            </div>
+            <div className="global-flow-strip" aria-label="Workflow flow visible across all pages">
+              {globalWorkflowFlowStages.map((stage) => (
+                <div key={`global-flow-${stage.id}`} className={`global-flow-stage is-${stage.status}`}>
+                  <strong>{stage.label}</strong>
+                  <small>{String(stage.detail || "-")}</small>
+                </div>
+              ))}
+            </div>
+            {!health.ok ? (
+              <div className="health-advisory">
+                <strong>Health needs attention</strong>
+                <span>{health.message || "Gateway status is not available."}</span>
+                <button className="button-secondary" type="button" onClick={checkHealth} disabled={health.loading}>
+                  {health.loading ? "Checking..." : "Recheck"}
+                </button>
+              </div>
+            ) : null}
+          </section> : null}
 
           <RouteRuntimeProvider value={{
             session: { accessToken: String(adminSession.accessToken || ""), username: String(adminSession?.user?.username || "operator") },
@@ -10351,7 +10557,96 @@ export default function App({ initialTab = "home", currentPath = "/", currentSea
                 />
               </article>
 
-              {null}
+              {selectedAlertRow && !routeOutlet ? (
+                <article className="panel guided-cockpit-launcher">
+                  <header className="guided-cockpit-header">
+                    <div>
+                      <span className="discovery-eyebrow">Guided Incident Cockpit</span>
+                      <h2>{String(selectedAlertRow?.name || selectedAlertRow?.alert_name || "Selected alert")}</h2>
+                      <p>{selectedAlertRuleSummary.summary || "Investigate the alert, confirm evidence, decide, execute, and validate recovery."}</p>
+                    </div>
+                    <div className="guided-cockpit-badges">
+                      <span className={`pill severity-${String(selectedAlertRow?.severity || "unknown").toLowerCase()}`}>{String(selectedAlertRow?.severity || "unknown").toUpperCase()}</span>
+                      <span className={`pill ${statusPillClass(selectedCanonicalIncidentStatus)}`}>{incidentStatusLabel(selectedCanonicalIncidentStatus)}</span>
+                    </div>
+                  </header>
+                  <div className="guided-cockpit-summary">
+                    <span><small>Service</small><strong>{selectedAlertRow?.service || "-"}</strong></span>
+                    <span><small>Environment</small><strong>{selectedAlertRow?.environment || "-"}</strong></span>
+                    <span><small>Evidence</small><strong>{selectedAlertRagDocuments.length} linked</strong></span>
+                    <span><small>Grounding</small><strong>{formatQualityPercent(selectedAlertEvaluation.groundingScore)}</strong></span>
+                  </div>
+                  <section className="guided-cockpit-next" aria-labelledby="guided-next-action">
+                    <div><span className="eyebrow">Recommended next step</span><h3 id="guided-next-action">{cockpitRecommended.label}</h3><p>{cockpitRecommended.description}. KaiMS will keep your selected incident and context in view.</p></div>
+                    <button type="button" className="button-primary" onClick={() => { openAlertDetails(selectedAlertRow); setHomeDetailTab(cockpitRecommendedStage); }}>Continue to {cockpitRecommended.label}</button>
+                  </section>
+                  <nav className="guided-cockpit-mini-journey" aria-label="Incident progress">
+                    {incidentCockpitStages.map((stage) => <button key={`launcher-${stage.id}`} type="button" className={stage.complete ? "is-complete" : stage.id === cockpitRecommendedStage ? "is-current" : ""} onClick={() => { openAlertDetails(selectedAlertRow); setHomeDetailTab(stage.id); }}><span>{stage.complete ? <CircleCheckBig size={14} strokeWidth={2.5} aria-hidden="true" /> : stage.short}</span><strong>{stage.label}</strong></button>)}
+                  </nav>
+                  <details className="k-technical-details guided-cockpit-context">
+                    <summary>Rule context and severity controls</summary>
+                    <div className="alert-rule-summary-grid">
+                      <article className="alert-rule-summary-card"><span>Raised by</span><strong>{selectedAlertRuleSummary.rules.length} matched rule{selectedAlertRuleSummary.rules.length === 1 ? "" : "s"}</strong><small>{selectedAlertRuleSummary.ruleName}</small></article>
+                      <article className="alert-rule-summary-card"><span>Rule source</span><strong>{selectedAlertRuleSummary.source}</strong><small>{selectedAlertRuleSummary.note}</small></article>
+                    </div>
+                  {selectedAlertActionContext ? (
+                    <>
+                      <p className="subtitle">
+                        Docs: {selectedAlertActionContext.alertClosed ? "Closed" : selectedAlertActionContext.documentAvailable ? "Ready" : "Missing"}
+                        {selectedAlertActionContext.overrideRow ? ` | Future Severity: ${String(selectedAlertActionContext.overrideRow.severity || "-").toUpperCase()}` : ""}
+                      </p>
+                      {canManageSeverityOverride ? (
+                        <div className="filter-grid">
+                          <label>Future Severity Override
+                            <select
+                              value={selectedAlertActionContext.draftSeverity}
+                              onChange={(event) => {
+                                const next = String(event.target.value || "warning").toLowerCase();
+                                setAlertSeverityDrafts((current) => ({ ...current, [selectedAlertActionContext.overrideKey]: next }));
+                              }}
+                            >
+                              <option value="info">info</option>
+                              <option value="warning">warning</option>
+                              <option value="high">high</option>
+                              <option value="critical">critical</option>
+                            </select>
+                          </label>
+                          <label>Reason for correction
+                            <input
+                              value={alertSeverityReasons[selectedAlertActionContext.overrideKey] || ""}
+                              onChange={(event) => setAlertSeverityReasons((current) => ({
+                                ...current,
+                                [selectedAlertActionContext.overrideKey]: event.target.value,
+                              }))}
+                              placeholder="Explain the evidence or business impact"
+                              maxLength={4000}
+                            />
+                          </label>
+                          <div style={{ display: "flex", alignItems: "end", gap: 8 }}>
+                            <button
+                              type="button"
+                              className="button-secondary"
+                              onClick={() => applyAlertSeverityOverrideRule(selectedAlertRow)}
+                              disabled={selectedAlertActionContext.overrideSaving || alertSeverityOverrides.loading || !selectedAlertActionContext.alertName || String(alertSeverityReasons[selectedAlertActionContext.overrideKey] || "").trim().length < 10}
+                            >
+                              {selectedAlertActionContext.overrideSaving ? "Saving..." : "Apply Override"}
+                            </button>
+                            <button
+                              type="button"
+                              className="button-secondary"
+                              onClick={() => clearAlertSeverityOverrideRule(selectedAlertRow)}
+                              disabled={selectedAlertActionContext.overrideSaving || !selectedAlertActionContext.overrideRow}
+                            >
+                              Clear Override
+                            </button>
+                          </div>
+                        </div>
+                      ) : null}
+                    </>
+                  ) : null}
+                  </details>
+                </article>
+              ) : null}
 
               {docPromptAlert && canProvideAlertDocuments ? (
                 <article className="panel document-prompt-dialog" role="dialog" aria-modal="true" aria-labelledby="document-prompt-title" ref={docPromptRef}>

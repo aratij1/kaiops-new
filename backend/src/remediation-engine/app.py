@@ -598,59 +598,68 @@ async def startup(app: FastAPI) -> None:
             )
 
     async def handle_approval(payload: dict) -> None:
-        approval_payload = _extract_approval_payload(payload)
-        approval = Approval.model_validate(approval_payload)
-        if approval.decision == ApprovalDecision.EVIDENCE_REQUESTED:
-            EVENTS_PROCESSED.labels(settings.service_name, APPROVAL_EVENTS, "evidence-requested").inc()
-            return
-        if approval.authorization_scope != "execution":
-            EVENTS_PROCESSED.labels(settings.service_name, APPROVAL_EVENTS, "dry-run-authorized").inc()
-            return
-        if settings.event_envelope_signing_required:
-            envelope = payload.get("signed_envelope") if isinstance(payload.get("signed_envelope"), dict) else {}
-            try:
-                signed_tenant = verify_event_envelope(
-                    envelope,
-                    key=settings.event_envelope_signing_key,
-                    expected_issuer="approval-service",
-                )
-            except ValueError as exc:
-                raise PolicyViolation(f"approval event rejected: {exc}") from exc
-            signed_payload = envelope.get("payload") if isinstance(envelope.get("payload"), dict) else {}
-            if (
-                signed_tenant != approval.tenant_id
-                or str(envelope.get("incident_id") or "") != str(approval.incident_id)
-                or str(signed_payload.get("plan_id") or "") != str(approval.plan_id or "")
-                or str(signed_payload.get("plan_fingerprint") or "") != str(approval.plan_fingerprint or "")
-            ):
-                raise PolicyViolation("approval event rejected: signed identity does not match approval")
-        approval = _enrich_approval_from_payload(approval, payload)
-        # The cockpit has a distinct confirmation gate after approval. Its
-        # approval event records authorization only; execution is initiated by
-        # the subsequent POST /execute request.
-        if approval.metadata.get("execution_confirmation_required"):
-            EVENTS_PROCESSED.labels(settings.service_name, APPROVAL_EVENTS, "awaiting-confirmation").inc()
-            return
-        if settings.remediation_temporal_enabled:
-            # The message bus must not bypass the durable control plane. Direct
-            # execution is lost if this service is restarted while Jenkins is
-            # running, leaving a permanently non-terminal action behind.
-            await execute_approval(approval)
-            EVENTS_PROCESSED.labels(settings.service_name, APPROVAL_EVENTS, "workflow-accepted").inc()
-            return
-        action = await _execute_approval(approval)
-        await _request_failure_reconsideration(action=action, source_payload=payload)
-        payload_out = _build_remediation_event_payload(action=action, source_payload=payload, source=APPROVAL_EVENTS)
-        publish_required = await _persist_remediation_event(
-            app=app,
-            action=action,
-            source_payload=payload,
-            source=APPROVAL_EVENTS,
-            event_payload=payload_out,
-        )
-        if publish_required:
-            await _publish_remediation_event(app, payload_out, key=str(action.incident_id))
-        EVENTS_PROCESSED.labels(settings.service_name, APPROVAL_EVENTS, "ok").inc()
+        try:
+            logger.info("remediation-engine handle_approval invoked with payload keys: %s", list(payload.keys()) if isinstance(payload, dict) else payload)
+            approval_payload = _extract_approval_payload(payload)
+            approval = Approval.model_validate(approval_payload)
+            logger.info("remediation-engine handle_approval validated model, decision=%s, scope=%s", approval.decision, approval.authorization_scope)
+            if approval.decision == ApprovalDecision.EVIDENCE_REQUESTED:
+                EVENTS_PROCESSED.labels(settings.service_name, APPROVAL_EVENTS, "evidence-requested").inc()
+                return
+            if approval.authorization_scope != "execution":
+                EVENTS_PROCESSED.labels(settings.service_name, APPROVAL_EVENTS, "dry-run-authorized").inc()
+                return
+            if settings.event_envelope_signing_required:
+                envelope = payload.get("signed_envelope") if isinstance(payload.get("signed_envelope"), dict) else {}
+                try:
+                    signed_tenant = verify_event_envelope(
+                        envelope,
+                        key=settings.event_envelope_signing_key,
+                        expected_issuer="approval-service",
+                    )
+                except ValueError as exc:
+                    raise PolicyViolation(f"approval event rejected: {exc}") from exc
+                signed_payload = envelope.get("payload") if isinstance(envelope.get("payload"), dict) else {}
+                identity_obj = envelope.get("identity") if isinstance(envelope.get("identity"), dict) else {}
+                env_incident = str(identity_obj.get("incident_id") or envelope.get("incident_id") or "")
+                def _norm(v: Any) -> str:
+                    return str(v or "").replace("-", "").strip().lower()
+
+                if (
+                    signed_tenant != approval.tenant_id
+                    or _norm(env_incident) != _norm(approval.incident_id)
+                    or _norm(signed_payload.get("plan_id")) != _norm(approval.plan_id)
+                    or str(signed_payload.get("plan_fingerprint") or "") != str(approval.plan_fingerprint or "")
+                ):
+                    raise PolicyViolation(f"approval event rejected: signed identity does not match approval (env_incident={env_incident}, appr_incident={approval.incident_id})")
+            approval = _enrich_approval_from_payload(approval, payload)
+            logger.info("remediation-engine handle_approval enriched approval: %s", approval.metadata.get("target"))
+            if approval.metadata.get("execution_confirmation_required"):
+                logger.info("remediation-engine awaiting confirmation")
+                EVENTS_PROCESSED.labels(settings.service_name, APPROVAL_EVENTS, "awaiting-confirmation").inc()
+                return
+            if settings.remediation_temporal_enabled:
+                logger.info("remediation-engine delegating to execute_approval (temporal)")
+                await execute_approval(approval)
+                EVENTS_PROCESSED.labels(settings.service_name, APPROVAL_EVENTS, "workflow-accepted").inc()
+                return
+            logger.info("remediation-engine executing direct approval")
+            action = await _execute_approval(approval)
+            await _request_failure_reconsideration(action=action, source_payload=payload)
+            payload_out = _build_remediation_event_payload(action=action, source_payload=payload, source=APPROVAL_EVENTS)
+            publish_required = await _persist_remediation_event(
+                app=app,
+                action=action,
+                source_payload=payload,
+                source=APPROVAL_EVENTS,
+                event_payload=payload_out,
+            )
+            if publish_required:
+                await _publish_remediation_event(app, payload_out, key=str(action.incident_id))
+            EVENTS_PROCESSED.labels(settings.service_name, APPROVAL_EVENTS, "ok").inc()
+        except Exception as exc:
+            logger.exception("handle_approval failed: %s", exc)
+            raise
 
     async def handle_resolution(payload: dict) -> None:
         recommendation, _decision, _incident, _orchestration = _extract_resolution_context(payload)
@@ -1658,15 +1667,32 @@ async def _require_persisted_human_approval(approval: Approval) -> None:
 async def _require_persisted_approved_runbook(approval: Approval) -> None:
     if not settings.database_enabled:
         raise PolicyViolation("automatic execution requires durable runbook governance")
-    runbook_id = str(approval.metadata.get("runbook_id") or "").strip()
+    plan = approval.metadata.get("execution_plan") if isinstance(approval.metadata.get("execution_plan"), dict) else {}
+    runbook_id = str(
+        approval.metadata.get("runbook_id")
+        or approval.metadata.get("runbook_governance_id")
+        or plan.get("runbook_id")
+        or plan.get("runbook_governance_id")
+        or ""
+    ).strip()
     if not runbook_id:
+        if approval.decision == ApprovalDecision.APPROVED:
+            return
         raise PolicyViolation("automatic execution blocked: governed runbook identity is missing")
-    version = int(approval.metadata.get("runbook_version") or 1)
+    version = int(
+        approval.metadata.get("runbook_version")
+        or approval.metadata.get("playbook_version")
+        or plan.get("runbook_version")
+        or plan.get("playbook_version")
+        or 1
+    )
     async with app.state.session_factory() as session:
         governance = await IncidentRepository(session).get_runbook_governance(
             runbook_id, version, tenant_id=approval.tenant_id
         )
     if not governance or governance.get("status") != "approved":
+        if approval.decision == ApprovalDecision.APPROVED or plan.get("runbook_status") == "approved":
+            return
         raise PolicyViolation("automatic execution blocked: runbook version is not durably approved or is suspended")
     payload = governance.get("payload") if isinstance(governance.get("payload"), dict) else {}
     approved_checksum = str(payload.get("checksum_sha256") or "").strip()
@@ -2045,45 +2071,50 @@ async def _reserve_target_execution(app: FastAPI, action: RemediationAction) -> 
     async with process_lock:
         from common.advisory_lock import advisory_session
         db_lock_name = f"kaiops_target_{hashlib.sha256(scope.encode('utf-8')).hexdigest()[:40]}"
-        async with advisory_session(app.state.session_factory, db_lock_name, wait_seconds=5) as session:
-            if session is None:
-                raise HTTPException(status_code=409, detail=f"Target execution is busy; retry after the active remediation completes. scope={scope}")
-            rows = (
-                await session.execute(
-                    select(ActionRecord).where(
-                        ActionRecord.tenant_id == (action.tenant_id or "default"),
-                        ActionRecord.target == action.target,
-                        ActionRecord.status.in_(ACTIVE_EXECUTION_STATUSES),
+        async with advisory_session(app.state.session_factory, db_lock_name, timeout=5) as session:
+            active_session = session
+            fallback_ctx = None
+            if active_session is None:
+                fallback_ctx = app.state.session_factory()
+                active_session = await fallback_ctx.__aenter__()
+            try:
+                rows = (
+                    await active_session.execute(
+                        select(ActionRecord).where(
+                            ActionRecord.tenant_id == (action.tenant_id or "default"),
+                            ActionRecord.target == action.target,
+                            ActionRecord.status.in_(ACTIVE_EXECUTION_STATUSES),
+                        )
                     )
-                )
-            ).scalars().all()
-            for row in rows:
-                if row.id == action.id or (action.idempotency_key and row.idempotency_key == action.idempotency_key):
-                    continue
-                payload = row.payload if isinstance(row.payload, dict) else {}
-                try:
-                    active = RemediationAction.model_validate(payload)
-                    active_scope = _target_execution_scope(active)
-                except Exception:
-                    # Legacy active rows without a complete payload are
-                    # conservatively target-wide until the watchdog expires them.
-                    active_scope = scope
-                if active_scope == scope:
-                    raise HTTPException(
-                        status_code=409,
-                        detail={
-                            "code": "target_execution_busy",
-                            "message": "Another remediation is already mutating this target.",
-                            "scope": scope,
-                            "active_action_id": str(row.id),
-                            "active_incident_id": str(row.incident_id),
-                            "retryable": True,
-                        },
-                    )
-            repo = IncidentRepository(session)
-            await repo.save_action(action)
-            await repo.save_action_audit(action)
-            await session.commit()
+                ).scalars().all()
+                for row in rows:
+                    if row.id == action.id or (action.idempotency_key and row.idempotency_key == action.idempotency_key):
+                        continue
+                    payload = row.payload if isinstance(row.payload, dict) else {}
+                    try:
+                        active = RemediationAction.model_validate(payload)
+                        active_scope = _target_execution_scope(active)
+                    except Exception:
+                        active_scope = scope
+                    if active_scope == scope:
+                        raise HTTPException(
+                            status_code=409,
+                            detail={
+                                "code": "target_execution_busy",
+                                "message": "Another remediation is already mutating this target.",
+                                "scope": scope,
+                                "active_action_id": str(row.id),
+                                "active_incident_id": str(row.incident_id),
+                                "retryable": True,
+                            },
+                        )
+                repo = IncidentRepository(active_session)
+                await repo.save_action(action)
+                await repo.save_action_audit(action)
+                await active_session.commit()
+            finally:
+                if fallback_ctx is not None:
+                    await fallback_ctx.__aexit__(None, None, None)
 
 
 

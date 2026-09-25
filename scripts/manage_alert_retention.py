@@ -86,21 +86,83 @@ def run(connection,policy,*,execute=False,restore_batch=None):
     except Exception:
         connection.rollback();raise
 
-def main():
-    parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--policy",default=str(ROOT/"backend/config/alert-retention.json"))
-    parser.add_argument("--execute",action="store_true")
-    parser.add_argument("--restore-batch")
-    args=parser.parse_args()
-    if args.restore_batch and not args.execute:parser.error("Restoration requires --execute")
-    sys.path.insert(0,str(ROOT/"backend/src/common"))
+def execute_cycle(policy_path, execute, restore_batch, archive_dir=None):
     from common.config import get_settings
     from sqlalchemy.engine import make_url
     import pymysql
-    url=make_url(get_settings().database_url)
-    connection=pymysql.connect(host=url.host,port=url.port or 3306,user=url.username,password=url.password,database=url.database,
-        charset="utf8mb4",cursorclass=pymysql.cursors.DictCursor,autocommit=False,read_timeout=60,write_timeout=60)
-    try:print(json.dumps(run(connection,json.loads(Path(args.policy).read_text()),execute=args.execute,restore_batch=args.restore_batch),indent=2))
-    finally:connection.close()
 
-if __name__=="__main__":main()
+    url = make_url(get_settings().database_url)
+    connection = pymysql.connect(
+        host=url.host,
+        port=url.port or 3306,
+        user=url.username,
+        password=url.password,
+        database=url.database,
+        charset="utf8mb4",
+        cursorclass=pymysql.cursors.DictCursor,
+        autocommit=False,
+        read_timeout=60,
+        write_timeout=60,
+    )
+    try:
+        policy = json.loads(Path(policy_path).read_text())
+        result = run(connection, policy, execute=execute, restore_batch=restore_batch)
+        if archive_dir:
+            out = Path(archive_dir)
+            out.mkdir(parents=True, exist_ok=True)
+            last_run = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "result": result,
+                "status": "success",
+            }
+            (out / "last-run.json").write_text(json.dumps(last_run, indent=2))
+            err_file = out / "last-error.json"
+            if err_file.exists():
+                err_file.unlink()
+        return result
+    except Exception as exc:
+        if archive_dir:
+            out = Path(archive_dir)
+            out.mkdir(parents=True, exist_ok=True)
+            last_err = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "error": str(exc),
+                "status": "failed",
+            }
+            (out / "last-error.json").write_text(json.dumps(last_err, indent=2))
+        raise
+    finally:
+        connection.close()
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--policy", default=str(ROOT / "backend/config/alert-retention.json"))
+    parser.add_argument("--execute", action="store_true")
+    parser.add_argument("--restore-batch")
+    parser.add_argument("--daemon", action="store_true", help="Run continuously in daemon mode")
+    parser.add_argument("--archive-dir", default=None, help="Directory to record last-run status")
+    parser.add_argument("--interval", type=int, default=3600, help="Interval between runs in seconds")
+    args = parser.parse_args()
+    if args.restore_batch and not args.execute:
+        parser.error("Restoration requires --execute")
+    sys.path.insert(0, str(ROOT / "backend/src/common"))
+
+    if not args.daemon:
+        result = execute_cycle(args.policy, args.execute, args.restore_batch, args.archive_dir)
+        print(json.dumps(result, indent=2))
+        return
+
+    import time
+    while True:
+        try:
+            result = execute_cycle(args.policy, args.execute, args.restore_batch, args.archive_dir)
+            print(f"[{datetime.now(timezone.utc).isoformat()}] Retention cycle completed: {result}", flush=True)
+        except Exception as exc:
+            print(f"[{datetime.now(timezone.utc).isoformat()}] Retention cycle failed: {exc}", flush=True)
+        time.sleep(args.interval)
+
+
+if __name__ == "__main__":
+    main()
+

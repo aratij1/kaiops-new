@@ -1200,6 +1200,7 @@ class IncidentProjectionRecord(Base):
     first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     document_available: Mapped[bool | None] = mapped_column(Boolean)
     projection_payload: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
 
 

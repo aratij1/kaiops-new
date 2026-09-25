@@ -1253,9 +1253,13 @@ class ResolutionIntelligenceAgent(BaseAgent):
                 else context_quality.get("coverage_score") or 0.0
             ),
         }
+        iterative_conclusive = bool(
+            isinstance(iterative_investigation, dict)
+            and iterative_investigation.get("conclusive") is True
+            and str(iterative_investigation.get("status") or "").lower() == "conclusive"
+        )
         discovery_degraded = bool(
             context_quality.get("discovery_degraded")
-            or context_quality.get("execution_ready") is False
         )
         if discovery_degraded:
             model_confidence = min(model_confidence, 0.49)
@@ -1545,12 +1549,18 @@ class ResolutionIntelligenceAgent(BaseAgent):
             readiness_blocks.append("No application runtime, log, telemetry, or code evidence supports this corrective action.")
         if mutating and evidence_quality.get("sufficiency") != "sufficient":
             readiness_blocks.append("The causal hypothesis is not independently corroborated by sufficient evidence.")
-        if mutating and "rca_ready" in context_quality and context_quality.get("rca_ready") is not True:
+        iterative_investigation = state.get("gathered_context", {}).get("iterative_investigation")
+        iterative_conclusive = bool(
+            isinstance(iterative_investigation, dict)
+            and iterative_investigation.get("conclusive") is True
+            and str(iterative_investigation.get("status") or "").lower() == "conclusive"
+        )
+        if mutating and "rca_ready" in context_quality and context_quality.get("rca_ready") is not True and not iterative_conclusive:
             readiness_score = float(context_quality.get("rca_readiness_score") or 0.0)
             readiness_blocks.append(
                 f"Context evidence is only {readiness_score:.0%} RCA-ready; collect independent direct and causal evidence."
             )
-        if context_quality.get("discovery_degraded") or context_quality.get("execution_ready") is False:
+        if (context_quality.get("discovery_degraded") or context_quality.get("execution_ready") is False) and not iterative_conclusive:
             readiness_blocks.append(
                 "Discovery evidence is degraded or unavailable; collect fresh diagnostics before execution."
             )

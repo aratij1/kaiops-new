@@ -9,7 +9,11 @@ def approvedComposeLabelCommand(String command) {
     def lookup = "curl --fail --silent --show-error '${listUrl}' | grep -o '\"Id\":\"[^\"]*\"' | head -n 1 | cut -d'\"' -f4"
     def preflight = "${lookup} | grep --quiet ."
     def restart = "container_id=\$(${lookup}); test -n \"\$container_id\" && curl --fail --silent --show-error --retry 3 --retry-all-errors --retry-delay 1 -X POST http://docker-socket-proxy:2375/containers/\$container_id/restart?t=30"
-    return value == preflight || value == restart
+    def listUrlAll = "http://docker-socket-proxy:2375/containers/json?all=1&filters=${filters}"
+    def lookupAll = "curl --fail --silent --show-error '${listUrlAll}' | grep -o '\"Id\":\"[^\"]*\"' | head -n 1 | cut -d'\"' -f4"
+    def preflightAll = "${lookupAll} | grep --quiet ."
+    def restartAll = "container_id=\$(${lookupAll}); test -n \"\$container_id\" && curl --fail --silent --show-error --retry 3 --retry-all-errors --retry-delay 1 -X POST http://docker-socket-proxy:2375/containers/\$container_id/restart?t=30"
+    return value == preflight || value == restart || value == preflightAll || value == restartAll
 }
 
 // Compose has no engine-level "scale" primitive the way restart has (a raw

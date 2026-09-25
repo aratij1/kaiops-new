@@ -44,6 +44,7 @@ def test_build_action_idempotency_key_is_deterministic_per_action_type() -> None
 
 def test_temporal_duplicate_workflow_exception_is_available() -> None:
     """Keep the durable execution endpoint aligned with the installed SDK."""
+    pytest.importorskip("temporalio")
     from temporalio.exceptions import WorkflowAlreadyStartedError
 
     assert issubclass(WorkflowAlreadyStartedError, Exception)

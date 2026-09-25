@@ -13,7 +13,7 @@ from common.config import get_settings
 from common.ai_layer_client import AiLayerClient
 from common.event_publishers import build_event_envelope
 from common.kafka import KafkaConsumer, consume_forever as consume_kafka_forever
-from common.models import Alert, Incident
+from common.models import Alert, Incident, IncidentStatus
 from common.rabbitmq import RabbitMQConsumer, consume_forever as consume_rabbitmq_forever
 from common.repository import IncidentRepository
 from common.servicebus import AzureServiceBusConsumer, consume_forever as consume_service_bus_forever
@@ -329,7 +329,8 @@ async def _merge_duplicate_into_canonical(alert: Alert, incident: Any) -> Any | 
     )
     # Candidate idempotency identifies a correlation family; occurrence
     # idempotency must identify the immutable source event within that family.
-    idempotency_key = f"alert-occurrence:{source_event_id}"
+    starts_at_token = alert.starts_at.isoformat() if alert.starts_at else str(alert.id)
+    idempotency_key = f"alert-occurrence:{source_event_id}:{starts_at_token}"
     window_minutes = int(
         (deduplication.get("window_minutes") if isinstance(deduplication, dict) else None)
         or agent.deduplication_window_minutes
@@ -570,7 +571,13 @@ async def startup(app: FastAPI) -> None:
         canonical = await _merge_duplicate_into_canonical(alert, incident)
         if canonical is not None:
             EVENTS_PROCESSED.labels(settings.service_name, RAW_ALERTS, "duplicate").inc()
-            return
+            canonical_status = str(getattr(canonical, "status", None) or "").lower()
+            if canonical_status not in {"resolved", "closed", "cancelled"}:
+                return
+            # If the canonical incident was already resolved or closed, this is a recurring outage!
+            # Reopen the incident and publish to ENRICHED_ALERTS so orchestrator generates a remediation plan.
+            canonical.status = IncidentStatus.INVESTIGATING
+            incident = canonical
         # Investigation must not be gated on Jira ticket creation succeeding —
         # see the matching fix in process() below for the full rationale.
         # This handle() function is the real message-bus consumer for every

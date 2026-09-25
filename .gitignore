@@ -56,3 +56,4 @@ docs/architecture/*.stderr.log
 
 # Local database retention archives contain operational evidence.
 backend/retention-archives/
+scratch/

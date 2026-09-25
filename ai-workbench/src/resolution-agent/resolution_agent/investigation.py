@@ -113,7 +113,7 @@ class IterativeInvestigator:
     SOURCE_ALIASES = {
         "log": "logs", "logs": "logs", "opensearch": "logs", "elasticsearch": "logs",
         "code": "code", "source": "code", "github": "code", "gitlab": "code",
-        "prometheus": "telemetry", "metric": "telemetry", "metrics": "telemetry", "telemetry": "telemetry",
+        "prometheus": "telemetry", "metric": "telemetry", "metrics": "telemetry", "telemetry": "telemetry", "alert": "telemetry",
         "trace": "traces", "traces": "traces", "jaeger": "traces",
         "topology": "topology", "dependency": "dependency", "dependencies": "dependency",
         "resource": "resource",
@@ -426,6 +426,38 @@ class IterativeInvestigator:
         """Admit structured diagnostics as support without treating symptom words as causation."""
         metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
         claim = str(hypothesis.get("claim") or "").lower()
+        if any(token in claim for token in ("stopped", "crashed", "unreachable", "service process or container")):
+            claim_tokens = set(re.findall(r"[a-z0-9_-]+", claim))
+            if row.get("source_type") in {"topology", "dependency"}:
+                target = str(metadata.get("service") or row.get("service") or "").lower()
+                related = str(metadata.get("related_to") or "").lower()
+                is_target = any(
+                    name in claim_tokens
+                    for name in (target, target.replace("rs-", "robot-shop-"), target.replace("robot-shop-", "rs-"), target.replace("robot-shop-", ""))
+                    if name
+                ) or any(
+                    name in claim_tokens
+                    for name in (related, related.replace("rs-", "robot-shop-"), related.replace("robot-shop-", "rs-"), related.replace("robot-shop-", ""))
+                    if name
+                )
+                if is_target and (metadata.get("healthy") is False or str(metadata.get("runtime_state") or "").lower() != "running" or "exited" in str(row).lower()):
+                    return True
+            if row.get("source_type") in {"telemetry", "metric", "metrics"}:
+                snippet = str(row.get("snippet") or row.get("summary") or "").lower()
+                metric_name = str(metadata.get("metric", {}).get("__name__") if isinstance(metadata.get("metric"), dict) else "").lower()
+                val = metadata.get("value") if isinstance(metadata, dict) else None
+                val_str = str(val[-1] if isinstance(val, (list, tuple)) and val else val or "")
+                is_zero_val = val_str in {"0", "0.0", "false"} or ', "0"]' in snippet or ', 0]' in snippet
+                is_down_metric = (
+                    "== 0" in snippet or "== 0.0" in snippet or "up{" in snippet or "down" in snippet or "unreachable" in snippet
+                    or ((metric_name == "up" or '"__name__": "up"' in snippet) and is_zero_val)
+                )
+                if is_down_metric:
+                    return any(
+                        token in snippet or token in str(row).lower()
+                        for token in claim_tokens
+                        if len(token) >= 3 and token not in {"service", "process", "container", "stopped", "crashed", "unreachable"}
+                    )
         if row.get("source_type") == "dependency" and (
             "dependency" in claim or "upstream" in claim or "downstream" in claim
         ):
@@ -474,6 +506,17 @@ class IterativeInvestigator:
     def _structured_mechanism_contradiction(hypothesis: dict[str, Any], row: dict[str, Any]) -> bool:
         metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
         claim = str(hypothesis.get("claim") or "").lower()
+        if any(token in claim for token in ("stopped", "crashed", "unreachable", "service process or container")):
+            claim_tokens = set(re.findall(r"[a-z0-9_-]+", claim))
+            if row.get("source_type") == "topology":
+                target = str(metadata.get("service") or row.get("service") or "").lower()
+                is_target = any(name in claim_tokens for name in (target, target.replace("rs-", "robot-shop-"), target.replace("robot-shop-", "rs-")) if name)
+                if is_target:
+                    return metadata.get("healthy") is True and str(metadata.get("runtime_state") or "").lower() == "running"
+            if row.get("source_type") in {"telemetry", "metric", "metrics"}:
+                snippet = str(row.get("snippet") or row.get("summary") or "").lower()
+                if "== 1" in snippet and "up{" in snippet:
+                    return True
         if row.get("source_type") == "resource" and any(
             token in claim for token in ("resource saturation", "data-path", "data path")
         ):
@@ -661,6 +704,7 @@ class IterativeInvestigator:
         # (the "data" plane, mysql.search). Require both, so whichever one
         # actually applies gets a chance to support or contradict the claim.
         (("resource saturation", "data-path", "data path"), frozenset({"data", "resource"})),
+        (("stopped", "crashed", "unreachable", "service process or container"), frozenset({"topology", "telemetry"})),
     )
 
     @classmethod
@@ -727,18 +771,18 @@ class IterativeInvestigator:
         # and `_select_tool`), this only changes what counts as a real,
         # closable gap versus evidence that simply does not apply here.
         required = {"logs", "telemetry", "changes"}
-        if any(token in text for token in ("latency", "timeout", "availability", "down", "error", "5xx")):
+        signaled_sources = IterativeInvestigator._leading_hypothesis_signaled_sources(hypotheses)
+        if any(token in text for token in ("deploy", "release", "commit", "build")) or "changes" in signaled_sources:
+            required.add("changes")
+        if any(token in text for token in ("latency", "timeout", "5xx")) or "traces" in signaled_sources:
             required.add("traces")
         quality = context.metadata.get("context_quality") if isinstance(context.metadata, dict) else {}
         diagnostic_gaps = quality.get("diagnostic_gaps") if isinstance(quality, dict) else []
-        # When signal/topology collection still has no causal explanation,
-        # inspect implementation evidence instead of exhausting the budget on
-        # additional broad inventory sources.
-        if "causal_or_action" in (diagnostic_gaps if isinstance(diagnostic_gaps, list) else []):
+        leading_status = str((hypotheses[0] if hypotheses else {}).get("status") or "").lower()
+        if any(token in text for token in ("deploy", "release", "config", "traceback", "exception")) or "code" in signaled_sources:
             required.add("code")
-        if any(token in text for token in ("deploy", "release", "config", "traceback", "exception")):
+        elif "causal_or_action" in (diagnostic_gaps if isinstance(diagnostic_gaps, list) else []) and leading_status != "confirmed":
             required.add("code")
-        signaled_sources = IterativeInvestigator._leading_hypothesis_signaled_sources(hypotheses)
         if any(token in text for token in ("database", "mysql", "query", "replica", "table", "data")) or (
             "data" in signaled_sources
         ):
@@ -748,10 +792,17 @@ class IterativeInvestigator:
         if not external_probe and (
             context.dependency_services or context.cmdb or context.kubernetes
             or any(token in text for token in ("dependency", "upstream", "downstream", "dependent"))
-            or {"dependency", "topology"} & signaled_sources
+            or "dependency" in signaled_sources
         ):
             required.add("dependency")
             required.add("topology")
+        if not external_probe and (
+            any(token in text for token in ("topology", "container", "pod", "node", "process", "instance"))
+            or "topology" in signaled_sources
+        ):
+            required.add("topology")
+
+
         if "resource" in signaled_sources:
             # Unlike "data" (also signaled by literal alert-text keywords
             # like "database"/"mysql"), there is no comparable alert-text
@@ -935,6 +986,13 @@ class IterativeInvestigator:
             ("resource_or_data", f"Resource saturation or a data-path constraint is affecting {context.alert.service}.", "Query resource telemetry and data-store health over the incident window."),
             ("traffic", f"A traffic or workload shift exceeded the operating envelope of {context.alert.service}.", "Compare request volume, latency, errors, and capacity before and after onset."),
         ]
+        alert_text = " ".join((context.alert.name, context.alert.description, context.alert.service)).lower()
+        if any(token in alert_text for token in ("down", "unreachable", "stopped", "crash", "failed", "died", "unavailable")):
+            mechanisms.insert(0, (
+                "service_availability",
+                f"Service {context.alert.service} process or container is stopped, crashed, or unreachable.",
+                "Query runtime topology and telemetry to verify whether the service process is running."
+            ))
         existing_claims = {str(item.get("claim") or "").strip().lower() for item in hypotheses}
         for mechanism, claim, objective in mechanisms:
             # The set is meant to hold 3-5 candidates (see comment above), but
@@ -1004,8 +1062,13 @@ class IterativeInvestigator:
                 # design -- supporting_evidence_ids explicitly drops anything
                 # that also lands in contradicting_evidence_ids -- so the
                 # evidence ended up counted as neither, silently discarded.
+                is_availability_claim = any(
+                    token in str(hypothesis.get("claim") or "").lower()
+                    for token in ("stopped", "crashed", "unreachable", "service process or container")
+                )
                 generic_health_contradiction = (
-                    hypothesis.get("source") != "derived_observation"
+                    not is_availability_claim
+                    and hypothesis.get("source") != "derived_observation"
                     and bool(re.search(r"\b(healthy|normal|no errors|recovered)\b", text.lower()))
                     and bool(overlap)
                 )

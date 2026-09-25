@@ -55,10 +55,28 @@ function actionableFailure(item: Requirement) {
   return "";
 }
 
-export type ContextEnrichmentPanelProps = { incidentId: string; alertId?: string; accessToken: string; declaredGaps: EvidenceGap[]; proposedRcaDraft?: string; reviewRequestToken?: number; onIncidentRefresh: () => Promise<void> };
+export type ContextEnrichmentPanelProps = {
+  incidentId: string;
+  alertId?: string;
+  accessToken: string;
+  declaredGaps: EvidenceGap[];
+  proposedRcaDraft?: string;
+  reviewRequestToken?: number;
+  onIncidentRefresh: () => Promise<void>;
+  initialOperationsState?: OperationsState | null;
+};
 
-export default function ContextEnrichmentPanel({ incidentId, alertId, accessToken, declaredGaps, proposedRcaDraft = "", reviewRequestToken = 0, onIncidentRefresh }: ContextEnrichmentPanelProps) {
-  const [state, setState] = useState<OperationsState | null>(null);
+export default function ContextEnrichmentPanel({
+  incidentId,
+  alertId,
+  accessToken,
+  declaredGaps,
+  proposedRcaDraft = "",
+  reviewRequestToken = 0,
+  onIncidentRefresh,
+  initialOperationsState = null,
+}: ContextEnrichmentPanelProps) {
+  const [state, setState] = useState<OperationsState | null>(initialOperationsState);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -67,8 +85,18 @@ export default function ContextEnrichmentPanel({ incidentId, alertId, accessToke
   const [activeRequirementId, setActiveRequirementId] = useState("");
   const [announcement, setAnnouncement] = useState("");
   const inFlight = useRef(false);
-  const previousState = useRef("");
-  const previousProjection = useRef("");
+  const previousState = useRef(initialOperationsState?.lifecycle_state || "");
+  const previousProjection = useRef(
+    initialOperationsState
+      ? JSON.stringify({
+          lifecycle: initialOperationsState.lifecycle_state,
+          snapshot: initialOperationsState.context?.snapshot_id || "",
+          contextVersion: initialOperationsState.context?.version || 0,
+          rcaVersion: initialOperationsState.investigation?.rca_version || 0,
+          investigationSnapshot: initialOperationsState.investigation?.snapshot_id || "",
+        })
+      : ""
+  );
   const failureCount = useRef(0);
   const incidentRefresh = useRef(onIncidentRefresh);
   const panelRef = useRef<HTMLElement | null>(null);
@@ -104,18 +132,22 @@ export default function ContextEnrichmentPanel({ incidentId, alertId, accessToke
 
   useEffect(() => {
     let cancelled = false; let timer: number | undefined;
-    previousState.current = ""; previousProjection.current = ""; failureCount.current = 0;
+    failureCount.current = 0;
     const poll = async () => {
       if (cancelled) return;
       if (!document.hidden) await load(false);
       if (cancelled || TERMINAL_STATES.has(previousState.current)) return;
-      timer = window.setTimeout(() => void poll(), Math.min(3000 * (2 ** failureCount.current), 30_000));
+      timer = window.setTimeout(() => void poll(), Math.min(5000 * (2 ** failureCount.current), 30_000));
     };
-    void poll();
+    if (initialOperationsState) {
+      timer = window.setTimeout(() => void poll(), 5000);
+    } else {
+      void poll();
+    }
     const resume = () => { if (!document.hidden && !inFlight.current) void load(false); };
     document.addEventListener("visibilitychange", resume);
     return () => { cancelled = true; if (timer) window.clearTimeout(timer); document.removeEventListener("visibilitychange", resume); };
-  }, [incidentId, load]);
+  }, [incidentId, load, initialOperationsState]);
 
   const submit = async (requirementId: string) => {
     const response = String(answers[requirementId] || "").trim();

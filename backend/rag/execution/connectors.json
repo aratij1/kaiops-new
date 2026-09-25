@@ -256,6 +256,64 @@
         "path": "/api/health/checks/alarms"
       }
     },
+    "payments": {
+      "connector_id": "payments-k8s",
+      "system": "payments-api",
+      "type": "kubernetes",
+      "cluster": "prod-us-east-1",
+      "namespace": "payments",
+      "environment": "prod",
+      "owner_team": "payments-sre",
+      "auth_method": "kubeconfig-service-account",
+      "secret_ref": "vault://kaiops/prod/payments-kubeconfig",
+      "timeout_seconds": 15,
+      "retry": {
+        "max_attempts": 2,
+        "backoff_seconds": 3.0
+      },
+      "allowed_operations": [
+        "read_status",
+        "read_metrics",
+        "rollback_deployment",
+        "restart_service",
+        "restart_pod",
+        "verify_slo",
+        "verify_service_health"
+      ],
+      "health_check": {
+        "type": "deployment",
+        "name": "payments-api"
+      }
+    },
+    "checkout": {
+      "connector_id": "checkout-k8s",
+      "system": "checkout-api",
+      "type": "kubernetes",
+      "cluster": "prod-us-east-1",
+      "namespace": "checkout",
+      "environment": "prod",
+      "owner_team": "checkout-sre",
+      "auth_method": "kubeconfig-service-account",
+      "secret_ref": "vault://kaiops/prod/checkout-kubeconfig",
+      "timeout_seconds": 15,
+      "retry": {
+        "max_attempts": 2,
+        "backoff_seconds": 3.0
+      },
+      "allowed_operations": [
+        "read_status",
+        "read_metrics",
+        "restart_pod",
+        "restart_service",
+        "rollback_deployment",
+        "verify_slo",
+        "verify_service_health"
+      ],
+      "health_check": {
+        "type": "deployment",
+        "name": "checkout-api"
+      }
+    },
     "generic-api": {
       "connector_id": "generic-api",
       "system": "generic",
@@ -274,6 +332,50 @@
       "health_check": {
         "method": "GET",
         "path": "/healthz"
+      }
+    },
+    "cart": {
+      "connector_id": "cart-docker",
+      "system": "cart",
+      "type": "docker",
+      "environment": "prod",
+      "owner_team": "robot-shop",
+      "auth_method": "none",
+      "secret_ref": "vault://kaiops/prod/cart-token",
+      "timeout_seconds": 15,
+      "allowed_operations": [
+        "read_status",
+        "read_metrics",
+        "restart_service",
+        "verify_service_health",
+        "script_execution",
+        "verify_slo"
+      ],
+      "health_check": {
+        "type": "container",
+        "name": "rs-cart"
+      }
+    },
+    "rs-cart": {
+      "connector_id": "rs-cart-docker",
+      "system": "rs-cart",
+      "type": "docker",
+      "environment": "prod",
+      "owner_team": "robot-shop",
+      "auth_method": "none",
+      "secret_ref": "vault://kaiops/prod/cart-token",
+      "timeout_seconds": 15,
+      "allowed_operations": [
+        "read_status",
+        "read_metrics",
+        "restart_service",
+        "verify_service_health",
+        "script_execution",
+        "verify_slo"
+      ],
+      "health_check": {
+        "type": "container",
+        "name": "rs-cart"
       }
     }
   }

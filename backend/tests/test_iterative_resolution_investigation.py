@@ -1231,3 +1231,46 @@ def test_latency_alert_and_unrelated_log_do_not_prove_impact():
     impact = next(claim for claim in claims if claim.kind == ClaimKind.IMPACT)
     assert impact.status == ClaimStatus.NOT_ESTABLISHED
     assert impact.supporting_evidence_ids == []
+
+
+def test_service_down_alert_generates_service_availability_hypothesis_and_confirms_with_topology_telemetry():
+    context = make_context()
+    context.alert.name = "RobotShopServiceDown"
+    context.alert.description = "Service rs-cart is down (cannot scrape / up == 0)"
+    context.alert.service = "robot-shop-cart"
+    investigator = IterativeInvestigator(client=FakeDiscoveryClient({}))
+
+    # Verify required sources for down service do not demand traces
+    required = investigator._required_sources(context)
+    assert "traces" not in required
+    assert {"logs", "telemetry", "changes"}.issubset(required)
+
+    # Initial revision generates service_availability mechanism
+    hypotheses = investigator._revise_hypotheses([], [], context=context)
+    assert any("stopped, crashed, or unreachable" in str(h.get("claim")) for h in hypotheses)
+    service_hyp = next(h for h in hypotheses if "stopped, crashed, or unreachable" in str(h.get("claim")))
+
+    # Provide real topology and telemetry evidence
+    evidence = [
+        {
+            "evidence_id": "topo-1",
+            "source_type": "topology",
+            "service": "rs-cart",
+            "metadata": {"service": "rs-cart", "related_to": "robot-shop-cart", "runtime_state": "exited", "healthy": False},
+            "snippet": "container rs-cart exited",
+        },
+        {
+            "evidence_id": "telem-1",
+            "source_type": "telemetry",
+            "service": "robot-shop-cart",
+            "metadata": {},
+            "snippet": "up{job=\"robot-shop-cart\"} == 0",
+        },
+    ]
+
+    revised = investigator._revise_hypotheses(hypotheses, evidence, context=context)
+    leading = revised[0]
+    assert "stopped, crashed, or unreachable" in leading["claim"]
+    assert set(leading["supporting_evidence_ids"]) == {"topo-1", "telem-1"}
+    assert leading["status"] in {"leading", "confirmed"}
+

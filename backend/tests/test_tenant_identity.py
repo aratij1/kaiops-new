@@ -16,7 +16,8 @@ def _envelope() -> dict:
 
 
 @pytest.mark.parametrize("value", [None, "", "default", "unknown", "null"])
-def test_placeholder_tenant_is_rejected(value: str | None) -> None:
+def test_placeholder_tenant_is_rejected(monkeypatch: pytest.MonkeyPatch, value: str | None) -> None:
+    monkeypatch.setenv("ENVIRONMENT", "production")
     with pytest.raises(ValueError, match="verified tenant_id"):
         require_tenant_id(value, source="test identity")
 

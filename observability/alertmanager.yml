@@ -3,10 +3,10 @@ global:
 
 route:
   receiver: kaiops-landing-pad
-  group_by: [alertname, service, severity]
+  group_by: [alertname, service, job, severity]
   group_wait: 2s
-  group_interval: 15s
-  repeat_interval: 2m
+  group_interval: 10s
+  repeat_interval: 1m
   routes:
     - receiver: kaiops-landing-pad-realtime
       matchers:

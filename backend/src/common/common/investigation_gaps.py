@@ -33,7 +33,7 @@ def unattempted_requirement_connector(
     return None
 
 
-def collection_attempt_limit(connector: str | Any = None) -> int:
+def collection_attempt_limit(*args: Any, **kwargs: Any) -> int:
     """Return the maximum number of enrichment collection attempts allowed per connector."""
     return 3
 

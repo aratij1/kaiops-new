@@ -215,5 +215,6 @@ def default_capability_registry() -> CapabilityRegistry:
             "application.scale_workload", "api", RiskLevel.HIGH, "service.scale",
             required=["replicas"], rollback="application.scale_workload",
         ),
+        _definition("docker.restart_container", "docker", RiskLevel.MEDIUM, "container.restart", rollback="docker.restart_container"),
     ]
     return CapabilityRegistry(rows)

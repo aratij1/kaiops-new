@@ -352,6 +352,20 @@ def _decode_docker_log_stream(payload: bytes) -> str:
     return payload.decode("utf-8", errors="replace")
 
 
+def _matches_service_identity(service: str, identity: str) -> bool:
+    if not service:
+        return True
+    service_lower = service.lower()
+    identity_lower = identity.lower()
+    if service_lower in identity_lower or service_lower.replace("_", "-") in identity_lower:
+        return True
+    if service_lower.startswith("robot-shop-"):
+        short = service_lower.removeprefix("robot-shop-")
+        if short in identity_lower or f"rs-{short}" in identity_lower:
+            return True
+    return False
+
+
 async def _search_docker_logs(arguments: dict[str, Any], terms: list[str], limit: int) -> list[dict[str, Any]]:
     if str(os.getenv("DOCKER_LOG_DISCOVERY_ENABLED", "true")).strip().lower() not in {"1", "true", "yes", "on"}:
         return []
@@ -404,9 +418,7 @@ async def _search_docker_logs(arguments: dict[str, Any], terms: list[str], limit
                     or (project.startswith("kaiops") and "kaiops" in identity)
                     or project in identity
                 )
-                service_ok = has_service_filter and (
-                    service in identity or service.replace("_", "-") in identity
-                )
+                service_ok = has_service_filter and _matches_service_identity(service, identity)
                 if (has_project_filter or has_service_filter) and not project_ok and not service_ok:
                     continue
                 container_id = str(container.get("Id") or "")
@@ -1218,7 +1230,8 @@ def _docker_container_list_params(service: str, *, platform_wide: bool = False, 
     if service and not platform_wide:
         # Apply service scope before Docker's limit. Older containers otherwise
         # disappear when more recently created unrelated containers fill the page.
-        params["filters"] = json.dumps({"name": [re.escape(service)]})
+        search_target = service.removeprefix("robot-shop-") if service.startswith("robot-shop-") else service
+        params["filters"] = json.dumps({"name": [re.escape(search_target)]})
     return params
 
 
@@ -1268,7 +1281,7 @@ async def _container_deployment_events(arguments: dict[str, Any]) -> list[dict[s
             )
             if project and not platform_wide and project not in identity:
                 continue
-            if service and not service_platform_wide and service not in identity:
+            if service and not service_platform_wide and not _matches_service_identity(service, identity):
                 continue
             created_epoch = container.get("Created")
             if not isinstance(created_epoch, (int, float)) or created_epoch <= 0:
@@ -1427,7 +1440,7 @@ async def _search_runtime_topology(arguments: dict[str, Any], *, health_only: bo
             # with the service argument silently dropped).
             if project and not platform_wide and project not in identity:
                 continue
-            if service and not service_platform_wide and service not in identity:
+            if service and not service_platform_wide and not _matches_service_identity(service, identity):
                 continue
             state = str(container.get("State") or "unknown").lower()
             status = str(container.get("Status") or "unknown")
@@ -1580,7 +1593,7 @@ async def _search_resource_saturation(arguments: dict[str, Any]) -> dict[str, An
                 )
                 if project and not platform_wide and project not in identity:
                     continue
-                if service and not service_platform_wide and service not in identity:
+                if service and not service_platform_wide and not _matches_service_identity(service, identity):
                     continue
                 if str(container.get("State") or "").lower() != "running":
                     # A stopped container has no live cgroup stats to read;

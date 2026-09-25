@@ -61,7 +61,7 @@ x-service-env: &service-env
   LANDING_PAD_ARCHIVE_AFTER_DAYS: ${LANDING_PAD_ARCHIVE_AFTER_DAYS:-30}
   LANDING_PAD_ARCHIVE_INTERVAL_SECONDS: ${LANDING_PAD_ARCHIVE_INTERVAL_SECONDS:-3600}
   JIRA_WEBHOOK_SECRET: ${JIRA_WEBHOOK_SECRET:-}
-  # Outbound Jira API — distinct from JIRA_WEBHOOK_SECRET (inbound auth).
+  # Outbound Jira API â€” distinct from JIRA_WEBHOOK_SECRET (inbound auth).
   # Used by the centralized dedup step to create/update Jira tickets from
   # Prometheus/log/email alerts, making Jira the single source of truth.
   JIRA_API_BASE_URL: ${JIRA_API_BASE_URL:-https://kaiops-test.atlassian.net}
@@ -292,9 +292,9 @@ services:
       <<: *service-env
       SERVICE_NAME: mysql-retention
     working_dir: /app
-    command: ["python", "/app/scripts/manage_mysql_retention.py", "--execute", "--daemon", "--archive-dir", "/archives"]
+    command: ["python", "/app/scripts/manage_alert_retention.py", "--execute", "--daemon", "--archive-dir", "/archives"]
     volumes:
-      - ./scripts/manage_mysql_retention.py:/app/scripts/manage_mysql_retention.py:ro
+      - ./scripts/manage_alert_retention.py:/app/scripts/manage_alert_retention.py:ro
       - ./backend/retention-archives:/archives
     depends_on:
       mysql: { condition: service_healthy }
@@ -429,7 +429,7 @@ services:
     image: prom/mysqld-exporter:v0.16.0
     restart: unless-stopped
     # Uses a dedicated low-privilege monitoring user (PROCESS, REPLICATION
-    # CLIENT only) instead of the app's MYSQL_USER — that user has ALL
+    # CLIENT only) instead of the app's MYSQL_USER â€” that user has ALL
     # PRIVILEGES on the app schema and previously lacked the global grants
     # mysqld_exporter's default scrapers need, which is what produced the
     # "Access denied; you need SUPER or REPLICATION CLIENT" alert. Reusing
@@ -934,7 +934,7 @@ services:
       DISCOVERY_MCP_TELEMETRY_TIMEOUT_SECONDS: "6"
       # This service's Jira evidence search (discovery-mcp/app.py) uses a
       # different env var naming convention than monitoring-adapter's
-      # outbound Jira client (JIRA_API_BASE_URL/JIRA_API_EMAIL) — these
+      # outbound Jira client (JIRA_API_BASE_URL/JIRA_API_EMAIL) â€” these
       # were previously pointed at undefined JIRA_URL/JIRA_USER_EMAIL host
       # vars (always empty), silently disabling live Jira evidence search.
       # Aliased to the same real credentials instead of a second secret set.
@@ -1398,7 +1398,7 @@ services:
       CHECKOUT_SERVICE_ADDR: ob-checkoutservice:5050
       AD_SERVICE_ADDR: ob-adservice:9555
       # Required by mustMapEnv() even though we don't run this optional AI
-      # feature — gRPC dials are lazy, so an unreachable placeholder is
+      # feature â€” gRPC dials are lazy, so an unreachable placeholder is
       # enough to satisfy startup without crashing frontend.
       SHOPPING_ASSISTANT_SERVICE_ADDR: ob-shopping-assistant:8080
     depends_on:
@@ -1421,7 +1421,7 @@ services:
     depends_on:
       - ob-frontend
 
-  # Real per-container metrics (CPU, memory, network, restart count) — the
+  # Real per-container metrics (CPU, memory, network, restart count) â€” the
   # only genuine metrics source available since Online Boutique has no
   # app-level /metrics endpoint anywhere.
   ob-cadvisor:
@@ -1446,13 +1446,13 @@ services:
   #
   # IMPORTANT: rs-web's nginx config is baked into the image at build time
   # with hardcoded upstream hostnames (catalogue, user, shipping, payment,
-  # etc — confirmed live: renaming those services crash-looped rs-web with
+  # etc â€” confirmed live: renaming those services crash-looped rs-web with
   # "host not found in upstream 'catalogue'"). These aren't
   # env-var-configurable. So every Robot Shop service keeps a unique
   # compose key (rs-*, to avoid colliding with this project's own
   # redis/mysql/rabbitmq) but is given a network alias equal to the short
   # name its siblings expect, scoped to the isolated robot-shop-net network
-  # below — the alias never collides with the main project's own
+  # below â€” the alias never collides with the main project's own
   # redis/mysql/rabbitmq because it only exists inside that isolated
   # network, not the default one.
   rs-mongodb:
@@ -1581,7 +1581,7 @@ services:
       - rs-payment
 
   # robotshop/rs-load-gen isn't published to Docker Hub (upstream builds it
-  # from source only) — using the standard public locustio/locust image
+  # from source only) â€” using the standard public locustio/locust image
   # with a minimal locustfile instead, same effect: continuous real traffic.
   rs-load-gen:
     profiles: ["demo-robot-shop"]
@@ -1595,7 +1595,7 @@ services:
     depends_on:
       - rs-web
 
-  # cart/payment already expose real Prometheus /metrics natively — these
+  # cart/payment already expose real Prometheus /metrics natively â€” these
   # exporters also join "default" so the main project's Prometheus (which
   # is not on robot-shop-net) can scrape them.
   rs-mysqld-exporter:
@@ -1659,7 +1659,7 @@ networks:
   default:
     external: true
     name: kaims_default
-  # Isolated network for Robot Shop's internal service mesh — its images
+  # Isolated network for Robot Shop's internal service mesh â€” its images
   # have hostnames like "mongodb"/"redis"/"mysql"/"rabbitmq"/"catalogue"
   # baked in at build time (nginx config, not env-var configurable), which
   # would collide with this project's own services of the same name if

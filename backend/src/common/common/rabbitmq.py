@@ -157,7 +157,14 @@ class RabbitMQProducer:
                 ),
                 timeout=_PUBLISH_TIMEOUT_SECONDS,
             )
-        except Exception:
+        except Exception as exc:
+            # If the broker returned NO_ROUTE because no subscriber queue is bound to this topic,
+            # this is a normal pub-sub scenario when downstream consumers are optional or offline.
+            # Record success so circuit breaker does not open, and log a warning.
+            if "NO_ROUTE" in str(exc) or exc.__class__.__name__ == "PublishError":
+                logger.warning("rabbitmq published message had no active queue route for topic %s: %s", topic, exc)
+                self._publish_breaker.record_success()
+                return
             self._publish_breaker.record_failure()
             raise
         else:

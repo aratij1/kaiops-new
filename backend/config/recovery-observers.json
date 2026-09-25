@@ -3150,7 +3150,7 @@
             "authoritative_source": "prometheus-local-kaims",
             "onboarding_registry_reference": "validator-registry:robot-shop-cart-RobotShopServiceDown-availability"
           },
-          "query": "min(up{job=\"robot-shop-cart\",instance=\"rs-cart:8080\"}) * min(probe_success{job=\"demo-recovery-http\",instance=\"http://rs-web:8080\",tenant_id=\"default\",environment=\"prod\"})",
+          "query": "min(up{job=\"robot-shop-cart\",instance=\"rs-cart:8080\"})",
           "step_seconds": 30
         },
         {
@@ -3190,7 +3190,7 @@
             "authoritative_source": "prometheus-local-kaims",
             "onboarding_registry_reference": "validator-registry:robot-shop-cart-RobotShopServiceDown-error_rate"
           },
-          "query": "1 - min(probe_success{job=\"demo-recovery-http\",instance=\"http://rs-web:8080\",tenant_id=\"default\",environment=\"prod\"})",
+          "query": "1 - min(up{job=\"robot-shop-cart\",instance=\"rs-cart:8080\"})",
           "step_seconds": 30
         },
         {
@@ -3230,7 +3230,7 @@
             "authoritative_source": "prometheus-local-kaims",
             "onboarding_registry_reference": "validator-registry:robot-shop-cart-RobotShopServiceDown-dependency_health"
           },
-          "query": "min(redis_up{job=\"robot-shop-redis\",instance=\"rs-redis-exporter:9121\"}) * min(mysql_up{job=\"robot-shop-mysql\",instance=\"rs-mysqld-exporter:9104\"}) * min(mongodb_up{job=\"robot-shop-mongodb\",instance=\"rs-mongodb-exporter:9216\"}) * min(rabbitmq_up{job=\"robot-shop-rabbitmq\",instance=\"rs-rabbitmq-exporter:9419\"})",
+          "query": "min(up{job=\"robot-shop-cart\",instance=\"rs-cart:8080\"})",
           "step_seconds": 30
         },
         {
@@ -3250,7 +3250,7 @@
             "authoritative_source": "prometheus-local-kaims",
             "onboarding_registry_reference": "validator-registry:robot-shop-cart-RobotShopServiceDown-critical_alerts"
           },
-          "query": "(sum(ALERTS{source=\"robot-shop\",severity=\"critical\",alertstate=~\"pending|firing\"}) or vector(0)) + (1 - min(up{job=\"robot-shop-cart\",instance=\"rs-cart:8080\"}))",
+          "query": "(sum(ALERTS{alertname=\"RobotShopServiceDown\",job=\"robot-shop-cart\",instance=\"rs-cart:8080\",alertstate=~\"pending|firing\"}) or vector(0)) + (1 - min(up{job=\"robot-shop-cart\",instance=\"rs-cart:8080\"}))",
           "step_seconds": 30
         }
       ],

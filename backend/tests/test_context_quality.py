@@ -13,7 +13,7 @@ from context_agent.context_quality import (
 
 
 def make_context(*, stale: bool = False) -> Context:
-    observed_at = datetime.now(UTC) - (timedelta(minutes=20) if stale else timedelta(seconds=5))
+    observed_at = datetime.now(UTC) - (timedelta(minutes=30) if stale else timedelta(seconds=5))
     alert = Alert(
         tenant_id="tenant-a",
         source="prometheus",

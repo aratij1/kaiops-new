@@ -1,12 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Activity, Bell, BrainCircuit, Check, CircleSlash2, ClipboardCheck, Copy, ExternalLink, FileCheck2, Filter, Gauge, GitMerge, List, RefreshCw, ScanSearch, Server, ShieldCheck, TicketCheck, Workflow, Wrench } from "lucide-react";
-import { Link, Navigate, useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Activity, Bell, BrainCircuit, Check, CircleSlash2, ClipboardCheck, Copy, ExternalLink, FileCheck2, Filter, Gauge, GitMerge, List, RefreshCw, Rows3, ScanSearch, Server, ShieldCheck, TicketCheck, Workflow, Wrench } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
 import { useRouteRuntimeSlice, type AlertStreamRow, type IncidentFilters, type IncidentRow } from "../../app/routeRuntime";
 import { OperationsWorkflowNav } from "../../components/operations/OperationsWorkflowNav";
 import { effectiveIncidentStatus } from "../../domain/incidentStatus";
 import { formatIstTimestamp } from "../../utils/presentation";
-import { useOpenIncident } from "../../domain/useOpenIncident";
-import { durableIncidentPath } from "../../domain/incidentNavigation";
+import IncidentDecisionWorkspace from "./IncidentDecisionWorkspace";
 import "./IncidentsRoute.css";
 import { IncidentStatusExplanation } from "./IncidentStatusExplanation";
 import { useInboxFeed } from "./useInboxFeed";
@@ -26,12 +25,11 @@ function apiErrorMessage(payload: any, fallback: string) {
   return typeof message === "string" && message.trim() ? message : fallback;
 }
 
-export function belongsToInboxView(row: IncidentRow, view: InboxView) {
+function belongsToInboxView(row: IncidentRow, view: InboxView) {
   const status = String(row.status || "").toLowerCase();
-  const severity = String(row.severity || "").trim().toLowerCase();
-  if (["warning", "warn"].includes(severity)) return false;
+  const severity = String(row.severity || "").toLowerCase();
   const terminal = ["closed", "resolved", "recovered", "cancelled"].some((value) => status.includes(value));
-  const needsHuman = status.includes("approval") || ["failed", "blocked", "waiting_for_human", "manual_intervention_required", "validation_failed", "rollback_failed"].some((value) => status.includes(value));
+  const needsHuman = status.includes("approval") || ["failed", "blocked", "manual_intervention_required", "validation_failed", "rollback_failed"].some((value) => status.includes(value));
   if (view === "needs_me") return !terminal && needsHuman;
   if (view === "kai_handling") return !terminal && !needsHuman;
   if (view === "critical") return !terminal && ["critical", "sev1", "p1"].includes(severity);
@@ -58,8 +56,7 @@ function alertLinkedIncidentId(row: AlertStreamRow) {
 }
 
 function alertBelongsToInboxView(row: AlertStreamRow, view: InboxView) {
-  const severity = String(row.severity || row.priority || "").trim().toLowerCase();
-  if (["warning", "warn"].includes(severity)) return false;
+  const severity = String(row.severity || row.priority || "").toLowerCase();
   const disposition = alertDisposition(row);
   if (view === "needs_me") return !disposition.noise && !disposition.duplicate && ["critical", "high", "p1", "p2", "sev1", "sev2"].includes(severity);
   if (view === "kai_handling") return !disposition.noise && !disposition.duplicate;
@@ -116,6 +113,11 @@ const EMPTY_GROUP_PAGE: IncidentGroupPage = {
   unlinked_signal_count: 0, generated_at: "",
 };
 const EMPTY_UNIFIED_PAGE: UnifiedPage = { rows: [], next_cursor: null, previous_cursor: null, total_count: 0, filtered_count: 0, record_counts: { incidents: 0, alerts: 0 }, view_counts: {} };
+
+function incidentTime(row: IncidentRow) {
+  const timestamp = Date.parse(String(row.updated_at || row.created_at || ""));
+  return Number.isFinite(timestamp) ? timestamp : 0;
+}
 
 const stageIcons = {
   application: Server,
@@ -325,6 +327,50 @@ function projectionLabels(row: IncidentRow) {
   return (candidates.find((candidate) => candidate && typeof candidate === "object") || {}) as Record<string, unknown>;
 }
 
+function sourceEvidence(row: IncidentRow) {
+  const alert = row.source_alert && typeof row.source_alert === "object" ? row.source_alert : {};
+  const annotations = alert.annotations && typeof alert.annotations === "object" ? alert.annotations : {};
+  const metadata = alert.metadata && typeof alert.metadata === "object" ? alert.metadata : {};
+  const log = [metadata.application_log, metadata.log_line, alert.log, alert.message]
+    .map((candidate) => String(candidate || "").trim())
+    .find(Boolean) || "";
+  return {
+    alert,
+    annotations,
+    metadata,
+    log,
+    observation: value(alert.description, annotations.description, annotations.summary),
+    timestamp: value(alert.starts_at, alert.created_at, annotations.startsAt, row.created_at),
+    uri: value(annotations.generatorURL, metadata.source_uri, metadata.uri),
+    trace: value(alert.trace_id, row.trace_id),
+  };
+}
+
+function alertSourceLabel(row: IncidentRow) {
+  const evidence = sourceEvidence(row);
+  const labels = projectionLabels(row);
+  const event = projectionEvent(row);
+  return value(
+    evidence.alert.origin_system,
+    evidence.alert.source,
+    evidence.alert.source_channel,
+    row.origin_system,
+    row.source,
+    row.ingestion_channel,
+    event.origin_system,
+    event.source,
+    labels.source,
+  );
+}
+
+function fullAlertPayload(row: IncidentRow) {
+  const event = projectionEvent(row);
+  const sourceAlert = row.source_alert && typeof row.source_alert === "object" ? row.source_alert : {};
+  return Object.keys(sourceAlert).length
+    ? sourceAlert
+    : (event.normalized_alert && typeof event.normalized_alert === "object" ? event.normalized_alert : event);
+}
+
 function incidentNoise(row: IncidentRow) {
   const event = projectionEvent(row);
   const candidate = event.incident_candidate && typeof event.incident_candidate === "object"
@@ -338,7 +384,7 @@ function incidentNoise(row: IncidentRow) {
 }
 
 export function isActionableInboxIncident(row: IncidentRow) {
-  return !["warning", "warn"].includes(String(row.severity || "").trim().toLowerCase()) && !incidentNoise(row).noise;
+  return !incidentNoise(row).noise;
 }
 
 function contextPresentation(row: IncidentRow) {
@@ -376,7 +422,6 @@ function incidentStatusLabel(row: IncidentRow) {
 }
 
 export default function IncidentsRoute() {
-  const openIncident = useOpenIncident();
   const incidents = useRouteRuntimeSlice("incidents");
   const alerts = useRouteRuntimeSlice("alerts");
   const session = useRouteRuntimeSlice("session");
@@ -384,39 +429,25 @@ export default function IncidentsRoute() {
   const cursor = String(searchParams.get("cursor") || "");
   const restoredFilter = (name: keyof IncidentFilters) => String(searchParams.get(name) ?? incidents.filters[name] ?? "");
   const groupPage: IncidentGroupPage = { ...EMPTY_GROUP_PAGE, ...incidents.page, rows: incidents.rows };
+  const groupLoading = incidents.loading;
+  const groupError = incidents.error;
   const focusedIncidentId = String(searchParams.get("incident_id") || "").trim();
-  const recordType = (focusedIncidentId || searchParams.get("record_type") === "incidents" ? "incidents" : "all") as RecordType;
+  const [recordType, setRecordType] = useState<RecordType>(() => {
+    return "incidents";
+  });
   const [presentation, setPresentation] = useState<Presentation>(() => {
     const saved = window.localStorage.getItem("kaiops.incident-presentation");
     if (focusedIncidentId) return "details";
-    return saved === "flow" ? "flow" : "summary";
+    return saved === "flow" || saved === "details" ? saved : "summary";
   });
-  const page = Math.max(1, Math.floor(Number(searchParams.get("page")) || 1));
+  const [page, setPage] = useState(1);
   const inboxView = focusedIncidentId ? "all" : (["needs_me", "kai_handling", "critical", "watching", "resolved", "all"].includes(searchParams.get("inbox_view") || "") ? searchParams.get("inbox_view") : "all") as InboxView;
+  const [inspector, setInspector] = useState<{ incidentId: string; stage: string } | null>(null);
+  const [closure, setClosure] = useState({ incidentId: "", comment: "", loading: false, message: "", error: "" });
   const inboxAlertRows = alerts.inboxRows || alerts.rows;
-  // The unified feed owns its cursor; never send it to the legacy incident feed.
-  const inboxParams = new URLSearchParams({ limit: String(PAGE_SIZE), inbox_view: inboxView, record_type: recordType });
+  useEffect(() => { incidents.loadPage(cursor); }, [cursor]);
+  const inboxParams = new URLSearchParams({ limit: String(PAGE_SIZE), inbox_view: inboxView, record_type: "incidents" });
   const selectedProject = String(incidents.application || "").trim();
-  const previousProject = useRef(selectedProject);
-  const resetInboxFilters = () => {
-    for (const name of ["risk_tier", "execution_mode", "transport_provider", "status", "service"] as const) {
-      incidents.updateFilter(name, name === "service" ? "" : "all");
-    }
-    setSearchParams((current) => {
-      const next = new URLSearchParams(current);
-      for (const name of ["cursor", "page", "incident_id", "risk_tier", "execution_mode", "transport_provider", "status", "service"]) next.delete(name);
-      next.set("inbox_view", "all");
-      next.set("record_type", "all");
-      return next;
-    }, { replace: true });
-  };
-  useEffect(() => {
-    if (previousProject.current === selectedProject) return;
-    previousProject.current = selectedProject;
-    // Cursors and service filters belong to the previous application's queue.
-    resetInboxFilters();
-  }, [selectedProject]);
-
   if (selectedProject && selectedProject.toLowerCase() !== "all") inboxParams.set("project_id", selectedProject);
   if (cursor) inboxParams.set("cursor", cursor);
   for (const [key, filterValue] of Object.entries({
@@ -427,12 +458,27 @@ export default function IncidentsRoute() {
   const { data: unifiedPage, loading: unifiedLoading, error: unifiedError, refresh: refreshInbox } = useInboxFeed<UnifiedPage>(
     `/api-gateway/incidents/inbox/feed?${inboxParams.toString()}`, session.accessToken || "", EMPTY_UNIFIED_PAGE, apiErrorMessage,
   );
+  const closeIncident = async (row: IncidentRow) => {
+    const incidentId = String(row.incident_id || row.id || "").trim();
+    const comment = closure.comment.trim();
+    if (comment.length < 10) { setClosure((current) => ({ ...current, error: "Enter at least 10 characters explaining why this incident can be closed." })); return; }
+    setClosure((current) => ({ ...current, loading: true, error: "", message: "" }));
+    try {
+      const response = await fetch(`/api-gateway/incidents/${encodeURIComponent(incidentId)}/manual-close`, { method: "POST", headers: { "Content-Type": "application/json", ...(session.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : {}) }, body: JSON.stringify({ comment }) });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(String(payload?.detail?.message || payload?.detail || `Closure failed (${response.status}).`));
+      const result = payload?.data && typeof payload.data === "object" ? payload.data : payload;
+      setClosure({ incidentId, comment: "", loading: false, error: "", message: result?.jira?.transitioned ? "Incident closed and Jira updated." : "Incident closed; no linked Jira ticket required an update." });
+      incidents.refresh();
+      refreshInbox();
+    } catch (error) { setClosure((current) => ({ ...current, loading: false, error: String((error as Error).message || error) })); }
+  };
   const groupedIncidents = useMemo<GroupedIncidentRow[]>(() => {
     const alertsById = new Map(inboxAlertRows.map((alert) => [String(alert.id || (alert as typeof alert & { alert_id?: string }).alert_id || ""), alert]));
     const feedRows = unifiedPage.rows
       .filter((item) => item.record_type === "incident")
       .map((item) => item.row as IncidentRow);
-    const sourceRows = feedRows;
+    const sourceRows = focusedIncidentId ? groupPage.rows : feedRows;
     const canonicalRows = sourceRows.map((row) => ({
       ...row,
       source_alert: row.source_alert || alertsById.get(String(row.alert_id || "")),
@@ -444,10 +490,11 @@ export default function IncidentsRoute() {
     return focused ? [{ ...focused, duplicateIncidents: [] }] : canonicalRows;
   }, [focusedIncidentId, groupPage.rows, incidents.rows, inboxAlertRows, unifiedPage.rows]);
   const filteredIncidents = useMemo(
-    () => groupedIncidents,
+    () => groupedIncidents.filter((row) => isActionableInboxIncident(row) && belongsToInboxView(row, inboxView)),
     [groupedIncidents, inboxView],
   );
   useEffect(() => window.localStorage.setItem("kaiops.incident-presentation", presentation), [presentation]);
+  useEffect(() => setPage(1), [incidents.filters.risk_tier, incidents.filters.execution_mode, incidents.filters.status, incidents.filters.service, inboxView, recordType]);
   const incidentAlertIds = useMemo(() => new Set(incidents.rows.map((row) => String(row.alert_id || "")).filter(Boolean)), [incidents.rows]);
   const unlinkedAlerts = useMemo(() => inboxAlertRows.filter((alert) => {
     const alertId = String((alert as typeof alert & { alert_id?: string | number }).alert_id || alert.id || "");
@@ -470,8 +517,12 @@ export default function IncidentsRoute() {
   const pages = Math.max(1, Math.ceil(totalRecords / PAGE_SIZE));
   useEffect(() => {
     if (!focusedIncidentId) return;
+    const focusedIndex = groupedIncidents.findIndex((row) => String(row.incident_id || row.id || "") === focusedIncidentId);
+    setRecordType("incidents");
     setPresentation("details");
+    if (focusedIndex >= 0) setPage(Math.floor(focusedIndex / PAGE_SIZE) + 1);
   }, [focusedIncidentId, groupedIncidents]);
+  useEffect(() => setPage((current) => Math.min(current, pages)), [pages]);
   const rows = useMemo(() => {
     if (focusedIncidentId) return groupedIncidents.filter((row) => String(row.incident_id || row.id || "") === focusedIncidentId);
     return filteredIncidents;
@@ -484,7 +535,8 @@ export default function IncidentsRoute() {
   };
   const updateIncidentFilter = (name: keyof IncidentFilters, value: string) => {
     incidents.updateFilter(name, value);
-    setSearchParams((current) => { const next = new URLSearchParams(current); next.delete("cursor"); next.delete("page"); if (value && value !== "all") next.set(name, value); else next.delete(name); return next; }, { replace: true });
+    setPage(1);
+    setSearchParams((current) => { const next = new URLSearchParams(current); next.delete("cursor"); if (value && value !== "all") next.set(name, value); else next.delete(name); return next; }, { replace: true });
   };
   const select = (label: string, name: keyof IncidentFilters, options: string[]) => <label>{label}<select value={restoredFilter(name)} onChange={(event) => updateIncidentFilter(name, event.target.value)}>{options.map((option) => <option value={option} key={option}>{option}</option>)}</select></label>;
   const totalIncidents = Number(unifiedPage.record_counts.incidents || unifiedPage.view_counts.all || 0);
@@ -499,37 +551,31 @@ export default function IncidentsRoute() {
   const showAlerts = recordType === "alerts";
   const showIncidents = recordType === "incidents";
 
-  if (focusedIncidentId) return <Navigate to={durableIncidentPath({ incident_id: focusedIncidentId })!} replace />;
   return <section className="grid single-col operations-center">
     <OperationsWorkflowNav active="incidents" />
     <header className="incident-list-heading unified-inbox-heading">
-      <div><span className="inbox-eyebrow"><Activity size={14} /> Incident command queue</span><h2>Unified Inbox</h2><p>Live signals awaiting correlation and their canonical incidents, including verified resolutions.</p></div>
+      <div><span className="inbox-eyebrow"><Activity size={14} /> Incident command queue</span><h2>Unified Inbox</h2><p>Canonical incidents that require investigation, decisions, remediation, or validation.</p></div>
       <Link className="button-secondary" to="/closed-incidents">Closed incident history</Link>
       <div className="operations-kpis" aria-label="Incident totals"><span className={needsAttention ? "is-urgent" : ""}><small>Needs attention</small><strong>{needsAttention}</strong></span><span><small>Active incidents</small><strong>{active}</strong></span><span><small>Total incidents</small><strong>{totalIncidents}</strong></span></div>
     </header>
     <nav className="incident-inbox-views" aria-label="Incident inbox views">{([
       ["needs_me", "Needs me"], ["kai_handling", "Kai handling"], ["critical", "Critical"], ["watching", "Watching"], ["resolved", "Resolved recently"], ["all", "All"],
-    ] as const).map(([id, label]) => <button type="button" key={id} className={inboxView === id ? "active" : ""} aria-pressed={inboxView === id} onClick={() => { setSearchParams((current) => { const next = new URLSearchParams(current); next.delete("cursor"); next.delete("page"); next.set("inbox_view", id); return next; }); }}>{label}<span>{viewCount(id)}</span></button>)}</nav>
+    ] as const).map(([id, label]) => <button type="button" key={id} className={inboxView === id ? "active" : ""} aria-pressed={inboxView === id} onClick={() => { setPage(1); setSearchParams((current) => { const next = new URLSearchParams(current); next.delete("cursor"); next.set("inbox_view", id); return next; }); }}>{label}<span>{viewCount(id)}</span></button>)}</nav>
     <div className={`compact-filter-bar inbox-filter-bar ${showUnified ? "is-unified" : showAlerts ? "is-signals" : ""}`}>
-      <label>Records<select aria-label="Inbox records" value={recordType} onChange={(event) => {
-        const nextType = event.target.value as RecordType;
-            setSearchParams((current) => { const next = new URLSearchParams(current); next.delete("cursor"); next.delete("page"); next.delete("incident_id"); next.set("record_type", nextType); return next; });
-      }}><option value="all">Live alerts and incidents</option><option value="incidents">Incidents only</option></select></label>
-      {showIncidents ? <>{select("Risk", "risk_tier", ["all", "high", "medium", "low"])}{select("Status", "status", ["all", "open", "investigating", "waiting_for_human", "awaiting_approval", "remediating", "validating", "closed", "failed"])}</> : null}
+      {showIncidents ? <>{select("Risk", "risk_tier", ["all", "high", "medium", "low"])}{select("Status", "status", ["all", "open", "investigating", "awaiting_approval", "remediating", "validating", "closed", "failed"])}</> : null}
       <label className="filter-grow">Service<input value={restoredFilter("service")} placeholder="Search service, application, or signal" onChange={(event) => updateIncidentFilter("service", event.target.value)} /></label>
       {showAlerts ? <div className="alert-view-note"><ScanSearch size={15} /> Raw intake with deduplication and noise outcomes</div> : null}
-      <button className="button-secondary" type="button" onClick={resetInboxFilters}>Show all incidents and alerts</button>
-      <button className="icon-button" type="button" onClick={refreshInbox} title="Refresh queue" aria-label="Refresh queue"><RefreshCw size={17} /></button>
+      <button className="icon-button" type="button" onClick={() => { incidents.refresh(); alerts.refresh(); refreshInbox(); }} title="Refresh queue" aria-label="Refresh queue"><RefreshCw size={17} /></button>
     </div>
-    {unifiedError ? <p className="error" role="alert">{unifiedError}{unifiedPage.rows.length ? " Showing the last successfully loaded page." : ""}</p> : null}
+    {!showUnified && unifiedError ? <p className="error" role="alert">{unifiedError}</p> : null}
     {!showUnified ? <div className="incident-presentation" role="radiogroup" aria-label={`${showAlerts ? "Signal" : "Incident"} workspace view`}>
       <span>View</span>
       <button type="button" role="radio" aria-checked={presentation === "summary"} className={presentation === "summary" ? "active" : ""} onClick={() => changePresentation("summary")}><List size={15} /><span><strong>{focusedIncidentId ? "Back to inbox" : "Triage queue"}</strong><small>Compact prioritized list</small></span></button>
+      <button type="button" role="radio" aria-checked={presentation === "details"} className={presentation === "details" ? "active" : ""} onClick={() => changePresentation("details")}><Rows3 size={15} /><span><strong>Split Workspace</strong><small>{showAlerts ? "Alert and evidence" : "Incident and evidence"}</small></span></button>
       <button type="button" role="radio" aria-checked={presentation === "flow"} className={presentation === "flow" ? "active" : ""} onClick={() => changePresentation("flow")}><Workflow size={15} /><span><strong>Correlation Timeline</strong><small>{showAlerts ? "Signal processing path" : "Executed lifecycle"}</small></span></button>
     </div> : null}
-
-    <div className={`incident-summary-list view-${presentation}`} aria-busy={unifiedLoading}>
-      {unifiedLoading && !unifiedPage.rows.length ? <p className="empty-state" role="status">Loading incidents and alerts...</p> : null}
+    {showUnified ? (unifiedError ? <p className="error">{unifiedError}</p> : null) : incidents.error || groupError ? <p className="error">{groupError || incidents.error}</p> : null}
+    <div className={`incident-summary-list view-${presentation}`} aria-busy={showUnified ? unifiedLoading : incidents.loading || groupLoading || alerts.loading}>
       {showUnified ? <div className="unified-inbox-stack" role="region" aria-label="Prioritized operational activity">{visibleUnifiedRecords.map((record, index) => {
         if (record.kind === "incident") {
           const row = record.row;
@@ -544,7 +590,7 @@ export default function IncidentsRoute() {
             <div className={`unified-card-icon ${needsHuman ? "is-urgent" : ""}`}>{needsHuman ? <FileCheck2 size={20} /> : <BrainCircuit size={20} />}</div>
             <div className="unified-card-body">
               <div className="unified-card-kicker"><span>Incident</span><code>{incidentId}</code>{Number(row.total_occurrence_count || 0) > 1 ? <em>{row.total_occurrence_count} occurrences</em> : null}</div>
-              <button type="button" className="unified-card-title" onClick={() => openIncident(row, "overview")}>{incidentTitle(row)}</button>
+              <button type="button" className="unified-card-title" onClick={() => incidents.open(row, "overview")}>{incidentTitle(row)}</button>
               <div className="unified-card-context"><span><Server size={13} /> {row.service || "Unknown service"}</span><span>{row.environment || "Environment not set"}</span><span>{formatIstTimestamp(row.updated_at || row.created_at)}</span></div>
               <p className="unified-card-summary">{value(event.customer_impact, event.business_impact, event.impact, row.summary, "Kai is coordinating diagnosis and resolution.")}</p>
               <div className="unified-card-progress"><span className="unified-progress-node"><Workflow size={14} /></span><div><small>Current stage</small><strong>{currentStage?.label || "Awaiting intake"}</strong><span>{currentStage?.caption || "No executed stage recorded"}</span></div></div>
@@ -552,7 +598,7 @@ export default function IncidentsRoute() {
             <aside className="unified-card-aside">
               <span className={`pill ${normalizedStatus(row) === "failed" ? "status-warning" : `status-${normalizedStatus(row)}`}`}>{incidentStatusLabel(row)}</span>
               <span className={`unified-attention-label ${needsHuman ? "is-urgent" : ""}`}>{needsHuman ? <><FileCheck2 size={13} /> Human decision</> : <><BrainCircuit size={13} /> Kai handling</>}</span>
-              <button type="button" className="button-primary" onClick={() => openIncident(row, "overview")}>Open incident</button>
+              <button type="button" className="button-primary" onClick={() => incidents.open(row, "overview")}>Open incident</button>
             </aside>
           </article>;
         }
@@ -611,16 +657,36 @@ export default function IncidentsRoute() {
         const jiraKey = String(row.ticket_id || row.jira_key || (["closed", "resolved"].includes(normalizedStatus(row)) ? "Not linked" : "Pending"));
         const lifecycle = lifecycleFor(row);
         const currentStage = currentLifecycleStage(row, lifecycle);
-        return <tr key={incidentId || index}><td data-label="Incident"><button type="button" className="incident-table-title" onClick={() => openIncident(row, "overview")}>{incidentTitle(row)}</button><code>{incidentId}</code>{row.duplicateIncidents.length ? <small>{row.duplicateIncidents.length} duplicate {row.duplicateIncidents.length === 1 ? "incident" : "incidents"} grouped</small> : null}</td><td data-label="Service"><strong>{row.service || "Unknown service"}</strong><small>{row.environment || "Environment not set"}</small></td><td data-label="Status"><span className={`pill ${normalizedStatus(row) === "failed" ? "status-warning" : `status-${normalizedStatus(row)}`}`}>{incidentStatusLabel(row)}</span><IncidentStatusExplanation blocker={analysisBlocker(row)} reason={row.status_reason || `Status from ${row.status_source || "lifecycle"}`} /></td><td data-label="Jira">{row.jira_url ? <a href={row.jira_url} target="_blank" rel="noreferrer">{jiraKey}<ExternalLink size={12} /></a> : jiraKey}</td><td data-label="Current stage"><strong>{currentStage?.label || "Not started"}</strong><small>{currentStage?.caption || "No executed stage"}</small></td><td data-label="Updated">{formatIstTimestamp(row.updated_at || row.created_at)}</td><td data-label="Action"><button type="button" className="button-secondary" onClick={() => openIncident(row, currentStage?.cockpit || "overview")}>View details</button></td></tr>;
+        return <tr key={incidentId || index}><td data-label="Incident"><button type="button" className="incident-table-title" onClick={() => incidents.open(row, "overview")}>{incidentTitle(row)}</button><code>{incidentId}</code>{row.duplicateIncidents.length ? <small>{row.duplicateIncidents.length} duplicate {row.duplicateIncidents.length === 1 ? "incident" : "incidents"} grouped</small> : null}</td><td data-label="Service"><strong>{row.service || "Unknown service"}</strong><small>{row.environment || "Environment not set"}</small></td><td data-label="Status"><span className={`pill ${normalizedStatus(row) === "failed" ? "status-warning" : `status-${normalizedStatus(row)}`}`}>{incidentStatusLabel(row)}</span><IncidentStatusExplanation blocker={analysisBlocker(row)} reason={row.status_reason || `Status from ${row.status_source || "lifecycle"}`} /></td><td data-label="Jira">{row.jira_url ? <a href={row.jira_url} target="_blank" rel="noreferrer">{jiraKey}<ExternalLink size={12} /></a> : jiraKey}</td><td data-label="Current stage"><strong>{currentStage?.label || "Not started"}</strong><small>{currentStage?.caption || "No executed stage"}</small></td><td data-label="Updated">{formatIstTimestamp(row.updated_at || row.created_at)}</td><td data-label="Action"><button type="button" className="button-secondary" onClick={() => incidents.open(row, currentStage?.cockpit || "overview")}>View details</button></td></tr>;
       })}</tbody></table></div> : null}
       {showIncidents && presentation !== "summary" ? rows.map((row, index) => {
         const incidentId = String(row.incident_id || row.id || "-");
         const jiraKey = String(row.ticket_id || row.jira_key || (["closed", "resolved"].includes(normalizedStatus(row)) ? "Not linked" : "Pending"));
         const lifecycle = lifecycleFor(row);
+        const selectedStage = inspector?.incidentId === incidentId ? inspector.stage : presentation === "details" ? (lifecycle.find((stage) => ["current", "failed"].includes(stage.state)) || [...lifecycle].reverse().find((stage) => !["pending", "stopped"].includes(stage.state)))?.id || "" : "";
+        const event = projectionEvent(row);
+        const labels = projectionLabels(row);
+        const context = contextPresentation(row);
+        const evidence = sourceEvidence(row);
         const disposition = incidentNoise(row);
+        const details: Record<string, Array<[string, string]>> = {
+          application: [["Application", value(labels.application, labels.project_name, event.application, row.service)], ["Service", value(labels.service, row.service)], ["Environment", value(labels.environment, row.environment)], ["Captured application log", evidence.log || "No application log captured for this alert"], ["Observed evidence", evidence.observation], ["Observed at", evidence.timestamp], ["Trace ID", evidence.trace]],
+          signal: [["Observed target / operation", value(labels.instance, labels.operation, event.instance, event.target)], ["Metric", value(event.metric, labels.__name__, labels.job === "blackbox" ? "probe_success" : labels.category)], ["Actual observation", evidence.observation], ["Evidence URI", evidence.uri], ["Fingerprint", value(evidence.alert.fingerprint, labels.alert_fingerprint, row.fingerprint)]],
+          prometheus: [["Alert rule", value(labels.alertname, evidence.alert.name, event.alert_name, event.name)], ["Prometheus job", value(labels.job, labels.service)], ["Rule result", value(labels.alert_status, "firing")], ["Generator / query", evidence.uri], ["Transport", value(labels.transport, event.transport, "Alertmanager")], ["Produced alert ID", value(row.alert_id)]],
+          ingest: [["Source", value(evidence.alert.source, row.source, row.origin_system, event.source)], ["Channel", value(labels.ingestion_channel, row.ingestion_channel, event.ingestion_channel)], ["Received", value(evidence.alert.created_at, row.created_at, event.created_at)], ["Alert ID", value(row.alert_id)], ["Status", value(labels.alert_status, evidence.alert.status)], ["Trace ID", evidence.trace]],
+          normalize: [["Service", value(row.service, event.service)], ["Environment", value(row.environment, event.environment)], ["Severity", value(row.severity, event.severity)], ["Canonical alert", value(row.alert_id)]],
+          deduplicate: [["Outcome", Number(row.deduplicated_count || 0) > 1 ? "Duplicate occurrence merged" : "Unique incident signal"], ["Occurrences", value(row.deduplicated_count || 1)], ["Fingerprint", value(row.fingerprint, event.fingerprint)], ["Correlation", value(row.correlation_id, event.correlation_id, row.deduplication_reason)]],
+          jira: [["Ticket", jiraKey], ["Status", value(row.jira_status, jiraKey === "Pending" ? "Creation pending" : "Created")], ["Priority", value(row.jira_priority, row.risk_tier, row.severity)], ["Assignee", value(row.jira_assignee, row.jira_assignment_group)], ["Approval due", value(row.approval_expires_at)], ["Last synchronized", value(row.jira_last_sync_at)], ["Next action owner", value(row.next_action_owner)], ["Closure authority", value(row.closure_authority)]],
+          decision: [["Outcome", disposition.noise ? "Noise / no action" : "Incident created"], ["Reason", disposition.noise ? disposition.reason : "Actionable signal accepted for investigation"], ["Incident", incidentId], ["Jira", jiraKey]],
+          context: [["Status", context.label], ["Strategy", context.strategy], ["Source", context.source === "provenance_not_recorded" ? "Provenance not recorded" : context.source], ["Realtime collection", context.realtime === true ? "Performed" : context.realtime === false ? "Not required" : "Not recorded"]],
+          understand: [["Status", lifecycle.some((stage) => stage.id === "understand" && stage.state === "complete") ? "RCA generated" : "Waiting for context"], ["Risk", value(row.risk_tier)], ["Recommendation", value(event.recommendation_id, row.recommendation_id)], ["Incident status", value(row.status)]],
+          approval: [["Decision", value(row.approval_status, event.approval_status, String(row.execution_mode || event.execution_mode || "").includes("human") ? "Pending review" : "Not required")], ["Approver", value(row.approved_by, event.approved_by, event.approver, row.jira_assignee)], ["Assigned group", value(row.jira_assignment_group)], ["Jira ticket", jiraKey], ["Approval SLA", value(row.approval_expires_at)], ["Next action owner", value(row.next_action_owner)], ["Execution mode", value(row.execution_mode, event.execution_mode)], ["Comment", value(row.approval_comment, event.approval_comment, event.comment)]],
+          resolve: [["Status", value(row.status)], ["Execution mode", value(row.execution_mode)], ["Recommendation", value(event.recommendation_id)], ["Service", value(row.service)]],
+          validate: [["Status", lifecycle.some((stage) => stage.id === "validate" && stage.state === "complete") ? "Verified and closed" : "Pending validation"], ["Incident status", value(row.status)], ["Updated", value(row.updated_at)], ["Incident", incidentId]],
+        };
         return <article className="incident-summary-row" key={incidentId || index}>
           <div className="incident-summary-identity">
-            <div className="incident-summary-title"><button type="button" onClick={() => openIncident(row, "overview")}>{incidentTitle(row)}</button><span className={`pill ${normalizedStatus(row) === "failed" ? "status-warning" : `status-${normalizedStatus(row)}`}`}>{incidentStatusLabel(row)}</span></div>
+            <div className="incident-summary-title"><button type="button" onClick={() => incidents.open(row, "overview")}>{incidentTitle(row)}</button><span className={`pill ${normalizedStatus(row) === "failed" ? "status-warning" : `status-${normalizedStatus(row)}`}`}>{incidentStatusLabel(row)}</span></div>
             <div className="incident-summary-meta"><span>{row.service || "Unknown service"}</span><span>{row.environment || "Environment not set"}</span><code>{incidentId}</code>{row.jira_url ? <a href={row.jira_url} target="_blank" rel="noreferrer">{jiraKey}<ExternalLink size={12} /></a> : <strong>{jiraKey}</strong>}</div>
           </div>
           {presentation === "flow" ? <div className="incident-flow-wrap">
@@ -630,24 +696,40 @@ export default function IncidentsRoute() {
               const selectable = !["pending", "stopped"].includes(stage.state);
               const StageIcon = stageIcons[stage.id as keyof typeof stageIcons] || FileCheck2;
               const domain = ["application", "signal", "prometheus"].includes(stage.id) ? "source-domain" : "kaiops-domain";
-              return <button key={stage.id} type="button" className={`is-${stage.state} ${domain}`} disabled={!selectable} title={stage.state === "stopped" ? disposition.reason : stage.caption} onClick={() => { if (selectable) openIncident(row, stage.cockpit); }} aria-label={`${stage.label}: ${stage.caption}`}>
+              return <button key={stage.id} type="button" className={`is-${stage.state} ${domain} ${selectedStage === stage.id ? "is-selected" : ""}`} disabled={!selectable} title={stage.state === "stopped" ? disposition.reason : stage.caption} onClick={() => { if (!selectable) return; setInspector({ incidentId, stage: stage.id }); if (presentation === "flow") setPresentation("details"); }} aria-expanded={selectedStage === stage.id} aria-label={`${stage.label}: ${stage.caption}`}>
                 <span className="incident-stage-node"><StageIcon size={17} strokeWidth={2} />{["complete", "reused"].includes(stage.state) ? <i><Check size={9} strokeWidth={3} /></i> : null}</span><span className="incident-stage-copy"><strong>{stage.label}</strong><small>{stage.caption}</small></span><b className="incident-stage-sequence">{String(stageIndex + 1).padStart(2, "0")}</b>
               </button>;
             })}
             </div>
           </div> : null}
+          {presentation === "details" ? <div className="incident-detail-view">
+            <IncidentDecisionWorkspace row={row} />
+            <nav className="incident-detail-stage-nav" aria-label={`Detail stages for ${incidentTitle(row)}`}>
+              {lifecycle.filter((stage) => !["pending", "stopped"].includes(stage.state)).map((stage) => <button type="button" key={stage.id} className={selectedStage === stage.id ? "active" : ""} onClick={() => setInspector({ incidentId, stage: stage.id })}><span>{stage.label}</span><small>{stage.caption}</small></button>)}
+            </nav>
+            {selectedStage ? <section className="incident-stage-inspector"><header><div><small>Stage details</small><h3>{stageOrder.find((stage) => stage.id === selectedStage)?.label}</h3></div>{selectedStage === "jira" && row.jira_url ? <a className="button-secondary" href={row.jira_url} target="_blank" rel="noreferrer">Open in Jira <ExternalLink size={14} /></a> : <button type="button" className="button-secondary" onClick={() => setPresentation("flow")}>Open correlation workspace</button>}</header><dl>{(details[selectedStage] || []).map(([label, detail]) => <div key={label}><dt>{label}</dt><dd>{detail}</dd></div>)}</dl></section> : <p className="empty-state">No completed stage details are available.</p>}
+            <section className="incident-stage-inspector alert-source-inspector">
+              <header><div><small>Original alert</small><h3>Source and complete alert</h3></div></header>
+              <dl>
+                <div><dt>Source</dt><dd>{alertSourceLabel(row)}</dd></div>
+                <div><dt>Source channel</dt><dd>{value(evidence.alert.source_channel, evidence.alert.ingestion_channel, row.ingestion_channel, event.ingestion_channel)}</dd></div>
+                <div><dt>Alert name</dt><dd>{value(evidence.alert.name, evidence.alert.alert_name, labels.alertname, event.alert_name, row.title)}</dd></div>
+                <div><dt>Alert ID</dt><dd>{value(evidence.alert.id, row.alert_id)}</dd></div>
+                <div><dt>Observed at</dt><dd>{formatIstTimestamp(evidence.alert.starts_at || evidence.alert.created_at || row.created_at)}</dd></div>
+                <div><dt>Source location</dt><dd>{evidence.uri}</dd></div>
+                <div className="alert-source-message"><dt>Full alert message</dt><dd>{value(evidence.alert.description, evidence.annotations.description, evidence.annotations.summary, evidence.alert.message, evidence.log, row.summary, row.title)}</dd></div>
+              </dl>
+              <details className="full-alert-payload"><summary>View complete alert payload</summary><pre>{JSON.stringify(fullAlertPayload(row), null, 2)}</pre></details>
+            </section>
+            {!['closed','resolved'].includes(normalizedStatus(row)) ? <section className="incident-stage-inspector manual-closure-panel"><header><div><small>Operator command</small><h3>Close incident with audit comment</h3></div></header><label>Closure comment<textarea rows={3} value={closure.incidentId === incidentId ? closure.comment : ""} onChange={(event) => setClosure({ incidentId, comment: event.target.value, loading: false, message: "", error: "" })} placeholder="Explain the evidence, decision, and any follow-up action." /></label><button type="button" className="button-danger" disabled={closure.loading || closure.incidentId !== incidentId || closure.comment.trim().length < 10} onClick={() => void closeIncident(row)}>{closure.loading && closure.incidentId === incidentId ? "Closing…" : "Close incident and update Jira"}</button>{closure.incidentId === incidentId && closure.error ? <p className="error">{closure.error}</p> : null}{closure.incidentId === incidentId && closure.message ? <p className="status-message">{closure.message}</p> : null}</section> : null}
+            {row.duplicateIncidents.length ? <details className="duplicate-occurrences"><summary><span><small>Correlated occurrences</small><strong>{row.duplicateIncidents.length + 1} total occurrences</strong></span><span>Repeated signal records are shown as one incident; view history</span></summary><div className="duplicate-occurrence-summary"><span><small>First observed</small><strong>{formatIstTimestamp([...row.duplicateIncidents, row].sort((a, b) => incidentTime(a) - incidentTime(b))[0]?.created_at)}</strong></span><span><small>Latest observed</small><strong>{formatIstTimestamp([...row.duplicateIncidents, row].sort((a, b) => incidentTime(b) - incidentTime(a))[0]?.updated_at)}</strong></span><span><small>Service</small><strong>{row.service || "Unknown service"}</strong></span></div><div className="duplicate-occurrence-list">{row.duplicateIncidents.map((duplicate) => { const duplicateId = String(duplicate.incident_id || duplicate.id || "Not recorded"); return <div key={duplicateId}><code>{duplicateId}</code><span>{formatIstTimestamp(duplicate.updated_at || duplicate.created_at)}</span><span>{incidentStatusLabel(duplicate)}</span></div>; })}</div></details> : null}
+          </div> : null}
         </article>;
       }) : null}
-      {showUnified && !visibleUnifiedRecords.length && !unifiedLoading && !unifiedError ? <p className="empty-state unified-empty-state"><ScanSearch size={22} />No unified inbox records match this view.<small>Choose Show all incidents and alerts to clear saved filters for this application.</small></p> : null}
+      {showUnified && !visibleUnifiedRecords.length && !incidents.loading && !alerts.loading ? <p className="empty-state unified-empty-state"><ScanSearch size={22} />No unified inbox records match this view.<small>Try another attention view or clear the service search.</small></p> : null}
       {showAlerts && !visibleAlerts.length && !alerts.loading ? <p className="empty-state">No signals match this view.</p> : null}
-      {showIncidents && !rows.length && !unifiedLoading && !unifiedError ? <p className="empty-state">No incidents match this view.</p> : null}
+      {showIncidents && !rows.length && !incidents.loading ? <p className="empty-state">No incidents match this view.</p> : null}
     </div>
-    {!focusedIncidentId ? <footer className="table-pagination"><span>Showing {unifiedPage.rows.length ? ((page - 1) * PAGE_SIZE) + 1 : 0}-{unifiedPage.rows.length ? ((page - 1) * PAGE_SIZE) + unifiedPage.rows.length : 0} of {totalRecords}</span><div><button className="button-secondary" disabled={unifiedLoading || !unifiedPage.previous_cursor} onClick={() => {
-      if (!unifiedPage.previous_cursor) return;
-      setSearchParams((current) => { const next = new URLSearchParams(current); next.set("cursor", unifiedPage.previous_cursor!); next.set("page", String(Math.max(1, page - 1))); return next; });
-    }}>Previous</button><span>{page} / {pages}</span><button className="button-secondary" disabled={unifiedLoading || !unifiedPage.next_cursor} onClick={() => {
-      if (!unifiedPage.next_cursor) return;
-      setSearchParams((current) => { const next = new URLSearchParams(current); next.set("cursor", unifiedPage.next_cursor!); next.set("page", String(page + 1)); return next; });
-    }}>Next</button></div></footer> : null}
+    {!focusedIncidentId ? <footer className="table-pagination"><span>Showing {totalRecords ? ((page - 1) * PAGE_SIZE) + 1 : 0}-{Math.min(page * PAGE_SIZE, totalRecords)} of {totalRecords}</span><div><button className="button-secondary" disabled={showAlerts ? page <= 1 : !(showUnified ? unifiedPage.previous_cursor : groupPage.previous_cursor)} onClick={() => { const previous = showUnified ? unifiedPage.previous_cursor : groupPage.previous_cursor; if (!showAlerts && previous) { setSearchParams((current) => { const next = new URLSearchParams(current); next.set("cursor", previous); return next; }); } setPage((value) => Math.max(1, value - 1)); }}>Previous</button><span>{page} / {pages}</span><button className="button-secondary" disabled={showAlerts ? page >= pages : !(showUnified ? unifiedPage.next_cursor : groupPage.next_cursor)} onClick={() => { const nextCursor = showUnified ? unifiedPage.next_cursor : groupPage.next_cursor; if (!showAlerts && nextCursor) { setSearchParams((current) => { const next = new URLSearchParams(current); next.set("cursor", nextCursor); return next; }); } setPage((value) => value + 1); }}>Next</button></div></footer> : null}
   </section>;
 }
