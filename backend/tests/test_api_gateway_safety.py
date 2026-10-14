@@ -109,6 +109,85 @@ async def test_incident_command_workspace_composes_canonical_reads(monkeypatch) 
 
 
 @pytest.mark.asyncio
+async def test_incident_command_workspace_accepts_hyphenated_uuid(monkeypatch) -> None:
+    module = load_api_gateway_app_module()
+    incident_uuid = "f874ad68-4265-4904-a3d5-23ab41b4d4c7"
+    proxied_paths = []
+
+    async def guarded_stub(**kwargs):
+        proxied_paths.append(kwargs["path"])
+        if kwargs["target_base"] == module.settings.monitoring_adapter_url:
+            return {"trace_id": "test-trace", "gateway": {}, "data": {
+                "id": incident_uuid, "status": "investigating",
+            }}
+        return {"trace_id": "test-trace", "gateway": {}, "data": {
+            "incident_id": incident_uuid,
+            "lifecycle_state": "RCA_READY",
+            "lifecycle_version": 2,
+        }}
+
+    monkeypatch.setattr(module, "guarded_proxy", guarded_stub)
+    result = await module.get_incident_command_workspace(
+        incident_uuid,
+        SimpleNamespace(url=SimpleNamespace(path=f"/incidents/{incident_uuid}/command")),
+        tenant_id="tenant-a",
+    )
+
+    assert result["incident_id"] == incident_uuid
+    assert any(f"/incidents/{incident_uuid}" in path for path in proxied_paths)
+
+
+@pytest.mark.asyncio
+async def test_incident_command_workspace_normalizes_hex_uuid(monkeypatch) -> None:
+    module = load_api_gateway_app_module()
+    incident_uuid_hyphenated = "f874ad68-4265-4904-a3d5-23ab41b4d4c7"
+    incident_uuid_hex = "f874ad6842654904a3d523ab41b4d4c7"
+    proxied_paths = []
+
+    async def guarded_stub(**kwargs):
+        proxied_paths.append(kwargs["path"])
+        if kwargs["target_base"] == module.settings.monitoring_adapter_url:
+            return {"trace_id": "test-trace", "gateway": {}, "data": {
+                "id": incident_uuid_hyphenated, "status": "investigating",
+            }}
+        return {"trace_id": "test-trace", "gateway": {}, "data": {
+            "incident_id": incident_uuid_hyphenated,
+            "lifecycle_state": "RCA_READY",
+            "lifecycle_version": 2,
+        }}
+
+    monkeypatch.setattr(module, "guarded_proxy", guarded_stub)
+    result = await module.get_incident_command_workspace(
+        incident_uuid_hex,
+        SimpleNamespace(url=SimpleNamespace(path=f"/incidents/{incident_uuid_hex}/command")),
+        tenant_id="tenant-a",
+    )
+
+    # Both valid representations resolve to the canonical incident
+    assert result["incident_id"] == incident_uuid_hyphenated
+    # Downstream calls use normalized canonical path
+    assert any(f"/incidents/{incident_uuid_hyphenated}" in path for path in proxied_paths)
+
+
+@pytest.mark.asyncio
+async def test_incident_command_workspace_invalid_uuid_returns_controlled_error(monkeypatch) -> None:
+    from fastapi import HTTPException
+    module = load_api_gateway_app_module()
+
+    async def guarded_stub(**kwargs):
+        raise HTTPException(status_code=404, detail="Incident not found")
+
+    monkeypatch.setattr(module, "guarded_proxy", guarded_stub)
+    with pytest.raises(HTTPException) as exc_info:
+        await module.get_incident_command_workspace(
+            "nonexistent-or-invalid-uuid",
+            SimpleNamespace(url=SimpleNamespace(path="/incidents/nonexistent-or-invalid-uuid/command")),
+            tenant_id="tenant-a",
+        )
+    assert exc_info.value.status_code == 404
+
+
+@pytest.mark.asyncio
 async def test_linked_documents_scopes_context_inventory_to_authenticated_tenant(monkeypatch) -> None:
     module = load_api_gateway_app_module()
     alert_id = str(uuid4())

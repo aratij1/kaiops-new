@@ -1,0 +1,47 @@
+{
+  "received_at": "2026-09-02T03:50:20.609172+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "VectorDBHighLatency",
+    "service": "kaiops-platform",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "Context agent execute-stage P95 latency is above 3 seconds.",
+    "labels": {
+      "alertname": "VectorDBHighLatency",
+      "severity": "warning",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "d72bcb0a001ef2c6",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "Context agent execute-stage P95 latency is above 3 seconds.",
+      "summary": "Vector DB high latency",
+      "startsAt": "2026-09-02T03:50:05.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=histogram_quantile%280.95%2C+sum+by+%28le%29+%28rate%28kaiops_agent_stage_latency_seconds_bucket%7Bagent%3D%22context-agent%22%2Cstage%3D%22execute%22%7D%5B5m%5D%29%29%29+%3E+3&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "VectorDBHighLatency",
+      "severity": "warning"
+    },
+    "annotations": {
+      "description": "Context agent execute-stage P95 latency is above 3 seconds.",
+      "summary": "Vector DB high latency"
+    },
+    "startsAt": "2026-09-02T03:50:05.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=histogram_quantile%280.95%2C+sum+by+%28le%29+%28rate%28kaiops_agent_stage_latency_seconds_bucket%7Bagent%3D%22context-agent%22%2Cstage%3D%22execute%22%7D%5B5m%5D%29%29%29+%3E+3&g0.tab=1",
+    "fingerprint": "d72bcb0a001ef2c6"
+  }
+}

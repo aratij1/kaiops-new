@@ -163,7 +163,7 @@ class PrometheusConnector(BaseConnector):
         settings = get_settings()
         if connector is None and settings.environment.strip().lower() in {"local", "demo", "test"}:
             endpoint = str(settings.prometheus_url or "").rstrip("/")
-            if endpoint and generator_expression and alert.source.lower() in {"prometheus", "alertmanager"}:
+            if endpoint and (generator_expression or alert.source.lower() in {"prometheus", "alertmanager", "robot-shop"}):
                 connector = {
                     "integration_id": "local-runtime-prometheus",
                     "provider": "prometheus",

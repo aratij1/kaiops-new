@@ -1,0 +1,80 @@
+{
+  "received_at": "2026-09-01T08:26:27.314673+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "SyntheticProbeHeartbeatNoise_1788251186",
+    "service": "synthetic-probes",
+    "severity": "info",
+    "description": "Synthetic health check ping missed",
+    "labels": {
+      "service": "synthetic-probes",
+      "environment": "dev",
+      "alert_status": "suppressed",
+      "noise": "true",
+      "test_run": "run_1788251186",
+      "application": "synthetic-probes",
+      "project": "synthetic-probes",
+      "project_name": "synthetic-probes",
+      "alertname": "SyntheticProbeHeartbeatNoise_1788251186"
+    },
+    "annotations": {
+      "summary": "SyntheticProbeHeartbeatNoise_1788251186",
+      "description": "Synthetic health check ping missed",
+      "root_cause": "",
+      "business_impact": "",
+      "resolution_steps": "Execute runbook steps and validate service recovery.",
+      "preventive_action": "",
+      "validation_criteria": "",
+      "kaiops_context": "{\"application\": \"synthetic-probes\", \"correlation_id\": \"\", \"description\": \"Synthetic health check ping missed\", \"environment\": \"prod\", \"evidence\": \"\", \"project\": \"synthetic-probes\", \"service\": \"synthetic-probes\", \"source\": \"prometheus\", \"summary\": \"SyntheticProbeHeartbeatNoise_1788251186\"}",
+      "kaiops_resolution": "{\"impact\": \"\", \"recommended_action\": \"Execute runbook steps and validate service recovery.\", \"root_cause\": \"\"}",
+      "kaiops_remediation": "{\"preventive_action\": \"\", \"runbook_id\": \"\", \"steps\": \"\", \"target\": \"synthetic-probes\", \"validation\": \"\"}"
+    },
+    "environment": "prod",
+    "application": "synthetic-probes",
+    "project": "synthetic-probes",
+    "context": {
+      "source": "prometheus",
+      "application": "synthetic-probes",
+      "project": "synthetic-probes",
+      "service": "synthetic-probes",
+      "environment": "prod",
+      "summary": "SyntheticProbeHeartbeatNoise_1788251186",
+      "description": "Synthetic health check ping missed",
+      "evidence": "",
+      "correlation_id": ""
+    },
+    "resolution": {
+      "root_cause": "",
+      "impact": "",
+      "recommended_action": "Execute runbook steps and validate service recovery."
+    },
+    "remediation": {
+      "runbook_id": "",
+      "target": "synthetic-probes",
+      "steps": "",
+      "preventive_action": "",
+      "validation": ""
+    }
+  },
+  "raw": {
+    "source": "prometheus",
+    "name": "SyntheticProbeHeartbeatNoise_1788251186",
+    "service": "synthetic-probes",
+    "severity": "info",
+    "description": "Synthetic health check ping missed",
+    "labels": {
+      "service": "synthetic-probes",
+      "environment": "dev",
+      "alert_status": "suppressed",
+      "noise": "true",
+      "test_run": "run_1788251186"
+    },
+    "annotations": {
+      "summary": "SyntheticProbeHeartbeatNoise_1788251186",
+      "description": "Synthetic health check ping missed"
+    }
+  }
+}

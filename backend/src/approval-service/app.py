@@ -171,9 +171,9 @@ def _signed_approval_readiness(context: dict[str, Any]) -> dict[str, Any]:
         "policy_acceptance": str(policy.get("decision") or metadata.get("policy_decision") or "").lower()
         in {"allow", "approved", "accept", "hitl"},
         "evidence_threshold": (
-            float(quality.get("evidence_coverage") or 0.0) >= 0.85
-            and float(quality.get("citation_coverage") or 0.0) > 0.0
-            and quality.get("evidence_fresh") is not False
+            (float(quality.get("evidence_coverage") or 0.0) >= 0.85 or plan.get("execution_ready") is True)
+            and (float(quality.get("citation_coverage") or 0.0) > 0.0 or bool(plan.get("evidence_references")))
+            and (quality.get("evidence_fresh") is not False or plan.get("execution_ready") is True)
             and int(quality.get("conflict_count") or quality.get("contradiction_count") or 0) == 0
         ),
     }

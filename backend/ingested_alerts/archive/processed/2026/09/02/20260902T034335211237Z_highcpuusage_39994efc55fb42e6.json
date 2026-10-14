@@ -1,0 +1,49 @@
+{
+  "received_at": "2026-09-02T03:43:35.211237+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "HighCPUUsage",
+    "service": "node-exporter:9100",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "CPU utilization is above 90% for more than 5 minutes on node-exporter:9100.",
+    "labels": {
+      "alertname": "HighCPUUsage",
+      "instance": "node-exporter:9100",
+      "severity": "critical",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "resolved",
+      "alert_fingerprint": "39994efc55fb42e6",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "CPU utilization is above 90% for more than 5 minutes on node-exporter:9100.",
+      "summary": "High CPU usage",
+      "startsAt": "2026-09-02T03:41:50.276Z",
+      "endsAt": "2026-09-02T03:43:20.276Z",
+      "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=%28100+-+%28avg+by+%28instance%29+%28rate%28node_cpu_seconds_total%7Bmode%3D%22idle%22%7D%5B5m%5D%29%29+%2A+100%29%29+%3E+90&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "resolved",
+    "labels": {
+      "alertname": "HighCPUUsage",
+      "instance": "node-exporter:9100",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "CPU utilization is above 90% for more than 5 minutes on node-exporter:9100.",
+      "summary": "High CPU usage"
+    },
+    "startsAt": "2026-09-02T03:41:50.276Z",
+    "endsAt": "2026-09-02T03:43:20.276Z",
+    "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=%28100+-+%28avg+by+%28instance%29+%28rate%28node_cpu_seconds_total%7Bmode%3D%22idle%22%7D%5B5m%5D%29%29+%2A+100%29%29+%3E+90&g0.tab=1",
+    "fingerprint": "39994efc55fb42e6"
+  }
+}

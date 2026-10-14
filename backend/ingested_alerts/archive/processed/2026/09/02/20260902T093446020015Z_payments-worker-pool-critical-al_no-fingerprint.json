@@ -1,0 +1,83 @@
+{
+  "received_at": "2026-09-02T09:34:46.020015+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "payments-worker-pool: Critical Alert: Payment Gateway DB Connections Exhausted [E2E Security Fix Test]",
+    "service": "KAN",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "payments-worker-pool: Critical Alert: Payment Gateway DB Connections Exhausted [E2E Security Fix Test]",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-1978",
+      "jira_issue_id": "13972",
+      "jira_status": "To Do",
+      "jira_priority": "",
+      "jira_reporter": "",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:poll",
+      "managed_by_kaiops": "true",
+      "kaiops_incident_id": "71fd2a3f-2a73-43f2-89af-247a4e4e66c6",
+      "event_origin": "kaiops",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "payments-worker-pool: Critical Alert: Payment Gateway DB Connections Exhausted [E2E Security Fix Test]",
+      "description": ""
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:poll",
+    "issue": {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "13972",
+      "self": "https://kaiops-test.atlassian.net/rest/api/3/issue/13972",
+      "key": "KAN-1978",
+      "fields": {
+        "summary": "payments-worker-pool: Critical Alert: Payment Gateway DB Connections Exhausted [E2E Security Fix Test]",
+        "project": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/project/10001",
+          "id": "10001",
+          "key": "KAN",
+          "name": "kaiops-test",
+          "projectTypeKey": "software",
+          "simplified": true,
+          "avatarUrls": {
+            "48x48": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415",
+            "24x24": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=small",
+            "16x16": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=xsmall",
+            "32x32": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=medium"
+          }
+        },
+        "assignee": null,
+        "resolution": null,
+        "updated": "2026-09-02T12:20:20.102+0530",
+        "status": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/status/10004",
+          "description": "",
+          "iconUrl": "https://kaiops-test.atlassian.net/images/icons/statuses/generic.png",
+          "name": "To Do",
+          "id": "10004",
+          "statusCategory": {
+            "self": "https://kaiops-test.atlassian.net/rest/api/3/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "labels": [
+          "kaiops-candidate-0a15821eecea77790d34e4ea38b1fb33",
+          "kaiops-severity-critical",
+          "kaiops_incident_71fd2a3f_2a73_43f2_89af_247a4e4e66c6",
+          "managed_by_kaiops"
+        ]
+      }
+    },
+    "event_origin": "jira-reconciliation",
+    "timestamp": "2026-09-02T12:20:20.102+0530"
+  }
+}

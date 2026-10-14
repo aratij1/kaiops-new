@@ -1,0 +1,53 @@
+{
+  "received_at": "2026-09-07T04:29:22.454984+00:00",
+  "source": "online-boutique",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "online-boutique",
+    "name": "OnlineBoutiqueFrontendSlow",
+    "service": "blackbox",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "Health-check probe duration is 3.998470607s.",
+    "labels": {
+      "alertname": "OnlineBoutiqueFrontendSlow",
+      "instance": "http://ob-frontend:8080/_healthz",
+      "job": "blackbox",
+      "severity": "warning",
+      "source": "online-boutique",
+      "origin_system": "online-boutique",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "b610e3f3ad9ef93a",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "Health-check probe duration is 3.998470607s.",
+      "summary": "Online Boutique frontend responding slowly",
+      "startsAt": "2026-09-07T03:58:04.724Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=probe_duration_seconds%7Binstance%3D%22http%3A%2F%2Fob-frontend%3A8080%2F_healthz%22%2Cjob%3D%22blackbox%22%7D+%3E+1&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "OnlineBoutiqueFrontendSlow",
+      "instance": "http://ob-frontend:8080/_healthz",
+      "job": "blackbox",
+      "severity": "warning",
+      "source": "online-boutique"
+    },
+    "annotations": {
+      "description": "Health-check probe duration is 3.998470607s.",
+      "summary": "Online Boutique frontend responding slowly"
+    },
+    "startsAt": "2026-09-07T03:58:04.724Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=probe_duration_seconds%7Binstance%3D%22http%3A%2F%2Fob-frontend%3A8080%2F_healthz%22%2Cjob%3D%22blackbox%22%7D+%3E+1&g0.tab=1",
+    "fingerprint": "b610e3f3ad9ef93a"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "received_at": "2026-09-03T11:45:08.014618+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "Fix-verify test mismatch project",
+    "service": "SEC",
+    "environment": "prod",
+    "severity": "high",
+    "description": "Fix-verify tenant routing test - mismatch case",
+    "tenant_id": "prod-aws",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "SEC-1101",
+      "jira_issue_id": "90003",
+      "jira_status": "Open",
+      "jira_priority": "High",
+      "jira_reporter": "CoreStack Bot",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "Fix-verify test mismatch project",
+      "description": "Fix-verify tenant routing test - mismatch case"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "id": "90003",
+      "key": "SEC-1101",
+      "fields": {
+        "summary": "Fix-verify test mismatch project",
+        "description": "Fix-verify tenant routing test - mismatch case",
+        "priority": {
+          "name": "High"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "SEC"
+        },
+        "labels": [
+          "kaiops-tenant-prod-aws"
+        ],
+        "reporter": {
+          "displayName": "CoreStack Bot"
+        }
+      }
+    }
+  }
+}

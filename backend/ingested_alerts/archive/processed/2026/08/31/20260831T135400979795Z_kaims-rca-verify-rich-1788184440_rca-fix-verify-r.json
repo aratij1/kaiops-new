@@ -1,0 +1,55 @@
+{
+  "received_at": "2026-08-31T13:54:00.979795+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "KAIMS-RCA-VERIFY-RICH-1788184440",
+    "service": "payment-service",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "High memory consumption and payment gateway thread exhaustion leading to 504 timeouts",
+    "labels": {
+      "alertname": "KAIMS-RCA-VERIFY-RICH-1788184440",
+      "service": "payment-service",
+      "application": "ecommerce-platform",
+      "environment": "prod",
+      "severity": "critical",
+      "test_marker": "kaims-rca-fix-verification",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "rca-fix-verify-rich-1788184440",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "summary": "Payment Service 504 Gateway Timeouts during checkout processing",
+      "description": "High memory consumption and payment gateway thread exhaustion leading to 504 timeouts",
+      "startsAt": "2026-08-31T13:54:00.000Z",
+      "endsAt": "",
+      "generatorURL": "http://prometheus/graph"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "KAIMS-RCA-VERIFY-RICH-1788184440",
+      "service": "payment-service",
+      "application": "ecommerce-platform",
+      "environment": "prod",
+      "severity": "critical",
+      "test_marker": "kaims-rca-fix-verification"
+    },
+    "annotations": {
+      "summary": "Payment Service 504 Gateway Timeouts during checkout processing",
+      "description": "High memory consumption and payment gateway thread exhaustion leading to 504 timeouts"
+    },
+    "startsAt": "2026-08-31T13:54:00.000Z",
+    "endsAt": null,
+    "generatorURL": "http://prometheus/graph",
+    "fingerprint": "rca-fix-verify-rich-1788184440"
+  }
+}

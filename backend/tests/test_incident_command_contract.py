@@ -178,3 +178,61 @@ def test_command_preserves_distinct_and_projection_only_evidence():
         incident_id="incident-1", incident=incident, operations={"incident_id": "incident-1"},
     )
     assert command.incident == incident
+
+
+def test_command_workspace_accepts_hyphenated_uuid() -> None:
+    incident_uuid_hyphenated = "f874ad68-4265-4904-a3d5-23ab41b4d4c7"
+    workspace = build_incident_command_workspace(
+        incident_id=incident_uuid_hyphenated,
+        incident={"id": incident_uuid_hyphenated, "status": "investigating"},
+        operations={"incident_id": incident_uuid_hyphenated, "lifecycle_state": "RCA_READY"},
+    )
+    assert workspace.incident_id == incident_uuid_hyphenated
+    assert workspace.incident["id"] == incident_uuid_hyphenated
+    assert workspace.operations["incident_id"] == incident_uuid_hyphenated
+
+
+def test_command_workspace_normalizes_32_char_hex_uuid_to_same_incident() -> None:
+    incident_uuid_hyphenated = "f874ad68-4265-4904-a3d5-23ab41b4d4c7"
+    incident_uuid_hex = "f874ad6842654904a3d523ab41b4d4c7"
+
+    workspace_hyphenated = build_incident_command_workspace(
+        incident_id=incident_uuid_hyphenated,
+        incident={"id": incident_uuid_hyphenated, "status": "investigating"},
+        operations={"incident_id": incident_uuid_hyphenated, "lifecycle_state": "RCA_READY"},
+    )
+    workspace_hex = build_incident_command_workspace(
+        incident_id=incident_uuid_hex,
+        incident={"id": incident_uuid_hyphenated, "status": "investigating"},
+        operations={"incident_id": incident_uuid_hyphenated, "lifecycle_state": "RCA_READY"},
+    )
+
+    assert workspace_hex.incident_id == incident_uuid_hyphenated
+    assert workspace_hex.revision == workspace_hyphenated.revision
+    assert workspace_hex.model_dump(mode="json") == workspace_hyphenated.model_dump(mode="json")
+
+
+def test_command_workspace_rejects_invalid_or_mismatched_uuid() -> None:
+    incident_uuid_1 = "f874ad68-4265-4904-a3d5-23ab41b4d4c7"
+    incident_uuid_2 = "e763ac57-3154-4803-92c4-12ba30a3c3b6"
+
+    with pytest.raises(ValidationError, match="operations identity does not match"):
+        build_incident_command_workspace(
+            incident_id=incident_uuid_1,
+            incident={"id": incident_uuid_1},
+            operations={"incident_id": incident_uuid_2},
+        )
+
+    with pytest.raises(ValidationError, match="incident projection identity does not match"):
+        build_incident_command_workspace(
+            incident_id=incident_uuid_1,
+            incident={"id": incident_uuid_2},
+            operations={"incident_id": incident_uuid_1},
+        )
+
+    with pytest.raises(ValidationError, match="incident projection identity does not match"):
+        build_incident_command_workspace(
+            incident_id="invalid-uuid-token",
+            incident={"id": "different-token"},
+            operations={"incident_id": "invalid-uuid-token"},
+        )

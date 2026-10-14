@@ -1,0 +1,58 @@
+{
+  "received_at": "2026-09-03T11:36:27.282908+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "Duplicate delivery test",
+    "service": "KAN",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "Dup test description",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-9099",
+      "jira_issue_id": "90099",
+      "jira_status": "Open",
+      "jira_priority": "Medium",
+      "jira_reporter": "CoreStack Bot",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "Duplicate delivery test",
+      "description": "Dup test description"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "id": "90099",
+      "key": "KAN-9099",
+      "fields": {
+        "summary": "Duplicate delivery test",
+        "description": "Dup test description",
+        "priority": {
+          "name": "Medium"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "KAN"
+        },
+        "labels": [
+          "kaiops-tenant-dup-test"
+        ],
+        "reporter": {
+          "displayName": "CoreStack Bot"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "received_at": "2026-09-10T06:32:34.728253+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "HighNetworkLatency",
+    "service": "blackbox",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "HTTP probe duration is above 200ms for target http://ob-frontend:8080/_healthz.",
+    "labels": {
+      "alertname": "HighNetworkLatency",
+      "instance": "http://ob-frontend:8080/_healthz",
+      "job": "blackbox",
+      "severity": "warning",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "13c65cddb635b9e7",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "HTTP probe duration is above 200ms for target http://ob-frontend:8080/_healthz.",
+      "summary": "High network latency",
+      "startsAt": "2026-09-10T06:00:35.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=probe_duration_seconds%7Bjob%3D%22blackbox%22%7D+%3E+0.2&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "HighNetworkLatency",
+      "instance": "http://ob-frontend:8080/_healthz",
+      "job": "blackbox",
+      "severity": "warning"
+    },
+    "annotations": {
+      "description": "HTTP probe duration is above 200ms for target http://ob-frontend:8080/_healthz.",
+      "summary": "High network latency"
+    },
+    "startsAt": "2026-09-10T06:00:35.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=probe_duration_seconds%7Bjob%3D%22blackbox%22%7D+%3E+0.2&g0.tab=1",
+    "fingerprint": "13c65cddb635b9e7"
+  }
+}

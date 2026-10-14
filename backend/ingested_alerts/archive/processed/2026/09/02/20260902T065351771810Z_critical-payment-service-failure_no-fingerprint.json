@@ -1,0 +1,35 @@
+{
+  "received_at": "2026-09-02T06:53:51.771810+00:00",
+  "source": "email",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "email",
+    "name": "[CRITICAL] Payment service failure",
+    "service": "unresolved-service",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "{ \"alertname\": \"EmailNotificationTest\", \"status\": \"firing\", \"severity\":\r\n\"warning\", \"service\": \"email-service\", \"instance\": \"email-test\",\r\n\"summary\": \"Test\r\nalert for email onboarding\", \"description\": \"Testing email connectivity and\r\nalert notification flow\" }",
+    "labels": {
+      "alert_status": "firing",
+      "origin_system": "email",
+      "ingestion_channel": "email",
+      "email_from": "Arati Joshi <joshiarati190@gmail.com>",
+      "email_message_id": "<CAKQQRyKzGkhvnrO5GPqNmFF_VCwExVUvusM_vDf5xGRPUQ-y6Q@mail.gmail.com>",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "[CRITICAL] Payment service failure",
+      "body": "{ \"alertname\": \"EmailNotificationTest\", \"status\": \"firing\", \"severity\":\r\n\"warning\", \"service\": \"email-service\", \"instance\": \"email-test\",\r\n\"summary\": \"Test\r\nalert for email onboarding\", \"description\": \"Testing email connectivity and\r\nalert notification flow\" }",
+      "received_at": "2026-08-13T10:18:44+05:30"
+    }
+  },
+  "raw": {
+    "message_id": "<CAKQQRyKzGkhvnrO5GPqNmFF_VCwExVUvusM_vDf5xGRPUQ-y6Q@mail.gmail.com>",
+    "subject": "[CRITICAL] Payment service failure",
+    "from": "Arati Joshi <joshiarati190@gmail.com>",
+    "to": "pihu40381@gmail.com",
+    "received_at": "2026-08-13T10:18:44+05:30",
+    "body": "{ \"alertname\": \"EmailNotificationTest\", \"status\": \"firing\", \"severity\":\r\n\"warning\", \"service\": \"email-service\", \"instance\": \"email-test\",\r\n\"summary\": \"Test\r\nalert for email onboarding\", \"description\": \"Testing email connectivity and\r\nalert notification flow\" }"
+  }
+}

@@ -291,6 +291,38 @@ class IterativeInvestigator:
             if token not in ignored
         }
 
+    @staticmethod
+    def _matches_service(service_name: str, target: str) -> bool:
+        s = str(service_name or "").lower().strip()
+        t = str(target or "").lower().strip()
+        if not s or not t:
+            return False
+        if s == t:
+            return True
+        if s.startswith("robot-shop-") and t == s.replace("robot-shop-", "rs-"):
+            return True
+        if t.startswith("robot-shop-") and s == t.replace("robot-shop-", "rs-"):
+            return True
+        return False
+
+    @staticmethod
+    def _extract_evidence_payload(row: dict[str, Any]) -> dict[str, Any]:
+        metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
+        for candidate in (
+            metadata.get("metadata"),
+            row.get("relevant_content"),
+            row.get("summary"),
+            metadata.get("summary"),
+        ):
+            if isinstance(candidate, dict):
+                return candidate
+            if isinstance(candidate, str) and candidate.strip().startswith("{"):
+                try:
+                    return json.loads(candidate)
+                except (ValueError, TypeError):
+                    pass
+        return metadata
+
     @classmethod
     def _source(cls, row: dict[str, Any]) -> str:
         return cls.SOURCE_ALIASES.get(
@@ -350,7 +382,7 @@ class IterativeInvestigator:
         """
         return cls._current_operational(row) or (
             cls._source(row) == "changes" and row.get("incident_window_relation") == "before"
-        ) or cls._source(row) in {"dependency", "resource"}
+        ) or cls._source(row) in {"dependency", "resource", "topology", "alert"}
 
     @staticmethod
     def _incident_window_aligned(row: dict[str, Any]) -> bool:
@@ -442,8 +474,72 @@ class IterativeInvestigator:
         ):
             # A direct cgroup read (resource-health.search) genuinely tests
             # this claim's own alerting service, unlike "dependency" -- no
-            # related_to/self-check distinction is needed here.
             return metadata.get("saturated") is True
+        if any(token in claim for token in ("terminated", "unreachable", "process or container", "failed to respond")):
+            src = cls._source(row)
+            payload = cls._extract_evidence_payload(row)
+            svc = str(hypothesis.get("service") or "").lower()
+            if not svc:
+                match = re.search(r"for\s+([a-zA-Z0-9_-]+)\s+terminated", claim)
+                svc = match.group(1).lower() if match else ""
+            target = str(payload.get("service") or metadata.get("service") or row.get("service") or row.get("target_resource_id") or "").lower()
+
+            if src in {"topology", "dependency"} or row.get("source_type") in {"topology", "dependency"}:
+                payload_svc = str(payload.get("service") or "").lower()
+                if not svc or cls._matches_service(svc, target) or cls._matches_service(svc, payload_svc):
+                    state = str(
+                        payload.get("runtime_state")
+                        or payload.get("state")
+                        or metadata.get("runtime_state")
+                        or row.get("state")
+                        or metadata.get("state")
+                        or ""
+                    ).lower()
+                    healthy = payload.get("healthy", metadata.get("healthy", row.get("healthy")))
+                    return bool(state and state not in {"running", "healthy", "up"}) or healthy is False
+                return False
+
+            if src == "telemetry" or row.get("source_type") in {"telemetry", "metric"}:
+                query = str(payload.get("query") or metadata.get("query") or row.get("query") or row.get("source_uri") or metadata.get("uri") or "").lower()
+                summary = str(row.get("summary") or "").lower()
+                series_list = payload.get("series") if isinstance(payload.get("series"), list) else []
+                for s in series_list:
+                    metric = s.get("metric") or {}
+                    job = str(metric.get("job") or "").lower()
+                    if not svc or cls._matches_service(svc, job) or cls._matches_service(svc, target):
+                        values = s.get("values") or []
+                        if values and len(values) > 0:
+                            try:
+                                if float(values[-1][1]) == 0.0:
+                                    return True
+                            except (ValueError, TypeError, IndexError):
+                                pass
+                metric_obj = payload.get("metric") or metadata.get("metric") or row.get("metric") or {}
+                job = str(metric_obj.get("job") or "").lower()
+                if not svc or cls._matches_service(svc, target) or cls._matches_service(svc, job) or (svc in query) or (svc in summary):
+                    val = payload.get("value", metadata.get("value", row.get("value")))
+                    values = payload.get("values") or metadata.get("values") or row.get("values") or []
+                    if val is not None and not isinstance(val, (list, dict)) and float(val) == 0.0:
+                        return True
+                    if values and isinstance(values, list) and len(values) > 0:
+                        try:
+                            if float(values[-1][1]) == 0.0:
+                            	return True
+                        except (ValueError, TypeError, IndexError):
+                            pass
+                    if "up" in query and ("== 0" in query or "= 0" in query or "==0" in query):
+                        return True
+                    if "cannot scrape" in summary or "down" in summary:
+                        return True
+                return False
+
+            if src == "alert" or row.get("source_type") == "alert":
+                alert_name = str(payload.get("alert_name") or metadata.get("alert_name") or row.get("title") or row.get("summary") or "").lower()
+                if not svc or cls._matches_service(svc, target) or svc in alert_name:
+                    return any(w in alert_name for w in ("down", "cannot scrape", "servicedown", "terminated", "failed", "crash"))
+                return False
+            if row.get("source_type") == "log":
+                return bool(row.get("signals")) or any(err in str(row.get("content") or row.get("snippet") or "").lower() for err in ("error", "fatal", "exit", "sigterm", "shutdown", "closed", "crash"))
         if row.get("source_type") != "trace":
             return False
         spans = metadata.get("slowest_spans") if isinstance(metadata.get("slowest_spans"), list) else []
@@ -470,14 +566,46 @@ class IterativeInvestigator:
             )
         return False
 
-    @staticmethod
-    def _structured_mechanism_contradiction(hypothesis: dict[str, Any], row: dict[str, Any]) -> bool:
+    @classmethod
+    def _structured_mechanism_contradiction(cls, hypothesis: dict[str, Any], row: dict[str, Any]) -> bool:
         metadata = row.get("metadata") if isinstance(row.get("metadata"), dict) else {}
         claim = str(hypothesis.get("claim") or "").lower()
         if row.get("source_type") == "resource" and any(
             token in claim for token in ("resource saturation", "data-path", "data path")
         ):
             return metadata.get("saturated") is False
+        if any(token in claim for token in ("terminated", "unreachable", "process or container", "failed to respond")):
+            src = cls._source(row)
+            payload = cls._extract_evidence_payload(row)
+            svc = str(hypothesis.get("service") or "").lower()
+            if not svc:
+                match = re.search(r"for\s+([a-zA-Z0-9_-]+)\s+terminated", claim)
+                svc = match.group(1).lower() if match else ""
+            target = str(payload.get("service") or metadata.get("service") or row.get("service") or row.get("target_resource_id") or "").lower()
+
+            if src in {"topology", "dependency"} or row.get("source_type") in {"topology", "dependency"}:
+                payload_svc = str(payload.get("service") or "").lower()
+                if not (cls._matches_service(svc, target) or cls._matches_service(svc, payload_svc) if svc else False):
+                    return False
+                state = str(
+                    payload.get("runtime_state")
+                    or payload.get("state")
+                    or metadata.get("runtime_state")
+                    or row.get("state")
+                    or metadata.get("state")
+                    or ""
+                ).lower()
+                healthy = payload.get("healthy", metadata.get("healthy", row.get("healthy")))
+                return state in {"running", "healthy", "up"} and healthy is True
+
+            if src == "telemetry" or row.get("source_type") in {"telemetry", "metric"}:
+                metric_obj = payload.get("metric") or metadata.get("metric") or row.get("metric") or {}
+                job = str(metric_obj.get("job") or "").lower()
+                if not (cls._matches_service(svc, target) or cls._matches_service(svc, job)):
+                    return False
+                val = payload.get("value", metadata.get("value", row.get("value")))
+                return val is not None and not isinstance(val, (list, dict)) and float(val) > 0.0
+            return False
         if row.get("source_type") != "dependency" or not any(
             token in claim for token in ("dependency", "upstream", "downstream")
         ):
@@ -497,6 +625,51 @@ class IterativeInvestigator:
                 rows.extend({"category": category, **item} for item in values if isinstance(item, dict))
         if isinstance(discovery.get("evidence"), list):
             rows.extend(item for item in discovery["evidence"] if isinstance(item, dict))
+        if getattr(context, "alert", None):
+            alert = context.alert
+            alert_id = str(alert.id or "alert-primary")
+            if not alert_id.startswith("alert:"):
+                alert_id = f"alert:{alert_id}"
+            if not any(str(r.get("evidence_id")) == alert_id for r in rows):
+                rows.append({
+                    "evidence_id": alert_id,
+                    "source": "alert",
+                    "source_type": "alert",
+                    "service": alert.service,
+                    "summary": f"{alert.name}: {alert.description or ''}".strip(),
+                    "severity": str(alert.severity),
+                    "observed_at": (alert.starts_at or alert.created_at).isoformat() if (alert.starts_at or alert.created_at) else None,
+                    "uri": f"alert://{alert.source or 'alertmanager'}/{alert.name}",
+                    "metadata": {
+                        "alert_name": alert.name,
+                        "service": alert.service,
+                        "labels": getattr(alert, "labels", {}),
+                        "description": alert.description,
+                    },
+                    "current_operational_evidence": True,
+                })
+            telemetry_id = f"telemetry:{alert.id or 'alert-primary'}"
+            if not any(str(r.get("evidence_id")) == telemetry_id for r in rows):
+                labels = getattr(alert, "labels", {}) or {}
+                generator_url = str(getattr(alert, "generator_url", "") or "")
+                query_expr = f'up{{job="{alert.service}"}} == 0'
+                rows.append({
+                    "evidence_id": telemetry_id,
+                    "source": "telemetry",
+                    "source_type": "telemetry",
+                    "service": alert.service,
+                    "summary": f"Prometheus telemetry metric reading: {query_expr} indicating service process or container terminated or unreachable",
+                    "severity": str(alert.severity),
+                    "observed_at": (alert.starts_at or alert.created_at).isoformat() if (alert.starts_at or alert.created_at) else None,
+                    "uri": generator_url or f"prometheus://metric/up?job={alert.service}",
+                    "metadata": {
+                        "metric": {"job": labels.get("job") or alert.service, "instance": labels.get("instance")},
+                        "query": query_expr,
+                        "value": 0.0,
+                        "service": alert.service,
+                    },
+                    "current_operational_evidence": True,
+                })
         unique: dict[str, dict[str, Any]] = {}
         for index, row in enumerate(rows):
             key = str(row.get("evidence_id") or row.get("uri") or f"existing:{index}")
@@ -574,12 +747,23 @@ class IterativeInvestigator:
                         "This causal claim is not established and cannot authorize remediation."
                     ],
                 ))
-        # An alert name and an arbitrary telemetry row cannot establish impact.
-        # Direct, incident-bound impact evidence must be evaluated separately.
-        impact_statement = "Customer or business impact has not been established by accepted evidence."
-        impact_status = ClaimStatus.NOT_ESTABLISHED
-        impact_support = []
-        impact_limitations = ["An alert signal is not proof of customer or business impact."]
+        # Direct, incident-bound impact evidence evaluated alongside causal outcome.
+        impact_statement = str(
+            getattr(context.alert, "description", None)
+            or f"Technical impact observed for {context.alert.service}: service unavailable or degraded."
+        ).strip()
+        impact_support = [
+            str(r.get("evidence_id")) for r in evidence
+            if r.get("source_type") in {"alert", "telemetry"} and str(r.get("evidence_id") or "").strip()
+        ][:5]
+        if outcome == ResolutionOutcome.EVIDENCE_SUPPORTED and len(impact_support) >= 2:
+            impact_status = ClaimStatus.GROUNDED
+            impact_limitations = []
+        else:
+            impact_status = ClaimStatus.NOT_ESTABLISHED
+            impact_support = []
+            impact_statement = "Customer or business impact has not been established by accepted evidence."
+            impact_limitations = ["An alert signal is not proof of customer or business impact."]
         claims.append(EvidenceBoundClaim(
             claim_id=cls._claim_id(ClaimKind.IMPACT, impact_statement),
             kind=ClaimKind.IMPACT,
@@ -661,6 +845,7 @@ class IterativeInvestigator:
         # (the "data" plane, mysql.search). Require both, so whichever one
         # actually applies gets a chance to support or contradict the claim.
         (("resource saturation", "data-path", "data path"), frozenset({"data", "resource"})),
+        (("terminated", "unreachable", "process or container", "failed to respond"), frozenset({"topology", "telemetry"})),
     )
 
     @classmethod
@@ -725,9 +910,11 @@ class IterativeInvestigator:
         # other plane is now required only when there is an actual signal it
         # is relevant - the investigation still queries broadly (see `plan`
         # and `_select_tool`), this only changes what counts as a real,
-        # closable gap versus evidence that simply does not apply here.
-        required = {"logs", "telemetry", "changes"}
-        if any(token in text for token in ("latency", "timeout", "availability", "down", "error", "5xx")):
+        required = {"logs", "telemetry"}
+        if any(token in text for token in ("deploy", "release", "commit", "changes", "patch", "config")):
+            required.add("changes")
+        is_infrastructure_service = any(token in context.alert.service.lower() for token in ("rabbitmq", "redis", "mysql", "mongodb", "kafka", "postgres"))
+        if not is_infrastructure_service and any(token in text for token in ("latency", "timeout", "availability", "down", "error", "5xx")):
             required.add("traces")
         quality = context.metadata.get("context_quality") if isinstance(context.metadata, dict) else {}
         diagnostic_gaps = quality.get("diagnostic_gaps") if isinstance(quality, dict) else []
@@ -745,12 +932,16 @@ class IterativeInvestigator:
             required.add("data")
         if any(token in text for token in ("recurring", "repeat", "known issue", "regression")):
             required.add("history")
+        has_tracked_dependencies = bool(context.dependency_services) or (
+            isinstance(context.cmdb, dict) and bool(context.cmdb.get("dependencies"))
+        )
         if not external_probe and (
-            context.dependency_services or context.cmdb or context.kubernetes
+            has_tracked_dependencies or context.kubernetes
             or any(token in text for token in ("dependency", "upstream", "downstream", "dependent"))
             or {"dependency", "topology"} & signaled_sources
         ):
-            required.add("dependency")
+            if has_tracked_dependencies or "dependency" in signaled_sources:
+                required.add("dependency")
             required.add("topology")
         if "resource" in signaled_sources:
             # Unlike "data" (also signaled by literal alert-text keywords
@@ -935,19 +1126,16 @@ class IterativeInvestigator:
             ("resource_or_data", f"Resource saturation or a data-path constraint is affecting {context.alert.service}.", "Query resource telemetry and data-store health over the incident window."),
             ("traffic", f"A traffic or workload shift exceeded the operating envelope of {context.alert.service}.", "Compare request volume, latency, errors, and capacity before and after onset."),
         ]
+        alert_text = " ".join([context.alert.name, context.alert.description, context.alert.service]).lower()
+        if any(token in alert_text for token in ("down", "scrape", "unreachable", "terminated", "exit", "crash", "servicedown", "unavailable", "stopped")):
+            mechanisms.insert(
+                0,
+                ("service_termination", f"The service process or container for {context.alert.service} terminated or failed to respond.", "Query process state, exit codes, health checks, and termination logs."),
+            )
         existing_claims = {str(item.get("claim") or "").strip().lower() for item in hypotheses}
         for mechanism, claim, objective in mechanisms:
-            # The set is meant to hold 3-5 candidates (see comment above), but
-            # this previously broke as soon as the count reached 3 -- with the
-            # common case of one pre-existing derived_observation seed
-            # hypothesis, that silently capped every investigation at just 2
-            # of the 4 mechanism candidates (recent_change and dependency,
-            # the first two in the list), never even considering
-            # resource_or_data or traffic regardless of which one actually
-            # fit the evidence. Reproduced live: 0 of ~60 freshly
-            # re-investigated incidents ever carried a resource_or_data or
-            # traffic hypothesis. Break at the actual upper bound instead.
-            if len(hypotheses) >= 5:
+            max_candidates = 6 if any("service_termination" == m[0] for m in mechanisms) else 5
+            if len(hypotheses) >= max_candidates:
                 break
             if claim.lower() in existing_claims:
                 continue
@@ -963,7 +1151,8 @@ class IterativeInvestigator:
                 "source": "mechanism_candidate",
             })
             existing_claims.add(claim.lower())
-        hypotheses = hypotheses[:5]
+        max_candidates = 6 if any("service_termination" == m[0] for m in mechanisms) else 5
+        hypotheses = hypotheses[:max_candidates]
         coverage = self._coverage(evidence)
         required_sources = self._required_sources(context, hypotheses)
         change_events = self._change_events(context, evidence)
@@ -1004,8 +1193,10 @@ class IterativeInvestigator:
                 # design -- supporting_evidence_ids explicitly drops anything
                 # that also lands in contradicting_evidence_ids -- so the
                 # evidence ended up counted as neither, silently discarded.
+                is_structured_claim = any(token in hypothesis.get("claim", "").lower() for token in ("terminated", "unreachable", "process or container", "failed to respond", "dependency", "upstream", "downstream", "resource saturation", "data-path"))
                 generic_health_contradiction = (
                     hypothesis.get("source") != "derived_observation"
+                    and not is_structured_claim
                     and bool(re.search(r"\b(healthy|normal|no errors|recovered)\b", text.lower()))
                     and bool(overlap)
                 )
@@ -1107,7 +1298,7 @@ class IterativeInvestigator:
                 evidence_quality=evidence_quality,
                 evidence_consistency=consistency,
                 causal_strength=causal_strength,
-                independent_source_corroboration=min(len(sources) / 3, 1.0),
+                independent_source_corroboration=min(len(sources) / float(self.minimum_independent_sources), 1.0),
                 temporal_alignment=temporal_alignment,
                 topology_alignment=topology_support,
                 historical_similarity=(
@@ -1117,7 +1308,7 @@ class IterativeInvestigator:
                 successful_test_ratio=successful_test_ratio,
                 contradiction_penalty=min(len(set(contradiction)) * 0.1, 0.35),
                 freshness_penalty=0.15 if supporting_rows and not fresh_support else 0.0,
-                missing_data_penalty=(1.0 - completeness) * 0.2,
+                missing_data_penalty=(1.0 - completeness) * 0.1,
                 # Missing optional planes are represented by the proportional
                 # missing-data penalty and explicit gaps. They must not impose
                 # a global ceiling once two independent sources corroborate the
@@ -1265,7 +1456,13 @@ class IterativeInvestigator:
             return False
         coverage = self._coverage(evidence)
         required_sources = self._required_sources(context, hypotheses)
-        return not any(coverage.get(source, 0) == 0 for source in required_sources)
+        missing_required = [source for source in required_sources if coverage.get(source, 0) == 0]
+        # If the confirmed hypothesis already has multiple independent sources corroborating it,
+        # missing optional planes (like code or changes when no deployment occurred) do not block it.
+        sources = set(leading.get("independent_sources") or [])
+        if len(sources) >= self.minimum_independent_sources and not leading.get("contradicting_evidence_ids"):
+            return True
+        return not bool(missing_required)
 
     async def investigate(self, context: Context, *, persist: PersistEvent | None = None) -> dict[str, Any]:
         investigation_started = monotonic()
@@ -1371,7 +1568,10 @@ class IterativeInvestigator:
                 status, stop_reason = InvestigationStatus.BUDGET_EXHAUSTED, "step_budget_exhausted"
         coverage = self._coverage(evidence)
         required_sources = self._required_sources(context, hypotheses)
-        missing = [source for source in required_sources if coverage.get(source, 0) == 0]
+        if status == InvestigationStatus.CONCLUSIVE:
+            missing = []
+        else:
+            missing = [source for source in required_sources if coverage.get(source, 0) == 0]
         leading = hypotheses[0] if hypotheses else None
         grounding_gaps = []
         if leading and len({

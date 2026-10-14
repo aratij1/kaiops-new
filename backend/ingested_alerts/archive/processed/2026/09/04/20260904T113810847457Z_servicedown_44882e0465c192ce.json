@@ -1,0 +1,55 @@
+{
+  "received_at": "2026-09-04T11:38:10.847457+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "ServiceDown",
+    "service": "kaiops-monitoring-adapter",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Endpoint kaiops-monitoring-adapter is unreachable.",
+    "labels": {
+      "alertname": "ServiceDown",
+      "application": "KaiOps",
+      "project_name": "KaiOps",
+      "severity": "critical",
+      "instance": "monitoring-adapter:8000",
+      "job": "kaiops-monitoring-adapter",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "44882e0465c192ce",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "summary": "Service down",
+      "description": "Endpoint kaiops-monitoring-adapter is unreachable.",
+      "startsAt": "2026-09-04T11:30:20.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "ServiceDown",
+      "application": "KaiOps",
+      "instance": "monitoring-adapter:8000",
+      "job": "kaiops-monitoring-adapter",
+      "project_name": "KaiOps",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "Endpoint kaiops-monitoring-adapter is unreachable.",
+      "summary": "Service down"
+    },
+    "startsAt": "2026-09-04T11:30:20.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "44882e0465c192ce"
+  }
+}

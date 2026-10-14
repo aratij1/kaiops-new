@@ -1,0 +1,85 @@
+{
+  "received_at": "2026-09-02T07:57:54.273067+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "KaiMS evidence required: Collect traces evidence for this incident.",
+    "service": "KAN",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "KaiMS evidence required: Collect traces evidence for this incident.",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-1818",
+      "jira_issue_id": "13748",
+      "jira_status": "To Do",
+      "jira_priority": "",
+      "jira_reporter": "",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:poll",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "KaiMS evidence required: Collect traces evidence for this incident.",
+      "description": ""
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:poll",
+    "issue": {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "13748",
+      "self": "https://kaiops-test.atlassian.net/rest/api/3/issue/13748",
+      "key": "KAN-1818",
+      "fields": {
+        "summary": "KaiMS evidence required: Collect traces evidence for this incident.",
+        "project": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/project/10001",
+          "id": "10001",
+          "key": "KAN",
+          "name": "kaiops-test",
+          "projectTypeKey": "software",
+          "simplified": true,
+          "avatarUrls": {
+            "48x48": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415",
+            "24x24": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=small",
+            "16x16": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=xsmall",
+            "32x32": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=medium"
+          }
+        },
+        "assignee": null,
+        "resolution": null,
+        "updated": "2026-09-02T08:33:00.963+0530",
+        "status": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/status/10004",
+          "description": "",
+          "iconUrl": "https://kaiops-test.atlassian.net/images/icons/statuses/generic.png",
+          "name": "To Do",
+          "id": "10004",
+          "statusCategory": {
+            "self": "https://kaiops-test.atlassian.net/rest/api/3/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "labels": [
+          "kaiops-auto-created",
+          "kaiops-incident-evidence-f3762a94-5c69-4826-82f2-5ae8c9c36038",
+          "kaiops-kind-human-evidence",
+          "kaiops-requirement-49935564-03fe-57fe-b3e0-e8aee7d320c2",
+          "kaiops-severity-medium",
+          "kaiops-tenant-default"
+        ]
+      }
+    },
+    "event_origin": "jira-reconciliation",
+    "timestamp": "2026-09-02T08:33:00.963+0530"
+  }
+}

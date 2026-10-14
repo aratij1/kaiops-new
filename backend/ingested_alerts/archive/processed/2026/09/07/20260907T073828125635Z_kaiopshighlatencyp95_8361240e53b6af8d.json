@@ -1,0 +1,65 @@
+{
+  "received_at": "2026-09-07T07:38:28.125635+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "KaiOpsHighLatencyP95",
+    "service": "api-gateway",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "Service api-gateway operation /incidents/inbox/feed?tenant_id=default&limit=10&inbox_view=all&record_type=incidents&project_id=KaiMS p95 latency is above 2s.",
+    "labels": {
+      "alertname": "KaiOpsHighLatencyP95",
+      "application": "KaiOps",
+      "category": "latency",
+      "landing_pad": "realtime",
+      "operation": "/incidents/inbox/feed?tenant_id=default&limit=10&inbox_view=all&record_type=incidents&project_id=KaiMS",
+      "project_name": "KaiOps",
+      "service": "api-gateway",
+      "severity": "warning",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "8361240e53b6af8d",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "pipeline_outcome": "discover",
+      "pipeline_reason": "admitted for Discovery",
+      "source_event_id": "8361240e53b6af8d",
+      "discovery_fingerprint": "8361240e53b6af8d",
+      "occurrence_count": "1",
+      "pipeline_stage": "pre_discovery_admission"
+    },
+    "annotations": {
+      "description": "Service api-gateway operation /incidents/inbox/feed?tenant_id=default&limit=10&inbox_view=all&record_type=incidents&project_id=KaiMS p95 latency is above 2s.",
+      "summary": "High p95 latency in KaiOps service",
+      "startsAt": "2026-09-07T07:38:14.854Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=histogram_quantile%280.95%2C+sum+by+%28le%2C+service%2C+operation%29+%28rate%28kaiops_request_latency_seconds_bucket%5B5m%5D%29%29%29+%3E+2&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "KaiOpsHighLatencyP95",
+      "application": "KaiOps",
+      "category": "latency",
+      "landing_pad": "realtime",
+      "operation": "/incidents/inbox/feed?tenant_id=default&limit=10&inbox_view=all&record_type=incidents&project_id=KaiMS",
+      "project_name": "KaiOps",
+      "service": "api-gateway",
+      "severity": "warning"
+    },
+    "annotations": {
+      "description": "Service api-gateway operation /incidents/inbox/feed?tenant_id=default&limit=10&inbox_view=all&record_type=incidents&project_id=KaiMS p95 latency is above 2s.",
+      "summary": "High p95 latency in KaiOps service"
+    },
+    "startsAt": "2026-09-07T07:38:14.854Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=histogram_quantile%280.95%2C+sum+by+%28le%2C+service%2C+operation%29+%28rate%28kaiops_request_latency_seconds_bucket%5B5m%5D%29%29%29+%3E+2&g0.tab=1",
+    "fingerprint": "8361240e53b6af8d"
+  }
+}

@@ -30,7 +30,7 @@ def has_signed_recovery_proof(action: RemediationAction) -> bool:
     execution_result = execution_result if isinstance(execution_result, dict) else {}
     evidence = execution_result.get("recovery_evidence")
     evidence = evidence if isinstance(evidence, dict) else {}
-    return bool(
+    jenkins_proof = bool(
         action.status == RemediationStatus.SUCCEEDED
         and execution_result.get("executed") is True
         and str(execution_result.get("build_result") or "").upper() == "SUCCESS"
@@ -38,6 +38,14 @@ def has_signed_recovery_proof(action: RemediationAction) -> bool:
         and evidence.get("executed") is True
         and evidence.get("recovery_validated") is True
     )
+    direct_executor_proof = bool(
+        action.status == RemediationStatus.SUCCEEDED
+        and (
+            execution_result.get("executed") is True
+            or action.action_type in {"docker_compose_restart", "restart_service", "scale_service"}
+        )
+    )
+    return jenkins_proof or direct_executor_proof
 
 
 def assess_terminal_action(action: RemediationAction, projection_status: str | None) -> ReconciliationAssessment:

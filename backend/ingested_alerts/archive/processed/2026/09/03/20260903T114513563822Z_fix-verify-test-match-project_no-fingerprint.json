@@ -1,0 +1,59 @@
+{
+  "received_at": "2026-09-03T11:45:13.563822+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "Fix-verify test match project",
+    "service": "KAN",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Fix-verify tenant routing test - match case",
+    "tenant_id": "prod-aws",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-2101",
+      "jira_issue_id": "90004",
+      "jira_status": "Open",
+      "jira_priority": "Critical",
+      "jira_reporter": "CoreStack Bot",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "Fix-verify test match project",
+      "description": "Fix-verify tenant routing test - match case"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "id": "90004",
+      "key": "KAN-2101",
+      "fields": {
+        "summary": "Fix-verify test match project",
+        "description": "Fix-verify tenant routing test - match case",
+        "priority": {
+          "name": "Critical"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "KAN"
+        },
+        "labels": [
+          "kaiops-tenant-prod-aws"
+        ],
+        "reporter": {
+          "displayName": "CoreStack Bot"
+        }
+      }
+    }
+  }
+}

@@ -159,6 +159,8 @@ ALLOWED_TRANSITIONS: dict[ResolutionState, frozenset[ResolutionState]] = {
     }),
     ResolutionState.READY_TO_EXECUTE: frozenset({
         ResolutionState.EXECUTING,
+        ResolutionState.VALIDATING,
+        ResolutionState.RECOVERED,
         ResolutionState.BLOCKED_RETRYABLE,
         ResolutionState.CLOSED,
     }),
@@ -224,6 +226,8 @@ TRANSITION_ACTORS: dict[tuple[ResolutionState, ResolutionState], frozenset[Lifec
     (ResolutionState.AWAITING_APPROVAL, ResolutionState.BLOCKED_RETRYABLE): frozenset({LifecycleActor.REMEDIATION}),
     (ResolutionState.AWAITING_APPROVAL, ResolutionState.CLOSED): frozenset({LifecycleActor.OPERATOR}),
     (ResolutionState.READY_TO_EXECUTE, ResolutionState.EXECUTING): frozenset({LifecycleActor.REMEDIATION}),
+    (ResolutionState.READY_TO_EXECUTE, ResolutionState.VALIDATING): frozenset({LifecycleActor.CLOSURE, LifecycleActor.REMEDIATION, LifecycleActor.RECONCILER}),
+    (ResolutionState.READY_TO_EXECUTE, ResolutionState.RECOVERED): frozenset({LifecycleActor.CLOSURE, LifecycleActor.RECONCILER}),
     (ResolutionState.READY_TO_EXECUTE, ResolutionState.BLOCKED_RETRYABLE): frozenset({LifecycleActor.REMEDIATION}),
     (ResolutionState.READY_TO_EXECUTE, ResolutionState.CLOSED): frozenset({LifecycleActor.OPERATOR}),
     (ResolutionState.EXECUTING, ResolutionState.VALIDATING): frozenset({LifecycleActor.REMEDIATION}),

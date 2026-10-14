@@ -1,0 +1,59 @@
+{
+  "received_at": "2026-09-03T11:45:49.888306+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "High CPU on prod-aws-node-match-recheck",
+    "service": "KAN",
+    "environment": "prod",
+    "severity": "high",
+    "description": "CoreStack alert recheck",
+    "tenant_id": "prod-aws",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-9401",
+      "jira_issue_id": "90401",
+      "jira_status": "Open",
+      "jira_priority": "High",
+      "jira_reporter": "CoreStack Bot",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "High CPU on prod-aws-node-match-recheck",
+      "description": "CoreStack alert recheck"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "id": "90401",
+      "key": "KAN-9401",
+      "fields": {
+        "summary": "High CPU on prod-aws-node-match-recheck",
+        "description": "CoreStack alert recheck",
+        "priority": {
+          "name": "High"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "KAN"
+        },
+        "labels": [
+          "kaiops-tenant-prod-aws"
+        ],
+        "reporter": {
+          "displayName": "CoreStack Bot"
+        }
+      }
+    }
+  }
+}

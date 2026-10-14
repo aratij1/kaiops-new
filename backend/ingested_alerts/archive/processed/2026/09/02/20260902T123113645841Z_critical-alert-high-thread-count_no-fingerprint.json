@@ -1,0 +1,35 @@
+{
+  "received_at": "2026-09-02T12:31:13.645841+00:00",
+  "source": "email",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "email",
+    "name": "Critical Alert: High Thread Count on Payments Worker",
+    "service": "payments-worker-pool",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Service: payments-worker-pool\r\nEnvironment: prod\r\nSeverity: critical\r\n\r\nThreadPool size threshold exceeded.\r\nHigh response latency observed across all payments consumer routes.",
+    "labels": {
+      "alert_status": "firing",
+      "origin_system": "email",
+      "ingestion_channel": "email",
+      "email_from": "pihu40381@gmail.com",
+      "email_message_id": "<6a7d84e9.ee10049a.3ee0f.0cec@mx.google.com>",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "Critical Alert: High Thread Count on Payments Worker",
+      "body": "Service: payments-worker-pool\r\nEnvironment: prod\r\nSeverity: critical\r\n\r\nThreadPool size threshold exceeded.\r\nHigh response latency observed across all payments consumer routes.",
+      "received_at": "2026-08-13T01:48:41-07:00"
+    }
+  },
+  "raw": {
+    "message_id": "<6a7d84e9.ee10049a.3ee0f.0cec@mx.google.com>",
+    "subject": "Critical Alert: High Thread Count on Payments Worker",
+    "from": "pihu40381@gmail.com",
+    "to": "pihu40381@gmail.com",
+    "received_at": "2026-08-13T01:48:41-07:00",
+    "body": "Service: payments-worker-pool\r\nEnvironment: prod\r\nSeverity: critical\r\n\r\nThreadPool size threshold exceeded.\r\nHigh response latency observed across all payments consumer routes."
+  }
+}

@@ -1,0 +1,14 @@
+﻿{
+  "name": "demo-app",
+  "owner_team": "devops",
+  "owner_email": "admin@kaiops.example.com",
+  "environment": "prod",
+  "namespace": "demo",
+  "region": "us-east-1",
+  "technology": "python",
+  "monitoring_platform": "prometheus",
+  "metrics_endpoint": "http://prometheus:9090",
+  "labels": {
+    "project": "demo-app"
+  }
+}

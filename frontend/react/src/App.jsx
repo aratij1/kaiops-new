@@ -349,16 +349,8 @@ const AlertStreamTable = memo(function AlertStreamTable({ rows, loading, selecte
  */
 function KaiMSBrand({ compact = false, inverse = false, onActivate = null }) {
   const content = <>
-    <span className="kaims-brand-mark" aria-hidden="true">
-      <svg viewBox="0 0 48 48" role="img">
-        <path className="kaims-mark-ms" d="M7 35V13l8 12 8-12v22M40 15c-3-3-11-3-14 1-4 7 16 6 14 14-1 6-11 7-16 2" />
-        <path className="kaims-mark-signal" d="M6 39h8l3-4 4 6 4-4h17" />
-      </svg>
-    </span>
-    <span className="kaims-brand-copy">
-      <strong><span className="kaims-brand-prefix">Kai</span><span className="kaims-brand-managed">MS</span></strong>
-      {!compact ? <small>{KAI_BRAND.category}</small> : null}
-    </span>
+    <span className="kaims-brand-logo"><img src="/datamatics-kaims-logo.png" alt="Datamatics KaiMS" /></span>
+    {!compact ? <small>{KAI_BRAND.category}</small> : null}
   </>;
   return (
     onActivate

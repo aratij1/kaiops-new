@@ -1,0 +1,53 @@
+{
+  "received_at": "2026-09-07T03:57:51.764812+00:00",
+  "source": "online-boutique",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "online-boutique",
+    "name": "OnlineBoutiqueFrontendDown",
+    "service": "blackbox",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "blackbox probe against ob-frontend /_healthz has been failing for 15s.",
+    "labels": {
+      "alertname": "OnlineBoutiqueFrontendDown",
+      "instance": "http://ob-frontend:8080/_healthz",
+      "job": "blackbox",
+      "severity": "critical",
+      "source": "online-boutique",
+      "origin_system": "online-boutique",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "9c905532ef8566c4",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "blackbox probe against ob-frontend /_healthz has been failing for 15s.",
+      "summary": "Online Boutique frontend is not responding",
+      "startsAt": "2026-09-07T03:57:49.724Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=probe_success%7Binstance%3D%22http%3A%2F%2Fob-frontend%3A8080%2F_healthz%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "OnlineBoutiqueFrontendDown",
+      "instance": "http://ob-frontend:8080/_healthz",
+      "job": "blackbox",
+      "severity": "critical",
+      "source": "online-boutique"
+    },
+    "annotations": {
+      "description": "blackbox probe against ob-frontend /_healthz has been failing for 15s.",
+      "summary": "Online Boutique frontend is not responding"
+    },
+    "startsAt": "2026-09-07T03:57:49.724Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=probe_success%7Binstance%3D%22http%3A%2F%2Fob-frontend%3A8080%2F_healthz%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "9c905532ef8566c4"
+  }
+}

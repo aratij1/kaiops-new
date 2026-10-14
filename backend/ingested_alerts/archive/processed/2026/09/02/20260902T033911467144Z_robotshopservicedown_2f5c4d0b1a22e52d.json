@@ -1,0 +1,53 @@
+{
+  "received_at": "2026-09-02T03:39:11.467144+00:00",
+  "source": "robot-shop",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "robot-shop",
+    "name": "RobotShopServiceDown",
+    "service": "robot-shop-payment",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Prometheus cannot scrape robot-shop-payment for more than 20s.",
+    "labels": {
+      "alertname": "RobotShopServiceDown",
+      "severity": "critical",
+      "source": "robot-shop",
+      "instance": "rs-payment:8080",
+      "job": "robot-shop-payment",
+      "origin_system": "robot-shop",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "2f5c4d0b1a22e52d",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "Prometheus cannot scrape robot-shop-payment for more than 20s.",
+      "summary": "Robot Shop dependency robot-shop-payment is unreachable",
+      "startsAt": "2026-09-02T03:36:59.928Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=up%7Bjob%3D~%22robot-shop-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "RobotShopServiceDown",
+      "instance": "rs-payment:8080",
+      "job": "robot-shop-payment",
+      "severity": "critical",
+      "source": "robot-shop"
+    },
+    "annotations": {
+      "description": "Prometheus cannot scrape robot-shop-payment for more than 20s.",
+      "summary": "Robot Shop dependency robot-shop-payment is unreachable"
+    },
+    "startsAt": "2026-09-02T03:36:59.928Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=up%7Bjob%3D~%22robot-shop-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "2f5c4d0b1a22e52d"
+  }
+}

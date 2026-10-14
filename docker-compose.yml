@@ -61,7 +61,7 @@ x-service-env: &service-env
   LANDING_PAD_ARCHIVE_AFTER_DAYS: ${LANDING_PAD_ARCHIVE_AFTER_DAYS:-30}
   LANDING_PAD_ARCHIVE_INTERVAL_SECONDS: ${LANDING_PAD_ARCHIVE_INTERVAL_SECONDS:-3600}
   JIRA_WEBHOOK_SECRET: ${JIRA_WEBHOOK_SECRET:-}
-  # Outbound Jira API — distinct from JIRA_WEBHOOK_SECRET (inbound auth).
+  # Outbound Jira API â€” distinct from JIRA_WEBHOOK_SECRET (inbound auth).
   # Used by the centralized dedup step to create/update Jira tickets from
   # Prometheus/log/email alerts, making Jira the single source of truth.
   JIRA_API_BASE_URL: ${JIRA_API_BASE_URL:-https://kaiops-test.atlassian.net}
@@ -268,7 +268,7 @@ services:
     # legitimate operational queries while their covering indexes are built.
     command:
       - "--max-connections=${MYSQL_MAX_CONNECTIONS:-450}"
-      - "--sort-buffer-size=${MYSQL_SORT_BUFFER_SIZE:-2097152}"
+      - "--sort-buffer-size=${MYSQL_SORT_BUFFER_SIZE:-16777216}"
       - "--binlog-expire-logs-seconds=${MYSQL_BINLOG_RETENTION_SECONDS:-259200}"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
@@ -292,9 +292,9 @@ services:
       <<: *service-env
       SERVICE_NAME: mysql-retention
     working_dir: /app
-    command: ["python", "/app/scripts/manage_mysql_retention.py", "--execute", "--daemon", "--archive-dir", "/archives"]
+    command: ["python", "/app/scripts/manage_alert_retention.py", "--execute", "--daemon", "--archive-dir", "/archives"]
     volumes:
-      - ./scripts/manage_mysql_retention.py:/app/scripts/manage_mysql_retention.py:ro
+      - ./scripts/manage_alert_retention.py:/app/scripts/manage_alert_retention.py:ro
       - ./backend/retention-archives:/archives
     depends_on:
       mysql: { condition: service_healthy }
@@ -429,7 +429,7 @@ services:
     image: prom/mysqld-exporter:v0.16.0
     restart: unless-stopped
     # Uses a dedicated low-privilege monitoring user (PROCESS, REPLICATION
-    # CLIENT only) instead of the app's MYSQL_USER — that user has ALL
+    # CLIENT only) instead of the app's MYSQL_USER â€” that user has ALL
     # PRIVILEGES on the app schema and previously lacked the global grants
     # mysqld_exporter's default scrapers need, which is what produced the
     # "Access denied; you need SUPER or REPLICATION CLIENT" alert. Reusing
@@ -457,6 +457,15 @@ services:
       - /:/rootfs:ro
     ports: ["9100:9100"]
 
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.25.0
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/blackbox_exporter/config.yml
+    volumes:
+      - ./observability/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    ports: ["9115:9115"]
+
   kafka-exporter:
     profiles: ["kafka"]
     image: danielqsj/kafka-exporter:v1.7.0
@@ -466,6 +475,18 @@ services:
     ports: ["9308:9308"]
     depends_on:
       kafka: { condition: service_healthy }
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/alertmanager/alertmanager.yml
+      - --storage.path=/alertmanager
+    ports: ["9093:9093"]
+    volumes:
+      - ./observability/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    depends_on:
+      monitoring-adapter: { condition: service_started }
 
   fault-lab:
     profiles:
@@ -543,10 +564,41 @@ services:
     volumes:
       - jaeger-data:/badger
 
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      # Bound local-development TSDB growth and memory-mapped index pressure.
+      # Production deployments should override these values from capacity plans.
+      - --storage.tsdb.retention.time=${PROMETHEUS_RETENTION_TIME:-3d}
+      - --storage.tsdb.retention.size=${PROMETHEUS_RETENTION_SIZE:-2GB}
+      - --query.max-concurrency=${PROMETHEUS_QUERY_CONCURRENCY:-10}
+      - --web.enable-lifecycle
+    ports: ["9090:9090"]
+    volumes:
+      - ./observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./observability/recovery-kaims-http-targets.json:/etc/prometheus/recovery-kaims-http-targets.json:ro
+      - ./observability/alert.rules.yml:/etc/prometheus/alert.rules.yml:ro
+      - ./backend/rag/changes/prometheus_rules:/etc/prometheus/generated-rules:ro
+      - ./backend/rag/changes/prometheus_targets:/etc/prometheus/generated-targets:ro
+      - prometheus-data:/prometheus
+    depends_on:
+      api-gateway: { condition: service_healthy }
+      monitoring-adapter: { condition: service_started }
+      mysql-exporter: { condition: service_started }
+      node-exporter: { condition: service_started }
+      blackbox-exporter: { condition: service_started }
+      alertmanager: { condition: service_started }
+      otel-collector: { condition: service_started }
+
   grafana:
     profiles: ["observability", "full"]
     image: grafana/grafana:11.2.2
     restart: unless-stopped
+    depends_on:
+      prometheus: { condition: service_started }
     ports: ["3000:3000"]
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
@@ -580,6 +632,8 @@ services:
       # raised max-connections above).
       DB_POOL_SIZE: ${MONITORING_ADAPTER_DB_POOL_SIZE:-20}
       DB_MAX_OVERFLOW: ${MONITORING_ADAPTER_DB_MAX_OVERFLOW:-30}
+      ALERTMANAGER_DEDUP_TTL_SECONDS: ${ALERTMANAGER_DEDUP_TTL_SECONDS:-30}
+      JIRA_COMMENT_COOLDOWN_SECONDS: ${JIRA_COMMENT_COOLDOWN_SECONDS:-30}
     command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
     working_dir: /app/backend/src/monitoring-adapter
     # A bare container port (not a fixed host:container mapping) lets Docker
@@ -589,6 +643,8 @@ services:
     # docker compose port monitoring-adapter 8000
     ports: ["8000"]
     volumes:
+      - ./backend/src/monitoring-adapter:/app/backend/src/monitoring-adapter:ro
+      - ./backend/src/common:/app/backend/src/common:ro
       - ./backend/rag:/app/rag
       - ${INGESTED_ALERTS_HOST_PATH:-./backend/ingested_alerts}:/app/ingested_alerts
     depends_on:
@@ -777,6 +833,9 @@ services:
       SERVICE_INTERNAL_TOKEN: ${SERVICE_INTERNAL_TOKEN:-kaiops-local-service-token-change-me}
     command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
     working_dir: /app/backend/src/api-gateway
+    volumes:
+      - ./backend/src/api-gateway:/app/backend/src/api-gateway:ro
+      - ./backend/src/common:/app/backend/src/common:ro
     # Bare container port, not a fixed mapping -- api-gateway is in the
     # scale_service allowlist and two replicas cannot share one host port.
     # docker compose port api-gateway 8000
@@ -830,6 +889,9 @@ services:
       # consumers already support this safely) over just raising this value.
     command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
     working_dir: /app/backend/src/alert-intelligence
+    volumes:
+      - ./backend/src/common:/app/backend/src/common:ro
+      - ./backend/src/alert-intelligence:/app/backend/src/alert-intelligence:ro
     # Bare container port -- alert-intelligence is scale_service-eligible.
     # docker compose port alert-intelligence 8000
     ports: ["8000"]
@@ -844,6 +906,8 @@ services:
     environment: { <<: *service-env, SERVICE_NAME: orchestrator }
     command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
     working_dir: /app/backend/src/orchestrator
+    volumes:
+      - ./backend/src/common:/app/backend/src/common:ro
     # Bare container port -- orchestrator is scale_service-eligible.
     # docker compose port orchestrator 8000
     ports: ["8000"]
@@ -902,6 +966,8 @@ services:
       retries: 5
       start_period: 30s
     volumes:
+      - ./backend/src/common:/app/backend/src/common:ro
+      - ./ai-workbench/src/context-agent:/app/ai-workbench/src/context-agent:ro
       - ./backend/rag:/app/rag
       # Review drafts are runtime state. Keep them on a Docker-managed volume
       # so hardened/rootless hosts can write them even when the source bind
@@ -934,7 +1000,7 @@ services:
       DISCOVERY_MCP_TELEMETRY_TIMEOUT_SECONDS: "6"
       # This service's Jira evidence search (discovery-mcp/app.py) uses a
       # different env var naming convention than monitoring-adapter's
-      # outbound Jira client (JIRA_API_BASE_URL/JIRA_API_EMAIL) — these
+      # outbound Jira client (JIRA_API_BASE_URL/JIRA_API_EMAIL) â€” these
       # were previously pointed at undefined JIRA_URL/JIRA_USER_EMAIL host
       # vars (always empty), silently disabling live Jira evidence search.
       # Aliased to the same real credentials instead of a second secret set.
@@ -952,6 +1018,8 @@ services:
     # docker compose port discovery-mcp 8000
     ports: ["8000"]
     volumes:
+      - ./backend/src/common:/app/backend/src/common:ro
+      - ./backend/src/discovery-mcp:/app/backend/src/discovery-mcp:ro
       - ./:/workspace:ro
       - ./fault-lab:/data/fault-lab:ro
       - ./backend/ingested_alerts:/data/landing:ro
@@ -1061,7 +1129,7 @@ services:
       # evidence is structurally thin (e.g. no tracing) but confidence is
       # still met - never set to 0, an uncorroborated hypothesis must not
       # auto-confirm on confidence alone.
-      RESOLUTION_INVESTIGATION_MIN_SOURCES: ${RESOLUTION_INVESTIGATION_MIN_SOURCES:-2}
+      RESOLUTION_INVESTIGATION_MIN_SOURCES: ${RESOLUTION_INVESTIGATION_MIN_SOURCES:-1}
       # Off by default. See resolution_agent/policy.py's deployment-override
       # comment for exactly which gates must all pass before this changes any
       # behavior - it never lowers any individual safety gate on its own.
@@ -1072,6 +1140,11 @@ services:
       SERVICE_INTERNAL_TOKEN: ${SERVICE_INTERNAL_TOKEN:-kaiops-local-service-token-change-me}
     command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
     working_dir: /app/ai-workbench/src/resolution-agent
+    volumes:
+      - ./backend/src/common:/app/backend/src/common:ro
+      - ./backend/rag:/app/rag:ro
+      - ./ai-workbench/src/resolution-agent:/app/ai-workbench/src/resolution-agent:ro
+      - ./ai-workbench/src/ai_workbench_common:/app/ai-workbench/src/ai_workbench_common:ro
     # Bare container port -- resolution-agent is scale_service-eligible.
     # docker compose port resolution-agent 8000
     ports: ["8000"]
@@ -1101,6 +1174,10 @@ services:
       RESOLUTION_AUTO_EXECUTION_ENABLED: ${RESOLUTION_AUTO_EXECUTION_ENABLED:-false}
     command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
     working_dir: /app/backend/src/approval-service
+    volumes:
+      - ./backend/src/common:/app/backend/src/common:ro
+      - ./backend/rag:/app/rag:ro
+      - ./backend/src/approval-service:/app/backend/src/approval-service:ro
     expose: ["8000"]
     depends_on:
       rabbitmq: { condition: service_healthy }
@@ -1172,6 +1249,10 @@ services:
       REMEDIATION_COMPOSE_PROJECT: ${REMEDIATION_COMPOSE_PROJECT:-${COMPOSE_PROJECT_NAME:-kaiops_azure}}
     command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
     working_dir: /app/backend/src/remediation-engine
+    volumes:
+      - ./backend/src/common:/app/backend/src/common:ro
+      - ./backend/src/remediation-engine:/app/backend/src/remediation-engine:ro
+      - ./backend/rag:/app/rag:ro
     # Bare container port -- remediation-engine is scale_service-eligible.
     # docker compose port remediation-engine 8000
     ports: ["8000"]
@@ -1226,6 +1307,10 @@ services:
       SERVICE_INTERNAL_TOKEN: ${SERVICE_INTERNAL_TOKEN:-kaiops-local-service-token-change-me}
     command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
     working_dir: /app/backend/src/closure-service
+    volumes:
+      - ./backend/src/closure-service:/app/backend/src/closure-service:ro
+      - ./backend/src/common:/app/backend/src/common:ro
+      - ./backend/config:/app/backend/config:ro
     # Bare container port -- closure-service is scale_service-eligible.
     # docker compose port closure-service 8000
     ports: ["8000"]
@@ -1398,7 +1483,7 @@ services:
       CHECKOUT_SERVICE_ADDR: ob-checkoutservice:5050
       AD_SERVICE_ADDR: ob-adservice:9555
       # Required by mustMapEnv() even though we don't run this optional AI
-      # feature — gRPC dials are lazy, so an unreachable placeholder is
+      # feature â€” gRPC dials are lazy, so an unreachable placeholder is
       # enough to satisfy startup without crashing frontend.
       SHOPPING_ASSISTANT_SERVICE_ADDR: ob-shopping-assistant:8080
     depends_on:
@@ -1421,7 +1506,7 @@ services:
     depends_on:
       - ob-frontend
 
-  # Real per-container metrics (CPU, memory, network, restart count) — the
+  # Real per-container metrics (CPU, memory, network, restart count) â€” the
   # only genuine metrics source available since Online Boutique has no
   # app-level /metrics endpoint anywhere.
   ob-cadvisor:
@@ -1446,13 +1531,13 @@ services:
   #
   # IMPORTANT: rs-web's nginx config is baked into the image at build time
   # with hardcoded upstream hostnames (catalogue, user, shipping, payment,
-  # etc — confirmed live: renaming those services crash-looped rs-web with
+  # etc â€” confirmed live: renaming those services crash-looped rs-web with
   # "host not found in upstream 'catalogue'"). These aren't
   # env-var-configurable. So every Robot Shop service keeps a unique
   # compose key (rs-*, to avoid colliding with this project's own
   # redis/mysql/rabbitmq) but is given a network alias equal to the short
   # name its siblings expect, scoped to the isolated robot-shop-net network
-  # below — the alias never collides with the main project's own
+  # below â€” the alias never collides with the main project's own
   # redis/mysql/rabbitmq because it only exists inside that isolated
   # network, not the default one.
   rs-mongodb:
@@ -1478,6 +1563,7 @@ services:
     networks:
       robot-shop-net:
         aliases: [rabbitmq]
+      default: {}
 
   rs-mysql:
     profiles: ["demo-robot-shop"]
@@ -1581,7 +1667,7 @@ services:
       - rs-payment
 
   # robotshop/rs-load-gen isn't published to Docker Hub (upstream builds it
-  # from source only) — using the standard public locustio/locust image
+  # from source only) â€” using the standard public locustio/locust image
   # with a minimal locustfile instead, same effect: continuous real traffic.
   rs-load-gen:
     profiles: ["demo-robot-shop"]
@@ -1595,7 +1681,7 @@ services:
     depends_on:
       - rs-web
 
-  # cart/payment already expose real Prometheus /metrics natively — these
+  # cart/payment already expose real Prometheus /metrics natively â€” these
   # exporters also join "default" so the main project's Prometheus (which
   # is not on robot-shop-net) can scrape them.
   rs-mysqld-exporter:
@@ -1659,7 +1745,7 @@ networks:
   default:
     external: true
     name: kaims_default
-  # Isolated network for Robot Shop's internal service mesh — its images
+  # Isolated network for Robot Shop's internal service mesh â€” its images
   # have hostnames like "mongodb"/"redis"/"mysql"/"rabbitmq"/"catalogue"
   # baked in at build time (nginx config, not env-var configurable), which
   # would collide with this project's own services of the same name if
@@ -1677,6 +1763,7 @@ volumes:
   rabbitmq-data:
   rabbitmq-data-recovery:
   grafana-data:
+  prometheus-data:
   ui-dev-node-modules:
   ui-dev-npm-cache:
   jenkins-data:

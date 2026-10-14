@@ -1,0 +1,83 @@
+{
+  "received_at": "2026-09-04T04:19:56.160278+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "payments-db-connection: Critical Alert: Database Connection Pool Exhausted",
+    "service": "KAN",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "payments-db-connection: Critical Alert: Database Connection Pool Exhausted",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-1979",
+      "jira_issue_id": "13973",
+      "jira_status": "To Do",
+      "jira_priority": "",
+      "jira_reporter": "",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:poll",
+      "managed_by_kaiops": "true",
+      "kaiops_incident_id": "0826b92f-6e82-43f0-abfb-07881860f9cb",
+      "event_origin": "kaiops",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "payments-db-connection: Critical Alert: Database Connection Pool Exhausted",
+      "description": ""
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:poll",
+    "issue": {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "13973",
+      "self": "https://kaiops-test.atlassian.net/rest/api/3/issue/13973",
+      "key": "KAN-1979",
+      "fields": {
+        "summary": "payments-db-connection: Critical Alert: Database Connection Pool Exhausted",
+        "project": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/project/10001",
+          "id": "10001",
+          "key": "KAN",
+          "name": "kaiops-test",
+          "projectTypeKey": "software",
+          "simplified": true,
+          "avatarUrls": {
+            "48x48": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415",
+            "24x24": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=small",
+            "16x16": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=xsmall",
+            "32x32": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=medium"
+          }
+        },
+        "assignee": null,
+        "resolution": null,
+        "updated": "2026-09-02T12:20:20.201+0530",
+        "status": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/status/10004",
+          "description": "",
+          "iconUrl": "https://kaiops-test.atlassian.net/images/icons/statuses/generic.png",
+          "name": "To Do",
+          "id": "10004",
+          "statusCategory": {
+            "self": "https://kaiops-test.atlassian.net/rest/api/3/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "labels": [
+          "kaiops-candidate-ea5777b309305c89bc7449b2f445803b",
+          "kaiops-severity-critical",
+          "kaiops_incident_0826b92f_6e82_43f0_abfb_07881860f9cb",
+          "managed_by_kaiops"
+        ]
+      }
+    },
+    "event_origin": "jira-reconciliation",
+    "timestamp": "2026-09-02T12:20:20.201+0530"
+  }
+}

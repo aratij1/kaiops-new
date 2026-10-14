@@ -1,0 +1,59 @@
+{
+  "received_at": "2026-09-04T10:12:47.172761+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "KaiOpsHighLatencyP99",
+    "service": "api-gateway",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Service api-gateway operation /incidents/groups?limit=10&tenant_id=default p99 latency is above 3s.",
+    "labels": {
+      "alertname": "KaiOpsHighLatencyP99",
+      "application": "KaiOps",
+      "category": "latency",
+      "landing_pad": "realtime",
+      "operation": "/incidents/groups?limit=10&tenant_id=default",
+      "project_name": "KaiOps",
+      "service": "api-gateway",
+      "severity": "critical",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "resolved",
+      "alert_fingerprint": "6dc129c20fb78adc",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "Service api-gateway operation /incidents/groups?limit=10&tenant_id=default p99 latency is above 3s.",
+      "summary": "Critical p99 latency in KaiOps service",
+      "startsAt": "2026-09-04T10:10:44.854Z",
+      "endsAt": "2026-09-04T10:12:29.854Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=histogram_quantile%280.99%2C+sum+by+%28le%2C+service%2C+operation%29+%28rate%28kaiops_request_latency_seconds_bucket%5B5m%5D%29%29%29+%3E+3&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "resolved",
+    "labels": {
+      "alertname": "KaiOpsHighLatencyP99",
+      "application": "KaiOps",
+      "category": "latency",
+      "landing_pad": "realtime",
+      "operation": "/incidents/groups?limit=10&tenant_id=default",
+      "project_name": "KaiOps",
+      "service": "api-gateway",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "Service api-gateway operation /incidents/groups?limit=10&tenant_id=default p99 latency is above 3s.",
+      "summary": "Critical p99 latency in KaiOps service"
+    },
+    "startsAt": "2026-09-04T10:10:44.854Z",
+    "endsAt": "2026-09-04T10:12:29.854Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=histogram_quantile%280.99%2C+sum+by+%28le%2C+service%2C+operation%29+%28rate%28kaiops_request_latency_seconds_bucket%5B5m%5D%29%29%29+%3E+3&g0.tab=1",
+    "fingerprint": "6dc129c20fb78adc"
+  }
+}

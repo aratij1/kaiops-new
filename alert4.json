@@ -1,0 +1,21 @@
+﻿{
+  "receiver": "webhook",
+  "status": "firing",
+  "alerts": [
+    {
+      "labels": {
+        "alertname": "PaymentGatewayErrorRateHigh",
+        "project": "payment-gateway",
+        "service": "payment-gateway",
+        "environment": "prod",
+        "severity": "warning"
+      },
+      "annotations": {
+        "summary": "Payment gateway error rate elevated",
+        "description": "5xx error rate > 5% over the last 10 minutes."
+      },
+      "startsAt": "2026-10-11T14:41:00Z",
+      "status": "firing"
+    }
+  ]
+}

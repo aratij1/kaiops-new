@@ -1,0 +1,53 @@
+{
+  "received_at": "2026-08-31T13:54:10.738211+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "KAIMS-RCA-VERIFY-SPARSE-1788184450",
+    "service": "obscure-shadow-service-1788184450",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "An unexplained anomaly was observed with no known prior context",
+    "labels": {
+      "alertname": "KAIMS-RCA-VERIFY-SPARSE-1788184450",
+      "service": "obscure-shadow-service-1788184450",
+      "environment": "prod",
+      "severity": "warning",
+      "test_marker": "kaims-rca-fix-verification",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "rca-fix-verify-sparse-1788184450",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "summary": "Unusual signal on unknown-shadow-service-1788184450",
+      "description": "An unexplained anomaly was observed with no known prior context",
+      "startsAt": "2026-08-31T13:54:10.000Z",
+      "endsAt": "",
+      "generatorURL": "http://prometheus/graph"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "KAIMS-RCA-VERIFY-SPARSE-1788184450",
+      "service": "obscure-shadow-service-1788184450",
+      "environment": "prod",
+      "severity": "warning",
+      "test_marker": "kaims-rca-fix-verification"
+    },
+    "annotations": {
+      "summary": "Unusual signal on unknown-shadow-service-1788184450",
+      "description": "An unexplained anomaly was observed with no known prior context"
+    },
+    "startsAt": "2026-08-31T13:54:10.000Z",
+    "endsAt": null,
+    "generatorURL": "http://prometheus/graph",
+    "fingerprint": "rca-fix-verify-sparse-1788184450"
+  }
+}

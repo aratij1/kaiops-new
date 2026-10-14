@@ -1,0 +1,123 @@
+{
+  "mode": "local-no-kafka",
+  "alert_name": "Payment latency after deployment",
+  "severity": "critical",
+  "service": "payments",
+  "rca": {
+    "root_cause": "Deployment 2.5 introduced a change that increased p95 latency for the payments checkout path in the prod-us-east-1 cluster.",
+    "confidence_score": null,
+    "recommended_action": "Rollback deployment",
+    "commands": [
+      "kubectl rollout undo deployment/payments -n prod"
+    ],
+    "rollback_plan": null,
+    "impact_summary": null
+  },
+  "approval": {
+    "id": "213e457b-5cfc-4e9c-8ee7-c3bd0eae5307",
+    "status": null,
+    "risk_tier": null,
+    "required": null,
+    "summary": null
+  },
+  "agent_trace_events": [
+    {
+      "agent": "Alert Intelligence Agent",
+      "status": null,
+      "duration_ms": null
+    },
+    {
+      "agent": "Orchestrator Agent",
+      "status": null,
+      "duration_ms": null
+    },
+    {
+      "agent": "Context Intelligence Agent",
+      "status": null,
+      "duration_ms": null
+    },
+    {
+      "agent": "Resolution Intelligence Agent",
+      "status": null,
+      "duration_ms": null
+    },
+    {
+      "agent": "Human Approval Layer",
+      "status": null,
+      "duration_ms": null
+    },
+    {
+      "agent": "Remediation Automation Engine",
+      "status": null,
+      "duration_ms": null
+    },
+    {
+      "agent": "Closure & Validation",
+      "status": null,
+      "duration_ms": null
+    }
+  ],
+  "finops": {
+    "totals": {
+      "input_tokens": 1534,
+      "output_tokens": 721,
+      "total_tokens": 2255,
+      "total_cost_usd": 0.0,
+      "calls": 3,
+      "failed_calls": 0
+    },
+    "by_provider": [
+      {
+        "provider": "azure-openai",
+        "calls": 1,
+        "total_tokens": 2255,
+        "total_cost_usd": 0.0
+      },
+      {
+        "provider": "deterministic",
+        "calls": 2,
+        "total_tokens": 0,
+        "total_cost_usd": 0.0
+      }
+    ],
+    "calls": [
+      {
+        "provider": "azure-openai",
+        "model": "gpt-4o-2024-11-20",
+        "input_tokens": 1534,
+        "output_tokens": 721,
+        "total_tokens": 2255,
+        "input_cost_per_million": 0.0,
+        "output_cost_per_million": 0.0,
+        "input_cost_usd": 0.0,
+        "output_cost_usd": 0.0,
+        "total_cost_usd": 0.0,
+        "estimated": false,
+        "task": "rca",
+        "prompt_version": "d8c1d50d8a1ff9ed"
+      },
+      {
+        "provider": "deterministic",
+        "model": "deterministic-fast-path",
+        "task": "impact",
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "total_cost_usd": 0.0,
+        "estimated": false
+      },
+      {
+        "provider": "deterministic",
+        "model": "deterministic-fast-path",
+        "task": "fix",
+        "input_tokens": 0,
+        "output_tokens": 0,
+        "total_tokens": 0,
+        "total_cost_usd": 0.0,
+        "estimated": false
+      }
+    ],
+    "errors": [],
+    "currency": "USD"
+  }
+}

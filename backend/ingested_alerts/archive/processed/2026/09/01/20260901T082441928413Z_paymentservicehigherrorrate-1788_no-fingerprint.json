@@ -1,0 +1,81 @@
+{
+  "received_at": "2026-09-01T08:24:41.928413+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "PaymentServiceHighErrorRate_1788251075",
+    "service": "payment-service",
+    "severity": "critical",
+    "description": "Payment service HTTP 500 error rate spiked to 18% (duplicate repeat)",
+    "labels": {
+      "service": "payment-service",
+      "environment": "prod",
+      "tier": "tier-1",
+      "app": "payment-api",
+      "test_run": "run_1788251075",
+      "application": "payment-api",
+      "project": "payment-api",
+      "project_name": "payment-api",
+      "alertname": "PaymentServiceHighErrorRate_1788251075",
+      "alert_status": "firing"
+    },
+    "annotations": {
+      "summary": "PaymentServiceHighErrorRate_1788251075",
+      "description": "Payment service HTTP 500 error rate spiked to 18% (duplicate repeat)",
+      "root_cause": "",
+      "business_impact": "",
+      "resolution_steps": "Execute runbook steps and validate service recovery.",
+      "preventive_action": "",
+      "validation_criteria": "",
+      "kaiops_context": "{\"application\": \"payment-api\", \"correlation_id\": \"\", \"description\": \"Payment service HTTP 500 error rate spiked to 18% (duplicate repeat)\", \"environment\": \"prod\", \"evidence\": \"\", \"project\": \"payment-api\", \"service\": \"payment-service\", \"source\": \"prometheus\", \"summary\": \"PaymentServiceHighErrorRate_1788251075\"}",
+      "kaiops_resolution": "{\"impact\": \"\", \"recommended_action\": \"Execute runbook steps and validate service recovery.\", \"root_cause\": \"\"}",
+      "kaiops_remediation": "{\"preventive_action\": \"\", \"runbook_id\": \"\", \"steps\": \"\", \"target\": \"payment-service\", \"validation\": \"\"}"
+    },
+    "environment": "prod",
+    "application": "payment-api",
+    "project": "payment-api",
+    "context": {
+      "source": "prometheus",
+      "application": "payment-api",
+      "project": "payment-api",
+      "service": "payment-service",
+      "environment": "prod",
+      "summary": "PaymentServiceHighErrorRate_1788251075",
+      "description": "Payment service HTTP 500 error rate spiked to 18% (duplicate repeat)",
+      "evidence": "",
+      "correlation_id": ""
+    },
+    "resolution": {
+      "root_cause": "",
+      "impact": "",
+      "recommended_action": "Execute runbook steps and validate service recovery."
+    },
+    "remediation": {
+      "runbook_id": "",
+      "target": "payment-service",
+      "steps": "",
+      "preventive_action": "",
+      "validation": ""
+    }
+  },
+  "raw": {
+    "source": "prometheus",
+    "name": "PaymentServiceHighErrorRate_1788251075",
+    "service": "payment-service",
+    "severity": "critical",
+    "description": "Payment service HTTP 500 error rate spiked to 18% (duplicate repeat)",
+    "labels": {
+      "service": "payment-service",
+      "environment": "prod",
+      "tier": "tier-1",
+      "app": "payment-api",
+      "test_run": "run_1788251075"
+    },
+    "annotations": {
+      "summary": "PaymentServiceHighErrorRate_1788251075",
+      "description": "Payment service HTTP 500 error rate spiked to 18% (duplicate repeat)"
+    }
+  }
+}

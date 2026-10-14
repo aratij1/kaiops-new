@@ -1,9 +1,15 @@
 {
   "project": {
-    "name": "new_kaiops",
-    "owner_team": "data",
+    "name": "payment-gateway",
+    "owner_team": "payments",
     "environment": "prod",
-    "region": "us-east-1"
+    "region": "us-east-1",
+    "description": "",
+    "business_service": "",
+    "owner_email": "",
+    "criticality": "medium",
+    "cost_center": "",
+    "repository_url": ""
   },
   "deployment_mode": "on_prem",
   "prometheus_url": "http://prometheus:9090",
@@ -12,10 +18,20 @@
   "azure_subscription_id": "",
   "azure_resource_group": "",
   "azure_service_bus_namespace": "",
-  "azure_service_bus_topic": "kaiops-orchestration-events",
-  "azure_service_bus_subscription": "kaiops-orchestration-sub",
+  "azure_service_bus_topic": "",
+  "azure_service_bus_subscription": "",
   "azure_content_safety_enabled": false,
   "azure_content_safety_endpoint": "",
-  "user_assignments": {},
+  "user_assignments": {
+    "l2.operator": [
+      "payment-gateway"
+    ],
+    "l3.engineer": [
+      "payment-gateway"
+    ],
+    "administrator": [
+      "payment-gateway"
+    ]
+  },
   "updated_at": null
 }

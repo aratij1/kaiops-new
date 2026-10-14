@@ -1,0 +1,58 @@
+{
+  "received_at": "2026-09-03T11:32:04.354738+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "CoreStack alert: high CPU",
+    "service": "SEC",
+    "environment": "prod",
+    "severity": "high",
+    "description": "CPU usage exceeded threshold on prod-aws-node-1",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "SEC-1001",
+      "jira_issue_id": "90001",
+      "jira_status": "Open",
+      "jira_priority": "High",
+      "jira_reporter": "CoreStack Bot",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "CoreStack alert: high CPU",
+      "description": "CPU usage exceeded threshold on prod-aws-node-1"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "id": "90001",
+      "key": "SEC-1001",
+      "fields": {
+        "summary": "CoreStack alert: high CPU",
+        "description": "CPU usage exceeded threshold on prod-aws-node-1",
+        "priority": {
+          "name": "High"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "SEC"
+        },
+        "labels": [
+          "kaiops-tenant-prod-aws"
+        ],
+        "reporter": {
+          "displayName": "CoreStack Bot"
+        }
+      }
+    }
+  }
+}

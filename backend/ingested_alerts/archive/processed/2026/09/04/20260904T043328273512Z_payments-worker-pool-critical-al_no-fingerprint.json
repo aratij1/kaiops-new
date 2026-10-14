@@ -1,0 +1,83 @@
+{
+  "received_at": "2026-09-04T04:33:28.273512+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "payments-worker-pool: Critical Alert: High Thread Count on Payments Worker",
+    "service": "KAN",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "payments-worker-pool: Critical Alert: High Thread Count on Payments Worker",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-1983",
+      "jira_issue_id": "13977",
+      "jira_status": "To Do",
+      "jira_priority": "",
+      "jira_reporter": "",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:poll",
+      "managed_by_kaiops": "true",
+      "kaiops_incident_id": "9604b048-ad88-4f84-ac1a-bb1e878cd36b",
+      "event_origin": "kaiops",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "payments-worker-pool: Critical Alert: High Thread Count on Payments Worker",
+      "description": ""
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:poll",
+    "issue": {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "13977",
+      "self": "https://kaiops-test.atlassian.net/rest/api/3/issue/13977",
+      "key": "KAN-1983",
+      "fields": {
+        "summary": "payments-worker-pool: Critical Alert: High Thread Count on Payments Worker",
+        "project": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/project/10001",
+          "id": "10001",
+          "key": "KAN",
+          "name": "kaiops-test",
+          "projectTypeKey": "software",
+          "simplified": true,
+          "avatarUrls": {
+            "48x48": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415",
+            "24x24": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=small",
+            "16x16": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=xsmall",
+            "32x32": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=medium"
+          }
+        },
+        "assignee": null,
+        "resolution": null,
+        "updated": "2026-09-02T12:20:24.860+0530",
+        "status": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/status/10004",
+          "description": "",
+          "iconUrl": "https://kaiops-test.atlassian.net/images/icons/statuses/generic.png",
+          "name": "To Do",
+          "id": "10004",
+          "statusCategory": {
+            "self": "https://kaiops-test.atlassian.net/rest/api/3/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "labels": [
+          "kaiops-candidate-97e9f2ffe436aada821ee722a07cfb07",
+          "kaiops-severity-critical",
+          "kaiops_incident_9604b048_ad88_4f84_ac1a_bb1e878cd36b",
+          "managed_by_kaiops"
+        ]
+      }
+    },
+    "event_origin": "jira-reconciliation",
+    "timestamp": "2026-09-02T12:20:24.860+0530"
+  }
+}

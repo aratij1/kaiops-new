@@ -1,0 +1,55 @@
+{
+  "received_at": "2026-09-07T07:37:32.608342+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "KaiOpsServiceDown",
+    "service": "kaiops-fault-lab-service",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Service kaiops-fault-lab-service is not reachable by Prometheus for more than 1 minute.",
+    "labels": {
+      "alertname": "KaiOpsServiceDown",
+      "application": "KaiOps",
+      "instance": "fault-lab:8080",
+      "project_name": "KaiOps",
+      "severity": "critical",
+      "job": "kaiops-fault-lab-service",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "a74e719834a3beb7",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "summary": "KaiOps service is down",
+      "description": "Service kaiops-fault-lab-service is not reachable by Prometheus for more than 1 minute.",
+      "startsAt": "2026-09-07T03:58:29.854Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "KaiOpsServiceDown",
+      "application": "KaiOps",
+      "instance": "fault-lab:8080",
+      "job": "kaiops-fault-lab-service",
+      "project_name": "KaiOps",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "Service kaiops-fault-lab-service is not reachable by Prometheus for more than 1 minute.",
+      "summary": "KaiOps service is down"
+    },
+    "startsAt": "2026-09-07T03:58:29.854Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "a74e719834a3beb7"
+  }
+}

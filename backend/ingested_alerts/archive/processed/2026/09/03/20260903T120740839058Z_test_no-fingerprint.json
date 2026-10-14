@@ -1,0 +1,44 @@
+{
+  "received_at": "2026-09-03T12:07:40.839058+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "test",
+    "service": "jira-tickets",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "test",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-999",
+      "jira_issue_id": "",
+      "jira_status": "Open",
+      "jira_priority": "",
+      "jira_reporter": "",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "test",
+      "description": ""
+    }
+  },
+  "raw": {
+    "issue": {
+      "key": "KAN-999",
+      "fields": {
+        "summary": "test",
+        "status": {
+          "name": "Open"
+        }
+      }
+    },
+    "webhookEvent": "jira:issue_created"
+  }
+}

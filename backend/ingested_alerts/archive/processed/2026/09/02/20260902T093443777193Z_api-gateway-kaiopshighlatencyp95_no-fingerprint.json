@@ -1,0 +1,83 @@
+{
+  "received_at": "2026-09-02T09:34:43.777193+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "api-gateway: KaiOpsHighLatencyP95",
+    "service": "KAN",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "api-gateway: KaiOpsHighLatencyP95",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-1966",
+      "jira_issue_id": "13960",
+      "jira_status": "To Do",
+      "jira_priority": "",
+      "jira_reporter": "",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:poll",
+      "managed_by_kaiops": "true",
+      "kaiops_incident_id": "20d20d92-f7a5-45b9-be10-24c2012617f1",
+      "event_origin": "kaiops",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "api-gateway: KaiOpsHighLatencyP95",
+      "description": ""
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:poll",
+    "issue": {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "13960",
+      "self": "https://kaiops-test.atlassian.net/rest/api/3/issue/13960",
+      "key": "KAN-1966",
+      "fields": {
+        "summary": "api-gateway: KaiOpsHighLatencyP95",
+        "project": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/project/10001",
+          "id": "10001",
+          "key": "KAN",
+          "name": "kaiops-test",
+          "projectTypeKey": "software",
+          "simplified": true,
+          "avatarUrls": {
+            "48x48": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415",
+            "24x24": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=small",
+            "16x16": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=xsmall",
+            "32x32": "https://kaiops-test.atlassian.net/rest/api/3/universal_avatar/view/type/project/avatar/10415?size=medium"
+          }
+        },
+        "assignee": null,
+        "resolution": null,
+        "updated": "2026-09-02T09:26:05.192+0530",
+        "status": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/status/10004",
+          "description": "",
+          "iconUrl": "https://kaiops-test.atlassian.net/images/icons/statuses/generic.png",
+          "name": "To Do",
+          "id": "10004",
+          "statusCategory": {
+            "self": "https://kaiops-test.atlassian.net/rest/api/3/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "labels": [
+          "kaiops-candidate-b6b89ea42229642232125e5d19312901",
+          "kaiops-severity-high",
+          "kaiops_incident_20d20d92_f7a5_45b9_be10_24c2012617f1",
+          "managed_by_kaiops"
+        ]
+      }
+    },
+    "event_origin": "jira-reconciliation",
+    "timestamp": "2026-09-02T09:26:05.192+0530"
+  }
+}

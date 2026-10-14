@@ -1,0 +1,65 @@
+{
+  "received_at": "2026-09-02T06:05:19.237898+00:00",
+  "source": "public-internet-blackbox",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "public-internet-blackbox",
+    "name": "ExternalApplicationUnavailable",
+    "service": "opentelemetry-demo",
+    "environment": "public-internet",
+    "severity": "critical",
+    "description": "HTTPS probe failed for https://opentelemetry.io/ in public-internet. Synthetic=false.",
+    "labels": {
+      "alertname": "ExternalApplicationUnavailable",
+      "application": "opentelemetry-demo",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://opentelemetry.io/",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "opentelemetry-demo",
+      "severity": "critical",
+      "source": "public-internet-blackbox",
+      "synthetic": "false",
+      "origin_system": "public-internet-blackbox",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "e54561d321e92fc9",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "HTTPS probe failed for https://opentelemetry.io/ in public-internet. Synthetic=false.",
+      "summary": "External application opentelemetry-demo is unavailable",
+      "startsAt": "2026-09-02T06:05:05.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=probe_success%7Bexternal%3D%22true%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "ExternalApplicationUnavailable",
+      "application": "opentelemetry-demo",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://opentelemetry.io/",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "opentelemetry-demo",
+      "severity": "critical",
+      "source": "public-internet-blackbox",
+      "synthetic": "false"
+    },
+    "annotations": {
+      "description": "HTTPS probe failed for https://opentelemetry.io/ in public-internet. Synthetic=false.",
+      "summary": "External application opentelemetry-demo is unavailable"
+    },
+    "startsAt": "2026-09-02T06:05:05.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=probe_success%7Bexternal%3D%22true%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "e54561d321e92fc9"
+  }
+}

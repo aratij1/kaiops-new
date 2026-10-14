@@ -1,0 +1,59 @@
+{
+  "received_at": "2026-09-04T08:59:23.947921+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "KaiOpsHighLatencyP95",
+    "service": "api-gateway",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "Service api-gateway operation /incidents/groups?limit=100&tenant_id=default p95 latency is above 2s.",
+    "labels": {
+      "alertname": "KaiOpsHighLatencyP95",
+      "application": "KaiOps",
+      "category": "latency",
+      "landing_pad": "realtime",
+      "operation": "/incidents/groups?limit=100&tenant_id=default",
+      "project_name": "KaiOps",
+      "service": "api-gateway",
+      "severity": "warning",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "d7f38624b498f25d",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "Service api-gateway operation /incidents/groups?limit=100&tenant_id=default p95 latency is above 2s.",
+      "summary": "High p95 latency in KaiOps service",
+      "startsAt": "2026-09-04T08:58:59.854Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=histogram_quantile%280.95%2C+sum+by+%28le%2C+service%2C+operation%29+%28rate%28kaiops_request_latency_seconds_bucket%5B5m%5D%29%29%29+%3E+2&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "KaiOpsHighLatencyP95",
+      "application": "KaiOps",
+      "category": "latency",
+      "landing_pad": "realtime",
+      "operation": "/incidents/groups?limit=100&tenant_id=default",
+      "project_name": "KaiOps",
+      "service": "api-gateway",
+      "severity": "warning"
+    },
+    "annotations": {
+      "description": "Service api-gateway operation /incidents/groups?limit=100&tenant_id=default p95 latency is above 2s.",
+      "summary": "High p95 latency in KaiOps service"
+    },
+    "startsAt": "2026-09-04T08:58:59.854Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=histogram_quantile%280.95%2C+sum+by+%28le%2C+service%2C+operation%29+%28rate%28kaiops_request_latency_seconds_bucket%5B5m%5D%29%29%29+%3E+2&g0.tab=1",
+    "fingerprint": "d7f38624b498f25d"
+  }
+}

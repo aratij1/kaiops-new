@@ -1104,6 +1104,22 @@ async def dispatch_approval_direct(approval: Approval, x_kaiops_internal_token: 
     lifecycle["state"] = action.status.value
     lifecycle["history"] = [*lifecycle.get("history", []), action.status.value]
     action.parameters["lifecycle"] = lifecycle
+    terminal = {
+        RemediationStatus.SUCCEEDED,
+        RemediationStatus.FAILED,
+        RemediationStatus.SKIPPED,
+        RemediationStatus.EXECUTION_FAILED,
+        RemediationStatus.VALIDATION_FAILED,
+        RemediationStatus.DISPATCH_FAILED,
+        RemediationStatus.POLICY_BLOCKED,
+        RemediationStatus.ROLLED_BACK,
+        RemediationStatus.ROLLBACK_FAILED,
+        RemediationStatus.CANCELLED,
+        RemediationStatus.TIMED_OUT,
+        RemediationStatus.MANUAL_INTERVENTION_REQUIRED,
+    }
+    if action.status in terminal:
+        return await _finalize_api_execution(approval, action)
     await _persist_action(app, action)
     return action
 
@@ -1431,7 +1447,12 @@ async def execute_approval(approval: Approval) -> RemediationAction:
             approval.model_dump(mode="json"),
             id=workflow_id,
             task_queue=settings.remediation_temporal_task_queue,
-            id_reuse_policy=WorkflowIDReusePolicy.ALLOW_DUPLICATE_FAILED_ONLY,
+            # A workflow that already completed (for example blocked by a transient
+            # target lock) must be re-runnable on operator retry; otherwise the retry is
+            # silently attached to the finished run and the action sits in `dispatching`
+            # forever. Running workflows still reject duplicates, and the idempotency key
+            # prevents a second mutation.
+            id_reuse_policy=WorkflowIDReusePolicy.ALLOW_DUPLICATE,
         )
     except WorkflowAlreadyStartedError:
         client.get_workflow_handle(workflow_id)
@@ -1658,10 +1679,16 @@ async def _require_persisted_human_approval(approval: Approval) -> None:
 async def _require_persisted_approved_runbook(approval: Approval) -> None:
     if not settings.database_enabled:
         raise PolicyViolation("automatic execution requires durable runbook governance")
-    runbook_id = str(approval.metadata.get("runbook_id") or "").strip()
+    plan = approval.metadata.get("execution_plan") if isinstance(approval.metadata.get("execution_plan"), dict) else {}
+    runbook_id = str(
+        approval.metadata.get("runbook_id")
+        or plan.get("runbook_governance_id")
+        or plan.get("playbook_id")
+        or ""
+    ).strip()
     if not runbook_id:
         raise PolicyViolation("automatic execution blocked: governed runbook identity is missing")
-    version = int(approval.metadata.get("runbook_version") or 1)
+    version = int(approval.metadata.get("runbook_version") or plan.get("playbook_version") or 1)
     async with app.state.session_factory() as session:
         governance = await IncidentRepository(session).get_runbook_governance(
             runbook_id, version, tenant_id=approval.tenant_id
@@ -1670,7 +1697,11 @@ async def _require_persisted_approved_runbook(approval: Approval) -> None:
         raise PolicyViolation("automatic execution blocked: runbook version is not durably approved or is suspended")
     payload = governance.get("payload") if isinstance(governance.get("payload"), dict) else {}
     approved_checksum = str(payload.get("checksum_sha256") or "").strip()
-    plan_checksum = str(approval.metadata.get("runbook_checksum") or "").strip()
+    plan_checksum = str(
+        approval.metadata.get("runbook_checksum")
+        or plan.get("runbook_checksum")
+        or ""
+    ).strip()
     if not approved_checksum or approved_checksum != plan_checksum:
         raise PolicyViolation("automatic execution blocked: runbook checksum does not match durable approval")
     expires_at = str(payload.get("approval_expires_at") or "").strip()
@@ -1883,7 +1914,7 @@ def _require_production_credential_reference(approval: Approval, action_type: st
     environment = str(profile.get("environment") or approval.metadata.get("environment") or "").strip().lower()
     if environment not in {"prod", "production"}:
         return
-    if str(action_type or "").strip().lower() in {"status", "query", "inspect", "noop"}:
+    if str(action_type or "").strip().lower() in {"status", "query", "inspect", "noop", "docker_compose_restart"}:
         return
     executor_type = str(profile.get("executor_type") or profile.get("connection_type") or "").strip().lower()
     if executor_type == "azure_container_apps_job" and str(profile.get("identity_type") or "managed_identity").lower() == "managed_identity":
@@ -1931,7 +1962,10 @@ def _require_live_executor_configuration(action: RemediationAction) -> None:
                 "Attach the approved service/resource target and execution plan before executing."
             ),
         )
-    if action.action_type == "script_execution" and executor_type not in {"jenkins", "azure_container_apps_job"}:
+    if (
+        action.action_type in {"script_execution", "docker_compose_restart"}
+        and executor_type not in {"jenkins", "azure_container_apps_job"}
+    ):
         return
     if executor_type == "azure_container_apps_job":
         required = {
@@ -2045,7 +2079,7 @@ async def _reserve_target_execution(app: FastAPI, action: RemediationAction) -> 
     async with process_lock:
         from common.advisory_lock import advisory_session
         db_lock_name = f"kaiops_target_{hashlib.sha256(scope.encode('utf-8')).hexdigest()[:40]}"
-        async with advisory_session(app.state.session_factory, db_lock_name, wait_seconds=5) as session:
+        async with advisory_session(app.state.session_factory, db_lock_name, wait_seconds=30) as session:
             if session is None:
                 raise HTTPException(status_code=409, detail=f"Target execution is busy; retry after the active remediation completes. scope={scope}")
             rows = (

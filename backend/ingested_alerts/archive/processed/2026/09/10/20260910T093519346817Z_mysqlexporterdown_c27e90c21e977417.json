@@ -1,0 +1,59 @@
+{
+  "received_at": "2026-09-10T09:35:19.346817+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "MySQLExporterDown",
+    "service": "mysql-exporter",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "mysql-exporter is not reachable by Prometheus.",
+    "labels": {
+      "alertname": "MySQLExporterDown",
+      "application": "KaiOps",
+      "environment": "prod",
+      "instance": "mysql-exporter:9104",
+      "job": "mysql-exporter",
+      "project_name": "KaiOps",
+      "service": "mysql-exporter",
+      "severity": "critical",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "c27e90c21e977417",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "mysql-exporter is not reachable by Prometheus.",
+      "summary": "MySQL exporter is down",
+      "startsAt": "2026-09-10T09:30:17.581Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=up%7Bjob%3D%22mysql-exporter%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "MySQLExporterDown",
+      "application": "KaiOps",
+      "environment": "prod",
+      "instance": "mysql-exporter:9104",
+      "job": "mysql-exporter",
+      "project_name": "KaiOps",
+      "service": "mysql-exporter",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "mysql-exporter is not reachable by Prometheus.",
+      "summary": "MySQL exporter is down"
+    },
+    "startsAt": "2026-09-10T09:30:17.581Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=up%7Bjob%3D%22mysql-exporter%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "c27e90c21e977417"
+  }
+}

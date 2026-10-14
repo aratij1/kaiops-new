@@ -1,0 +1,51 @@
+{
+  "received_at": "2026-09-07T08:28:36.558628+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "HighNetworkPacketLoss",
+    "service": "blackbox",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "HTTP probe success ratio dropped below 95% for target http://ob-frontend:8080/_healthz.",
+    "labels": {
+      "alertname": "HighNetworkPacketLoss",
+      "instance": "http://ob-frontend:8080/_healthz",
+      "job": "blackbox",
+      "severity": "critical",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "9ce73b4abfbb4063",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "HTTP probe success ratio dropped below 95% for target http://ob-frontend:8080/_healthz.",
+      "summary": "High network packet loss",
+      "startsAt": "2026-09-07T04:02:35.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=avg_over_time%28probe_success%7Bjob%3D%22blackbox%22%7D%5B5m%5D%29+%3C+0.95&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "HighNetworkPacketLoss",
+      "instance": "http://ob-frontend:8080/_healthz",
+      "job": "blackbox",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "HTTP probe success ratio dropped below 95% for target http://ob-frontend:8080/_healthz.",
+      "summary": "High network packet loss"
+    },
+    "startsAt": "2026-09-07T04:02:35.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=avg_over_time%28probe_success%7Bjob%3D%22blackbox%22%7D%5B5m%5D%29+%3C+0.95&g0.tab=1",
+    "fingerprint": "9ce73b4abfbb4063"
+  }
+}

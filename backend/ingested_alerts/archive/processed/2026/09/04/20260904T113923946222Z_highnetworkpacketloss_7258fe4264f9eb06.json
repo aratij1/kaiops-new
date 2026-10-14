@@ -1,0 +1,63 @@
+{
+  "received_at": "2026-09-04T11:39:23.946222+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "HighNetworkPacketLoss",
+    "service": "httpbin-failure-lab",
+    "environment": "public-internet",
+    "severity": "critical",
+    "description": "HTTP probe success ratio dropped below 95% for target https://httpbin.org/status/503.",
+    "labels": {
+      "alertname": "HighNetworkPacketLoss",
+      "application": "httpbin-failure-lab",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://httpbin.org/status/503",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "httpbin-failure-lab",
+      "severity": "critical",
+      "synthetic": "true",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "7258fe4264f9eb06",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "HTTP probe success ratio dropped below 95% for target https://httpbin.org/status/503.",
+      "summary": "High network packet loss",
+      "startsAt": "2026-09-04T11:05:05.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=avg_over_time%28probe_success%7Bjob%3D%22blackbox%22%7D%5B5m%5D%29+%3C+0.95&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "HighNetworkPacketLoss",
+      "application": "httpbin-failure-lab",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://httpbin.org/status/503",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "httpbin-failure-lab",
+      "severity": "critical",
+      "synthetic": "true"
+    },
+    "annotations": {
+      "description": "HTTP probe success ratio dropped below 95% for target https://httpbin.org/status/503.",
+      "summary": "High network packet loss"
+    },
+    "startsAt": "2026-09-04T11:05:05.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=avg_over_time%28probe_success%7Bjob%3D%22blackbox%22%7D%5B5m%5D%29+%3C+0.95&g0.tab=1",
+    "fingerprint": "7258fe4264f9eb06"
+  }
+}

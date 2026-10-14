@@ -1,0 +1,55 @@
+{
+  "received_at": "2026-09-05T07:26:20.374463+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "ServiceDown",
+    "service": "kaiops-alert-intelligence",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Endpoint kaiops-alert-intelligence is unreachable.",
+    "labels": {
+      "alertname": "ServiceDown",
+      "application": "KaiOps",
+      "project_name": "KaiOps",
+      "severity": "critical",
+      "instance": "alert-intelligence:8000",
+      "job": "kaiops-alert-intelligence",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "resolved",
+      "alert_fingerprint": "8a3fcbf9fb47a29a",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "summary": "Service down",
+      "description": "Endpoint kaiops-alert-intelligence is unreachable.",
+      "startsAt": "2026-09-05T07:25:35.276Z",
+      "endsAt": "2026-09-05T07:26:05.276Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "resolved",
+    "labels": {
+      "alertname": "ServiceDown",
+      "application": "KaiOps",
+      "instance": "alert-intelligence:8000",
+      "job": "kaiops-alert-intelligence",
+      "project_name": "KaiOps",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "Endpoint kaiops-alert-intelligence is unreachable.",
+      "summary": "Service down"
+    },
+    "startsAt": "2026-09-05T07:25:35.276Z",
+    "endsAt": "2026-09-05T07:26:05.276Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "8a3fcbf9fb47a29a"
+  }
+}

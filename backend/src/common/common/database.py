@@ -703,7 +703,7 @@ class ExecutionPlanRecord(Base):
     rca_version: Mapped[int] = mapped_column(Integer, nullable=False)
     context_snapshot_id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), nullable=False)
     context_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
-    resolution_selection_id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), nullable=False)
+    resolution_selection_id: Mapped[UUID | None] = mapped_column(Uuid(as_uuid=True), nullable=True)
     policy_version: Mapped[str] = mapped_column(String(64), nullable=False)
     playbook_id: Mapped[str] = mapped_column(String(255), nullable=False)
     schema_version: Mapped[str] = mapped_column(String(64), nullable=False)
@@ -748,7 +748,12 @@ class ResolutionStateTransitionRecord(Base):
 
 class AuditLogRecord(Base, TimestampMixin):
     __tablename__ = "audit_logs"
-    __table_args__ = (Index("idx_audit_logs_resource_action_created", "resource_type", "action", "created_at"),)
+    __table_args__ = (
+        Index("idx_audit_logs_resource_action_created", "resource_type", "action", "created_at"),
+        # The audit page lists newest-first without a filter; without this index MySQL
+        # filesorts the large JSON payload rows and fails with "Out of sort memory".
+        Index("idx_audit_logs_created_at", "created_at"),
+    )
 
     id: Mapped[UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid4)
     tenant_id: Mapped[str] = mapped_column(String(128), index=True, default="default")
@@ -1164,12 +1169,10 @@ class IncidentEventRecord(Base):
 
 
 class IncidentProjectionRecord(Base):
-    # Deliberately does NOT inherit TimestampMixin: the live incident_projections
-    # table has never had a created_at column (first_seen_at/updated_at carry
-    # the meaningful timestamps -- see 20260708_incident_projection_backfill.sql).
-    # TimestampMixin's created_at is an ORM-only default with no DB column
-    # behind it, so every SQLAlchemy-generated SELECT/INSERT against this model
-    # would reference a nonexistent column and fail closed for every incident.
+    # Does NOT inherit TimestampMixin -- created_at and updated_at are declared
+    # explicitly below so their column position and defaults match the DB schema.
+    # created_at was added by migration 20261012_incident_projections_created_at.sql;
+    # first_seen_at remains the canonical "when was this incident first detected" field.
     __tablename__ = "incident_projections"
     __table_args__ = (Index("idx_incident_projections_tenant_updated", "tenant_id", "updated_at"),)
 
@@ -1200,6 +1203,7 @@ class IncidentProjectionRecord(Base):
     first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     document_available: Mapped[bool | None] = mapped_column(Boolean)
     projection_payload: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utc_now, onupdate=utc_now)
 
 

@@ -939,7 +939,10 @@ async def validate(
     if persistence.get("status") == "stale_suppressed":
         raise HTTPException(status_code=409, detail=persistence.get("reason"))
     if persistence.get("outbox_enqueued"):
-        await _publish_closure_event(app, payload_out, key=str(action.incident_id))
+        try:
+            await _publish_closure_event(app, payload_out, key=str(action.incident_id))
+        except Exception:
+            logger.warning("Failed to publish closure event to broker; outbox will retry", exc_info=True)
     return report
 
 

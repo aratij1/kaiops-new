@@ -1,0 +1,54 @@
+{
+  "received_at": "2026-09-03T10:43:01.608434+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "Test synthetic alert",
+    "service": "TEST",
+    "environment": "prod",
+    "severity": "high",
+    "description": "Test synthetic alert",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "TEST-123",
+      "jira_issue_id": "99001",
+      "jira_status": "Open",
+      "jira_priority": "High",
+      "jira_reporter": "",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_updated",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "Test synthetic alert",
+      "description": ""
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_updated",
+    "issue": {
+      "id": "99001",
+      "key": "TEST-123",
+      "fields": {
+        "summary": "Test synthetic alert",
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "TEST"
+        },
+        "priority": {
+          "name": "High"
+        },
+        "labels": [
+          "kaiops-tenant-test"
+        ]
+      }
+    }
+  }
+}

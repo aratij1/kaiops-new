@@ -34,10 +34,10 @@ def evaluated_impact_claim(
     raw_support = analysis.get("supporting_evidence_ids") or analysis.get("evidence_ids") or []
     supporting_ids = [str(eid) for eid in raw_support if str(eid) in available_evidence_ids]
 
-    if supporting_ids:
+    if len(supporting_ids) >= 2:
         status = ClaimStatus.GROUNDED
         limitations = []
-    elif analysis.get("observed") is True or analysis.get("status") == "OBSERVED":
+    elif supporting_ids or analysis.get("observed") is True or analysis.get("status") == "OBSERVED":
         status = ClaimStatus.OBSERVED
         limitations = ["Impact observed in telemetry but not fully corroborated across independent business indicators."]
     else:

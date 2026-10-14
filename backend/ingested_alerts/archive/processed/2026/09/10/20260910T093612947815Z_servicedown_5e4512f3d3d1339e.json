@@ -1,0 +1,61 @@
+{
+  "received_at": "2026-09-10T09:36:12.947815+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "ServiceDown",
+    "service": "kaiops-orchestrator",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Endpoint kaiops-orchestrator is unreachable.",
+    "labels": {
+      "alertname": "ServiceDown",
+      "application": "KaiOps",
+      "project_name": "KaiOps",
+      "severity": "critical",
+      "instance": "orchestrator:8000",
+      "job": "kaiops-orchestrator",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "5e4512f3d3d1339e",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "pipeline_outcome": "suppressed",
+      "pipeline_reason": "Discovery cooldown active",
+      "source_event_id": "5e4512f3d3d1339e",
+      "discovery_fingerprint": "5e4512f3d3d1339e",
+      "occurrence_count": "5",
+      "pipeline_stage": "pre_discovery_admission"
+    },
+    "annotations": {
+      "summary": "Service down",
+      "description": "Endpoint kaiops-orchestrator is unreachable.",
+      "startsAt": "2026-09-10T09:33:05.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "ServiceDown",
+      "application": "KaiOps",
+      "instance": "orchestrator:8000",
+      "job": "kaiops-orchestrator",
+      "project_name": "KaiOps",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "Endpoint kaiops-orchestrator is unreachable.",
+      "summary": "Service down"
+    },
+    "startsAt": "2026-09-10T09:33:05.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "5e4512f3d3d1339e"
+  }
+}

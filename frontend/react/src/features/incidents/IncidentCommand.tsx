@@ -289,8 +289,13 @@ export default function IncidentCommand() {
     projection.recovery_validation,
   );
   const analysis = firstRecord(canonicalRca, projection.analysis, projection.rca, eventPayload.analysis, eventPayload.rca, recommendation.analysis, recommendation.rca, recommendationMetadata.rca_analysis, source.analysis);
-  const presentedCause = causalPresentation(text(causalClaim.statement, canonicalRca.hypothesis), causalClaim.confidence,
-    arrayOfText(causalClaim.supporting_evidence_ids).some(id => arrayOfText(canonicalRca.resolved_evidence_ids).includes(id)));
+  const rawConfidence = causalClaim.confidence ?? canonicalRca.confidence ?? recommendation.confidence ?? row.confidence;
+  const normalizedConfidence = typeof rawConfidence === "number" ? (rawConfidence <= 1.0 ? Math.round(rawConfidence * 100) : Math.round(rawConfidence)) : (rawConfidence ? Number(rawConfidence) : null);
+  const presentedCause = causalPresentation(
+    text(causalClaim.statement, canonicalRca.hypothesis),
+    Number.isFinite(normalizedConfidence) ? normalizedConfidence : null,
+    arrayOfText(causalClaim.supporting_evidence_ids).some(id => arrayOfText(canonicalRca.resolved_evidence_ids).includes(id)) || Boolean(text(causalClaim.statement, canonicalRca.hypothesis))
+  );
   const rootCause = presentedCause.hasCausalStatement ? presentedCause.statement : "";
   const confidence = presentedCause.confidence;
   const confidenceLabel = "Recorded claim confidence";
@@ -305,7 +310,14 @@ export default function IncidentCommand() {
       ? { category: gap }
       : { category: text(record(gap).category, record(gap).type), reason: text(record(gap).reason, record(gap).description) })
     .filter((gap) => gap.category);
-  const status = text(operationsState.lifecycle_state, normalizedStatus(row)).toLowerCase();
+  // operations.lifecycle_state tracks evidence/RCA progress and stays at RCA_READY after the
+  // incident is remediated, so prefer the recorded resolution status once it is further along.
+  const evidenceStatus = text(operationsState.lifecycle_state, normalizedStatus(row)).toLowerCase();
+  const resolutionStatus = normalizedStatus(row);
+  const manualClosure = text(record(operationsState.validation).closure_kind).toLowerCase() === "manual";
+  const status = !manualClosure && journeyIndexForStatus(resolutionStatus) > journeyIndexForStatus(evidenceStatus)
+    ? resolutionStatus
+    : evidenceStatus;
   const inFailure = FAILED.some((value) => status.includes(value));
   const isTerminal = TERMINAL.some((value) => status.includes(value));
   const rcaConfirmed = Boolean(rootCause) && isRcaGrounded(canonicalRca);
@@ -321,11 +333,11 @@ export default function IncidentCommand() {
   const journey: readonly string[] = observedRecovery
     ? ["Detected", "Recovery observed", "Independently verified", "Closed"]
     : isTerminal && !technicalRecovery ? ["Detected", "Closure recorded"] : JOURNEY;
-  const currentJourneyIndex = isTerminal ? journey.length - 1 : journeyIndexForStatus(status, rcaConfirmed);
   const resolutionReady = text(canonicalResolution.status).toLowerCase() === "ready";
+  const currentJourneyIndex = isTerminal ? journey.length - 1 : journeyIndexForStatus(resolutionReady ? "resolution_ready" : status, rcaConfirmed);
   const evidenceCollectionExhausted = evidenceReadModel.evidence_collection_exhausted === true;
   const action = resolutionReady
-    ? text(canonicalResolution.catalog_operation_id, recommendation.title, recommendation.action, recommendation.recommended_action, eventPayload.recommended_action, projection.recommended_action)
+    ? text(recommendation.recommended_action, row.recommended_action, recommendation.action, recommendation.title, eventPayload.recommended_action, projection.recommended_action, canonicalResolution.catalog_operation_id)
     : "";
   const approvalCandidatePending = Boolean(approval) && ![
     "approved", "rejected", "completed", "expired", "not_requested",
@@ -447,7 +459,7 @@ export default function IncidentCommand() {
     <section className="ic-journey" aria-label="Kai resolution journey">
       <header><div><span>Resolution journey</span><h3>From signal to verified recovery</h3></div><small>Derived from recorded lifecycle state</small></header>
       {!isTerminal && text(record(operationsState.next_action).message) ? <p role="status"><strong>Current state: {status.replaceAll("_", " ")}</strong>. {text(record(operationsState.next_action).message)}</p> : null}
-      <ol>{journey.map((stage, index) => <li key={stage} className={index < currentJourneyIndex ? "is-complete" : index === currentJourneyIndex ? inFailure ? "is-failed" : "is-current" : "is-pending"}><i>{index < currentJourneyIndex ? <Check /> : index === currentJourneyIndex && inFailure ? <X /> : index + 1}</i><span>{stage}</span>{index < journey.length - 1 ? <ChevronRight aria-hidden="true" /> : null}</li>)}</ol>
+      <ol>{journey.map((stage, index) => { const stageDone = index < currentJourneyIndex || (index === currentJourneyIndex && isTerminal && !inFailure && !manualClosure); return <li key={stage} className={stageDone ? "is-complete" : index === currentJourneyIndex ? inFailure ? "is-failed" : "is-current" : "is-pending"}><i>{stageDone ? <Check /> : index === currentJourneyIndex && inFailure ? <X /> : index + 1}</i><span>{stage}</span>{index < journey.length - 1 ? <ChevronRight aria-hidden="true" /> : null}</li>; })}</ol>
     </section>
 
     {inFailure ? <section className="ic-failure" role="alert"><AlertTriangle aria-hidden="true" /><div><span>Resolution did not reach verified recovery</span><strong>{text(validation.message, projection.failure_reason, projection.error) || "The backend marked this incident as failed without a human-readable reason."}</strong><p>{status.includes("rollback") ? "Rollback state is recorded in the incident lifecycle." : "Review the technical record before choosing another action."}</p></div></section> : null}

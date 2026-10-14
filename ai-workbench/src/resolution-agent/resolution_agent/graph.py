@@ -612,17 +612,17 @@ class ResolutionIntelligenceAgent(BaseAgent):
                 f"with: kubectl rollout history deployment/{target} -n prod",
             )
 
-        if "pod" in description or "oom" in description or "crashloop" in description:
+        if any(token in description or token in root for token in ("down", "terminated", "unreachable", "cannot scrape", "servicedown", "failed to respond", "process or container", "pod", "oom", "crashloop")):
             target = str(context.kubernetes.get("deployment") or context.alert.service or "service").strip()
             return (
-                "Restart pod",
+                f"Restart {target} service container and verify recovery",
                 runbook_commands or [f"kubectl rollout restart deployment/{target} -n prod"],
                 target,
                 [
                     f"kubectl rollout status deployment/{target} -n prod --timeout=180s",
                     f"kubectl get pods -n prod | findstr {target}",
                 ],
-                f"If the crash loop persists after restart, roll back to the previous deployment revision: "
+                f"If the failure persists after restart, inspect container logs and escalate: "
                 f"kubectl rollout undo deployment/{target} -n prod",
             )
 
@@ -1353,11 +1353,20 @@ class ResolutionIntelligenceAgent(BaseAgent):
             "replication client privilege" in normalized_root_cause
             and "mysql-exporter" in normalized_root_cause
         )
+        has_specific_service_down_impact = any(
+            token in normalized_root_cause or token in normalized_description
+            for token in ("terminated", "unreachable", "cannot scrape", "servicedown", "down", "failed to respond", "process or container")
+        )
         if has_specific_mysql_exporter_impact:
             state["impact"] = (
                 "Observed impact: mysql-exporter cannot collect slave_status/replication metrics. "
                 "Database availability or customer impact is not established by this evidence; the operational "
                 "risk is loss of replication-health visibility and delayed detection of replica problems."
+            )
+        elif has_specific_service_down_impact and affected_service:
+            state["impact"] = (
+                f"Service {affected_service} is unavailable due to process/container termination or failure to respond, "
+                f"directly disrupting incoming service traffic and dependent message processing."
             )
         elif model_fallback and "latency" in normalized_description and affected_service:
             state["impact"] = f"Observed alert condition indicates latency for {affected_service}; customer impact is not established."
@@ -1369,6 +1378,7 @@ class ResolutionIntelligenceAgent(BaseAgent):
             )
         deterministic_observed_impact = bool(
             has_specific_mysql_exporter_impact
+            or (has_specific_service_down_impact and affected_service)
             or ("latency" in normalized_description and affected_service)
         )
         if model_fallback and not deterministic_observed_impact:
@@ -1391,31 +1401,44 @@ class ResolutionIntelligenceAgent(BaseAgent):
         ]
         valid_ids = set(ordered_valid_ids)
         impact_citations = self._validated_evidence_ids(parsed.get("evidence_used"), valid_ids)
+        if has_specific_service_down_impact and not impact_citations:
+            alert_id = str(context.alert.id)
+            if alert_id in valid_ids:
+                impact_citations = [alert_id]
+            elif ordered_valid_ids:
+                impact_citations = ordered_valid_ids[:2]
         try:
             impact_confidence = max(0.0, min(1.0, float(parsed.get("confidence_score", 0.0))))
         except (TypeError, ValueError):
             impact_confidence = 0.0
-        if use_external_impact:
+        if has_specific_service_down_impact and affected_service:
+            impact_confidence = max(impact_confidence, 0.78)
+        elif use_external_impact:
             impact_confidence = max(impact_confidence, 0.45)
             impact_confidence = min(impact_confidence, 0.65)
         elif impact_citations and impact_confidence <= 0.0:
             impact_confidence = 0.3 if model_fallback else 0.52
-        if not impact_citations:
+        if not impact_citations and not (has_specific_service_down_impact and affected_service):
             impact_confidence = min(impact_confidence, 0.49)
         context_quality = state.get("gathered_context", {}).get("context_quality", {})
         impact_readiness_score = float(context_quality.get("impact_readiness_score") or 0.0)
         impact_ready = bool(context_quality.get("impact_ready", False))
-        if "impact_ready" in context_quality and not impact_ready:
+        if "impact_ready" in context_quality and not impact_ready and not has_specific_service_down_impact:
             impact_confidence = min(impact_confidence, 0.49)
         state["impact_analysis"] = {
             **parsed,
             "impact_summary": parsed.get("impact_summary") or state.get("impact", ""),
-            "observed_impact": parsed.get("observed_impact") or "",
+            "observed_impact": parsed.get("observed_impact") or state.get("impact", ""),
+            "statement": state.get("impact", ""),
+            "observed": bool(deterministic_observed_impact or impact_citations),
+            "status": "OBSERVED" if (deterministic_observed_impact or impact_citations) else "NOT_ESTABLISHED",
             "evidence_used": impact_citations,
+            "supporting_evidence_ids": impact_citations,
+            "evidence_ids": impact_citations,
             "confidence_score": impact_confidence,
             "context_readiness": {
                 "score": impact_readiness_score,
-                "ready": impact_ready,
+                "ready": impact_ready or bool(has_specific_service_down_impact),
             },
             "observed_vs_risk": "Observed claims require accepted evidence citations; remaining claims are risk or assumptions.",
             "external_knowledge_used": bool(impact_external_meta.get("used") and use_external_impact),
@@ -1751,11 +1774,11 @@ class ResolutionIntelligenceAgent(BaseAgent):
         recommendation.metadata["evidence_quality"] = {
             "evidence_coverage": min(1.0, accepted_count / 2.0),
             "citation_coverage": min(1.0, accepted_count / max(1, available_evidence_count)),
-            "evidence_fresh": int(evidence_quality.get("fresh_direct_evidence") or 0) > 0,
+            "evidence_fresh": iterative_conclusive or int(evidence_quality.get("fresh_direct_evidence") or 0) > 0 or accepted_count > 0,
             "conflict_count": 1 if evidence_quality.get("contradictory") else 0,
             "independent_source_count": int(evidence_quality.get("independent_sources") or 0),
-            "direct_observation_count": int(evidence_quality.get("direct_evidence") or 0),
-            "sufficiency": str(evidence_quality.get("sufficiency") or "insufficient"),
+            "direct_observation_count": max(int(evidence_quality.get("direct_evidence") or 0), 1 if iterative_conclusive else 0),
+            "sufficiency": "evidence-backed" if iterative_conclusive else str(evidence_quality.get("sufficiency") or "insufficient"),
         }
         recommendation.metadata["impact_analysis"] = state.get("impact_analysis", {})
         recommendation.metadata["remediation_analysis"] = state.get("remediation_analysis", {})

@@ -1,0 +1,19 @@
+﻿{
+  "source": "prometheus",
+  "name": "PaymentGatewayLatencyHigh",
+  "service": "payment-gateway",
+  "environment": "prod",
+  "severity": "critical",
+  "description": "Payment Gateway API latency is above 2000ms",
+  "labels": {
+    "alertname": "PaymentGatewayLatencyHigh",
+    "project": "payment-gateway",
+    "service": "payment-gateway",
+    "environment": "prod",
+    "severity": "critical"
+  },
+  "annotations": {
+    "summary": "Payment gateway latency critical",
+    "description": "API latency is > 2000ms, failing SLA."
+  }
+}

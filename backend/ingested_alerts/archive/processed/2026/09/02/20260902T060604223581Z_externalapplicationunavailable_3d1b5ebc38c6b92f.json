@@ -1,0 +1,65 @@
+{
+  "received_at": "2026-09-02T06:06:04.223581+00:00",
+  "source": "public-internet-blackbox",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "public-internet-blackbox",
+    "name": "ExternalApplicationUnavailable",
+    "service": "github-status",
+    "environment": "public-internet",
+    "severity": "critical",
+    "description": "HTTPS probe failed for https://www.githubstatus.com/api/v2/status.json in public-internet. Synthetic=false.",
+    "labels": {
+      "alertname": "ExternalApplicationUnavailable",
+      "application": "github-status",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://www.githubstatus.com/api/v2/status.json",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "github-status",
+      "severity": "critical",
+      "source": "public-internet-blackbox",
+      "synthetic": "false",
+      "origin_system": "public-internet-blackbox",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "3d1b5ebc38c6b92f",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "HTTPS probe failed for https://www.githubstatus.com/api/v2/status.json in public-internet. Synthetic=false.",
+      "summary": "External application github-status is unavailable",
+      "startsAt": "2026-09-02T06:05:50.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=probe_success%7Bexternal%3D%22true%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "ExternalApplicationUnavailable",
+      "application": "github-status",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://www.githubstatus.com/api/v2/status.json",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "github-status",
+      "severity": "critical",
+      "source": "public-internet-blackbox",
+      "synthetic": "false"
+    },
+    "annotations": {
+      "description": "HTTPS probe failed for https://www.githubstatus.com/api/v2/status.json in public-internet. Synthetic=false.",
+      "summary": "External application github-status is unavailable"
+    },
+    "startsAt": "2026-09-02T06:05:50.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=probe_success%7Bexternal%3D%22true%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "3d1b5ebc38c6b92f"
+  }
+}

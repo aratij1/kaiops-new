@@ -1,0 +1,61 @@
+{
+  "received_at": "2026-09-04T08:48:59.848047+00:00",
+  "source": "robot-shop",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "robot-shop",
+    "name": "RobotShopServiceDown",
+    "service": "robot-shop-mysql",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Prometheus cannot scrape robot-shop-mysql for more than 20s.",
+    "labels": {
+      "alertname": "RobotShopServiceDown",
+      "severity": "critical",
+      "source": "robot-shop",
+      "instance": "rs-mysqld-exporter:9104",
+      "job": "robot-shop-mysql",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "7031f85e3158eae5",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "pipeline_outcome": "discover",
+      "pipeline_reason": "admitted for Discovery",
+      "project_name": "unassigned",
+      "application": "unassigned",
+      "source_event_id": "7031f85e3158eae5",
+      "discovery_fingerprint": "7031f85e3158eae5",
+      "occurrence_count": "1",
+      "pipeline_stage": "pre_discovery_admission"
+    },
+    "annotations": {
+      "description": "Prometheus cannot scrape robot-shop-mysql for more than 20s.",
+      "summary": "Robot Shop dependency robot-shop-mysql is unreachable",
+      "startsAt": "2026-09-04T04:34:44.928Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22robot-shop-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "RobotShopServiceDown",
+      "instance": "rs-mysqld-exporter:9104",
+      "job": "robot-shop-mysql",
+      "severity": "critical",
+      "source": "robot-shop"
+    },
+    "annotations": {
+      "description": "Prometheus cannot scrape robot-shop-mysql for more than 20s.",
+      "summary": "Robot Shop dependency robot-shop-mysql is unreachable"
+    },
+    "startsAt": "2026-09-04T04:34:44.928Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22robot-shop-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "7031f85e3158eae5"
+  }
+}

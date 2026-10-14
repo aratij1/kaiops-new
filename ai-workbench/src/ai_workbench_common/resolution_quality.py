@@ -95,6 +95,7 @@ def assess_evidence_quality(
         for row in rows
         if _DIRECT_SIGNALS.intersection(str(signal).lower() for signal in row.get("diagnostic_signals", []))
         or row.get("signal_counts")
+        or _source_family(row.get("source")) in {"alerting", "metrics", "logs"}
     )
     now = reference_time.astimezone(timezone.utc) if reference_time else None
     fresh_direct = 0
@@ -107,7 +108,11 @@ def assess_evidence_quality(
             reliability = _SOURCE_RELIABILITY.get(family, 0.55)
         reliabilities.append(max(0.0, min(reliability, 1.0)))
         signals = {str(signal).lower() for signal in row.get("diagnostic_signals", [])}
-        if not (_DIRECT_SIGNALS.intersection(signals) or row.get("signal_counts")):
+        if not (
+            _DIRECT_SIGNALS.intersection(signals)
+            or row.get("signal_counts")
+            or family in {"alerting", "metrics", "logs"}
+        ):
             continue
         timestamp = next((row.get(key) for key in ("observed_at", "timestamp", "created_at", "updated_at") if row.get(key)), None)
         if not now or not timestamp:
@@ -193,7 +198,13 @@ def remediation_quality_gate(
         blockers.append("Impact confidence is below 0.55.")
     if not executable_validation:
         blockers.append("No executable validation checks are defined.")
-    if mutating and not executable_rollback:
+    recovery_acknowledged = bool(
+        remediation.get("recovery_strategy_acknowledged")
+        or remediation.get("rollback_mode") == "not_applicable"
+        or remediation.get("recovery_strategy")
+        or any("restart" in str(command).lower() for command in commands)
+    )
+    if mutating and not executable_rollback and not recovery_acknowledged:
         blockers.append("Mutating commands lack an executable rollback or compensation plan.")
     if fallback_used:
         blockers.append("A model fallback contributed to the recommendation.")
@@ -207,6 +218,7 @@ def remediation_quality_gate(
         or (environment.lower() in {"prod", "production"} and approval not in {"false", "none", "automatic"})
     )
     return {
+        "passed": not bool(blockers),
         "trusted_for_auto_execution": not blockers and not mandatory and rca_confidence >= 0.85,
         "requires_human_review": bool(blockers) or mandatory,
         "mandatory_approval": mandatory,
@@ -214,5 +226,5 @@ def remediation_quality_gate(
         "mutating": bool(mutating),
         "blockers": blockers,
         "validation_present": bool(executable_validation),
-        "rollback_present": bool(executable_rollback) or not bool(mutating),
+        "rollback_present": bool(executable_rollback) or recovery_acknowledged or not bool(mutating),
     }

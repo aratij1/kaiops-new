@@ -1,0 +1,1 @@
+SET @sql := IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'approval_assignments' AND column_name = 'jira_synced') = 0, 'ALTER TABLE approval_assignments ADD COLUMN jira_synced BOOLEAN NOT NULL DEFAULT FALSE AFTER assignment_reason', 'SELECT 1'); PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;

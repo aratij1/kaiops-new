@@ -1,0 +1,35 @@
+{
+  "received_at": "2026-09-03T06:48:09.482659+00:00",
+  "source": "email",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "email",
+    "name": "CRITICAL: rs-user authentication service down 20260813T125502Z",
+    "service": "rs-user",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Alert source: manual verification\r\nService: rs-user\r\nEnvironment: prod\r\nSeverity: critical\r\nDetails: Authentication service is unreachable, connection refused, users unable to log in. Immediate investigation required.",
+    "labels": {
+      "alert_status": "firing",
+      "origin_system": "email",
+      "ingestion_channel": "email",
+      "email_from": "pihu40381@gmail.com",
+      "email_message_id": "<6a7dbde0.7d715462.233831.5634@mx.google.com>",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "CRITICAL: rs-user authentication service down 20260813T125502Z",
+      "body": "Alert source: manual verification\r\nService: rs-user\r\nEnvironment: prod\r\nSeverity: critical\r\nDetails: Authentication service is unreachable, connection refused, users unable to log in. Immediate investigation required.",
+      "received_at": "2026-08-13T05:51:44-07:00"
+    }
+  },
+  "raw": {
+    "message_id": "<6a7dbde0.7d715462.233831.5634@mx.google.com>",
+    "subject": "CRITICAL: rs-user authentication service down 20260813T125502Z",
+    "from": "pihu40381@gmail.com",
+    "to": "pihu40381@gmail.com",
+    "received_at": "2026-08-13T05:51:44-07:00",
+    "body": "Alert source: manual verification\r\nService: rs-user\r\nEnvironment: prod\r\nSeverity: critical\r\nDetails: Authentication service is unreachable, connection refused, users unable to log in. Immediate investigation required."
+  }
+}

@@ -1,0 +1,32 @@
+﻿{
+  "project_mode": "new",
+  "onboarding_path": "setup_monitoring",
+  "start_rules_onboarding": true,
+  "selected_monitoring_tool": "prometheus",
+  "plain_language_requirements": ["Create a basic alert"],
+  "source_documents": [],
+  "generate_documents": false,
+  "include_smoke_test_alert": false,
+  "connectivity": {
+    "project": {
+      "name": "my-test-project",
+      "owner_team": "devops",
+      "environment": "prod",
+      "region": "us-east-1"
+    },
+    "deployment_mode": "on_prem",
+    "prometheus_url": "http://prometheus:9090",
+    "active_provider": "prometheus",
+    "provider_statuses": {
+      "prometheus": {
+        "ok": true,
+        "message": "Local Prometheus"
+      }
+    },
+    "user_assignments": {
+      "l2.operator": ["my-test-project"],
+      "l3.engineer": ["my-test-project"],
+      "administrator": ["my-test-project"]
+    }
+  }
+}

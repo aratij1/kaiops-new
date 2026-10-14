@@ -352,6 +352,20 @@ def _decode_docker_log_stream(payload: bytes) -> str:
     return payload.decode("utf-8", errors="replace")
 
 
+def _match_service_filter(service: str, identity: str) -> bool:
+    if not service:
+        return True
+    service_norm = service.lower().replace("_", "-")
+    identity_norm = identity.lower()
+    if service_norm in identity_norm:
+        return True
+    if service_norm.startswith("robot-shop-"):
+        short = service_norm[len("robot-shop-"):]
+        if f"rs-{short}" in identity_norm:
+            return True
+    return False
+
+
 async def _search_docker_logs(arguments: dict[str, Any], terms: list[str], limit: int) -> list[dict[str, Any]]:
     if str(os.getenv("DOCKER_LOG_DISCOVERY_ENABLED", "true")).strip().lower() not in {"1", "true", "yes", "on"}:
         return []
@@ -404,9 +418,7 @@ async def _search_docker_logs(arguments: dict[str, Any], terms: list[str], limit
                     or (project.startswith("kaiops") and "kaiops" in identity)
                     or project in identity
                 )
-                service_ok = has_service_filter and (
-                    service in identity or service.replace("_", "-") in identity
-                )
+                service_ok = has_service_filter and _match_service_filter(service, identity)
                 if (has_project_filter or has_service_filter) and not project_ok and not service_ok:
                     continue
                 container_id = str(container.get("Id") or "")
@@ -417,6 +429,10 @@ async def _search_docker_logs(arguments: dict[str, Any], terms: list[str], limit
                     params=log_params,
                 )
                 logs.raise_for_status()
+                if not logs.content and ("since" in log_params or "until" in log_params):
+                    fallback_params = {"stdout": "true", "stderr": "true", "timestamps": "true", "tail": str(tail)}
+                    logs = await client.get(f"/containers/{container_id}/logs", params=fallback_params)
+                    logs.raise_for_status()
                 container_name = names[0] if names else container_id[:12]
                 for line_number, line in enumerate(_decode_docker_log_stream(logs.content).splitlines(), 1):
                     lowered = line.lower()
@@ -1218,7 +1234,12 @@ def _docker_container_list_params(service: str, *, platform_wide: bool = False, 
     if service and not platform_wide:
         # Apply service scope before Docker's limit. Older containers otherwise
         # disappear when more recently created unrelated containers fill the page.
-        params["filters"] = json.dumps({"name": [re.escape(service)]})
+        candidates = [re.escape(service)]
+        service_norm = service.lower().replace("_", "-")
+        if service_norm.startswith("robot-shop-"):
+            short = service_norm[len("robot-shop-"):]
+            candidates.append(re.escape(f"rs-{short}"))
+        params["filters"] = json.dumps({"name": candidates})
     return params
 
 
@@ -1268,7 +1289,7 @@ async def _container_deployment_events(arguments: dict[str, Any]) -> list[dict[s
             )
             if project and not platform_wide and project not in identity:
                 continue
-            if service and not service_platform_wide and service not in identity:
+            if service and not service_platform_wide and not _match_service_filter(service, identity):
                 continue
             created_epoch = container.get("Created")
             if not isinstance(created_epoch, (int, float)) or created_epoch <= 0:
@@ -1427,7 +1448,7 @@ async def _search_runtime_topology(arguments: dict[str, Any], *, health_only: bo
             # with the service argument silently dropped).
             if project and not platform_wide and project not in identity:
                 continue
-            if service and not service_platform_wide and service not in identity:
+            if service and not service_platform_wide and not _match_service_filter(service, identity):
                 continue
             state = str(container.get("State") or "unknown").lower()
             status = str(container.get("Status") or "unknown")
@@ -1580,7 +1601,7 @@ async def _search_resource_saturation(arguments: dict[str, Any]) -> dict[str, An
                 )
                 if project and not platform_wide and project not in identity:
                     continue
-                if service and not service_platform_wide and service not in identity:
+                if service and not service_platform_wide and not _match_service_filter(service, identity):
                     continue
                 if str(container.get("State") or "").lower() != "running":
                     # A stopped container has no live cgroup stats to read;

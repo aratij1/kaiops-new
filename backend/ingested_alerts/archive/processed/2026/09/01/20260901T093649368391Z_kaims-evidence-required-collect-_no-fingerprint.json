@@ -1,0 +1,168 @@
+{
+  "received_at": "2026-09-01T09:36:49.368391+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "KaiMS evidence required: Collect traces evidence for this incident.",
+    "service": "jira-tickets",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "{'type': 'doc', 'version': 1, 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'KaiMS governed evidence request'}, {'type': 'hardBreak'}, {'type': 'text', 'text': 'Incident: fc205c59-3d0d-4fb1-bf4e-686d8a4e379d'}, {'type': 'hardBreak'}, {'type': 'text', 'text': 'Requirement: 88674698-6b0f-5efe-9813-837230cb9a81'}, {'type': 'hardBreak'}, {'type': 'text', 'text': 'Requested evidence: Collect traces evidence for this incident.'}, {'type': 'hardBreak'}, {'type': 'text', 'text': 'Reason: Required to test the current RCA hypothesis.'}, {'type': 'hardBreak'}, {'type': 'text', 'text': 'Due: 2026-09-01T10:32:37.524395'}, {'type': 'hardBreak'}, {'type': 'text', 'text': 'KaiMS: '}, {'type': 'text', 'text': 'http://localhost/incidents/fc205c59-3d0d-4fb1-bf4e-686d8a4e379d', 'marks': [{'type': 'link', 'attrs': {'href': 'http://localhost/incidents/fc205c59-3d0d-4fb1-bf4e-686d8a4e379d'}}]}]}]}",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-1867",
+      "jira_issue_id": "13797",
+      "jira_status": "To Do",
+      "jira_priority": "Medium",
+      "jira_reporter": "Arati",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:poll",
+      "managed_by_kaiops": "true",
+      "kaiops_incident_id": "",
+      "event_origin": "kaiops",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "KaiMS evidence required: Collect traces evidence for this incident.",
+      "description": "{'type': 'doc', 'version': 1, 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'KaiMS governed evidence request'}, {'type': 'hardBreak'}, {'type': 'text', 'text': 'Incident: fc205c59-3d0d-4fb1-bf4e-686d8a4e379d'}, {'type': 'hardBreak'}, {'type': 'text', 'text': 'Requirement: 88674698-6b0f-5efe-9813-837230cb9a81'}, {'type': 'hardBreak'}, {'type': 'text', 'text': 'Requested evidence: Collect traces evidence for this incident.'}, {'type': 'hardBreak'}, {'type': 'text', 'text': 'Reason: Required to test the current RCA hypothesis.'}, {'type': 'hardBreak'}, {'type': 'text', 'text': 'Due: 2026-09-01T10:32:37.524395'}, {'type': 'hardBreak'}, {'type': 'text', 'text': 'KaiMS: '}, {'type': 'text', 'text': 'http://localhost/incidents/fc205c59-3d0d-4fb1-bf4e-686d8a4e379d', 'marks': [{'type': 'link', 'attrs': {'href': 'http://localhost/incidents/fc205c59-3d0d-4fb1-bf4e-686d8a4e379d'}}]}]}]}"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:poll",
+    "issue": {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "13797",
+      "self": "https://kaiops-test.atlassian.net/rest/api/3/issue/13797",
+      "key": "KAN-1867",
+      "fields": {
+        "summary": "KaiMS evidence required: Collect traces evidence for this incident.",
+        "components": [],
+        "created": "2026-09-01T15:03:03.962+0530",
+        "description": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "KaiMS governed evidence request"
+                },
+                {
+                  "type": "hardBreak"
+                },
+                {
+                  "type": "text",
+                  "text": "Incident: fc205c59-3d0d-4fb1-bf4e-686d8a4e379d"
+                },
+                {
+                  "type": "hardBreak"
+                },
+                {
+                  "type": "text",
+                  "text": "Requirement: 88674698-6b0f-5efe-9813-837230cb9a81"
+                },
+                {
+                  "type": "hardBreak"
+                },
+                {
+                  "type": "text",
+                  "text": "Requested evidence: Collect traces evidence for this incident."
+                },
+                {
+                  "type": "hardBreak"
+                },
+                {
+                  "type": "text",
+                  "text": "Reason: Required to test the current RCA hypothesis."
+                },
+                {
+                  "type": "hardBreak"
+                },
+                {
+                  "type": "text",
+                  "text": "Due: 2026-09-01T10:32:37.524395"
+                },
+                {
+                  "type": "hardBreak"
+                },
+                {
+                  "type": "text",
+                  "text": "KaiMS: "
+                },
+                {
+                  "type": "text",
+                  "text": "http://localhost/incidents/fc205c59-3d0d-4fb1-bf4e-686d8a4e379d",
+                  "marks": [
+                    {
+                      "type": "link",
+                      "attrs": {
+                        "href": "http://localhost/incidents/fc205c59-3d0d-4fb1-bf4e-686d8a4e379d"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "comment": {
+          "comments": [],
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/issue/13797/comment",
+          "maxResults": 0,
+          "total": 0,
+          "startAt": 0
+        },
+        "reporter": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/user?accountId=712020%3Adf3b29b4-6c2d-46f9-9b7f-4a3f2ba557c8",
+          "accountId": "712020:df3b29b4-6c2d-46f9-9b7f-4a3f2ba557c8",
+          "emailAddress": "arati.joshi@datamatics.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/4c3dfb86d185a75deefded88063ffdd3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FA-1.png",
+            "24x24": "https://secure.gravatar.com/avatar/4c3dfb86d185a75deefded88063ffdd3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FA-1.png",
+            "16x16": "https://secure.gravatar.com/avatar/4c3dfb86d185a75deefded88063ffdd3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FA-1.png",
+            "32x32": "https://secure.gravatar.com/avatar/4c3dfb86d185a75deefded88063ffdd3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FA-1.png"
+          },
+          "displayName": "Arati",
+          "active": true,
+          "timeZone": "Asia/Calcutta",
+          "accountType": "atlassian"
+        },
+        "assignee": null,
+        "priority": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/priority/3",
+          "iconUrl": "https://kaiops-test.atlassian.net/images/icons/priorities/medium_new.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "updated": "2026-09-01T15:03:04.086+0530",
+        "status": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/status/10004",
+          "description": "",
+          "iconUrl": "https://kaiops-test.atlassian.net/images/icons/statuses/generic.png",
+          "name": "To Do",
+          "id": "10004",
+          "statusCategory": {
+            "self": "https://kaiops-test.atlassian.net/rest/api/3/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "labels": [
+          "kaiops-auto-created",
+          "kaiops-incident-evidence-ee675110-66fe-4143-958b-35b1346ca0eb",
+          "kaiops-kind-human-evidence",
+          "kaiops-requirement-88674698-6b0f-5efe-9813-837230cb9a81",
+          "kaiops-severity-medium",
+          "kaiops-tenant-default"
+        ]
+      }
+    },
+    "event_origin": "jira"
+  }
+}

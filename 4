@@ -1,0 +1,6 @@
+async def sample_flows(
+request: Request,
+x_trace_id: str | None = Header(default=None),
+) -> dict[str, Any]:
+return await guarded_proxy(
+request=request,

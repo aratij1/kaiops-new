@@ -1,0 +1,63 @@
+{
+  "received_at": "2026-09-04T13:56:33.309688+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "HighNetworkLatency",
+    "service": "github-status",
+    "environment": "public-internet",
+    "severity": "warning",
+    "description": "HTTP probe duration is above 200ms for target https://www.githubstatus.com/api/v2/status.json.",
+    "labels": {
+      "alertname": "HighNetworkLatency",
+      "application": "github-status",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://www.githubstatus.com/api/v2/status.json",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "github-status",
+      "severity": "warning",
+      "synthetic": "false",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "resolved",
+      "alert_fingerprint": "b5e05eaca4117bcc",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "HTTP probe duration is above 200ms for target https://www.githubstatus.com/api/v2/status.json.",
+      "summary": "High network latency",
+      "startsAt": "2026-09-04T13:41:35.276Z",
+      "endsAt": "2026-09-04T13:56:20.276Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=probe_duration_seconds%7Bjob%3D%22blackbox%22%7D+%3E+0.2&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "resolved",
+    "labels": {
+      "alertname": "HighNetworkLatency",
+      "application": "github-status",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://www.githubstatus.com/api/v2/status.json",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "github-status",
+      "severity": "warning",
+      "synthetic": "false"
+    },
+    "annotations": {
+      "description": "HTTP probe duration is above 200ms for target https://www.githubstatus.com/api/v2/status.json.",
+      "summary": "High network latency"
+    },
+    "startsAt": "2026-09-04T13:41:35.276Z",
+    "endsAt": "2026-09-04T13:56:20.276Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=probe_duration_seconds%7Bjob%3D%22blackbox%22%7D+%3E+0.2&g0.tab=1",
+    "fingerprint": "b5e05eaca4117bcc"
+  }
+}

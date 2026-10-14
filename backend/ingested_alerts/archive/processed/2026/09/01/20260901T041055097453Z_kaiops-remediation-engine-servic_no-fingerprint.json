@@ -1,0 +1,246 @@
+{
+  "received_at": "2026-09-01T04:10:55.097453+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "kaiops-remediation-engine: ServiceDown",
+    "service": "jira-tickets",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "{'type': 'doc', 'version': 1, 'content': [{'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'AI-discovered incident'}]}, {'type': 'bulletList', 'content': [{'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Service: kaiops-remediation-engine'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Environment: prod'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Category: availability'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Final severity: critical'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Confidence: 0.8'}]}]}]}, {'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'Initial hypothesis'}]}, {'type': 'paragraph', 'content': [{'type': 'text', 'text': 'The kaiops-remediation-engine signal is likely caused by a application-error condition.'}]}, {'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'Business impact'}]}, {'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Customers may be unable to complete the affected business journey.'}]}, {'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'Evidence'}]}, {'type': 'paragraph', 'content': [{'type': 'text', 'text': '[{\"evidence_id\": \"alert:fa7ff609-42e5-40b5-ad26-3f1e105c81aa\", \"source\": \"prometheus\", \"uri\": \"http://ccac90a23862:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1\", \"summary\": \"Endpoint kaiops-remediation-engine is unreachable.\", \"observed_at\": \"2026-08-21T12:27:42.465638Z\", \"confidence\": 1.0, \"attributes\": {\"service\": \"kaiops-remediation-engine\", \"environment\": \"prod\", \"occurrence_count\": \"1\", \"log_level\": \"\"}}]'}]}]}",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-1785",
+      "jira_issue_id": "13491",
+      "jira_status": "To Do",
+      "jira_priority": "Medium",
+      "jira_reporter": "Arati",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:poll",
+      "managed_by_kaiops": "true",
+      "kaiops_incident_id": "3d01d08f-b096-43f5-883f-f7cca25dc913",
+      "event_origin": "kaiops",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "kaiops-remediation-engine: ServiceDown",
+      "description": "{'type': 'doc', 'version': 1, 'content': [{'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'AI-discovered incident'}]}, {'type': 'bulletList', 'content': [{'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Service: kaiops-remediation-engine'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Environment: prod'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Category: availability'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Final severity: critical'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Confidence: 0.8'}]}]}]}, {'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'Initial hypothesis'}]}, {'type': 'paragraph', 'content': [{'type': 'text', 'text': 'The kaiops-remediation-engine signal is likely caused by a application-error condition.'}]}, {'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'Business impact'}]}, {'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Customers may be unable to complete the affected business journey.'}]}, {'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'Evidence'}]}, {'type': 'paragraph', 'content': [{'type': 'text', 'text': '[{\"evidence_id\": \"alert:fa7ff609-42e5-40b5-ad26-3f1e105c81aa\", \"source\": \"prometheus\", \"uri\": \"http://ccac90a23862:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1\", \"summary\": \"Endpoint kaiops-remediation-engine is unreachable.\", \"observed_at\": \"2026-08-21T12:27:42.465638Z\", \"confidence\": 1.0, \"attributes\": {\"service\": \"kaiops-remediation-engine\", \"environment\": \"prod\", \"occurrence_count\": \"1\", \"log_level\": \"\"}}]'}]}]}"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:poll",
+    "issue": {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "13491",
+      "self": "https://kaiops-test.atlassian.net/rest/api/3/issue/13491",
+      "key": "KAN-1785",
+      "fields": {
+        "summary": "kaiops-remediation-engine: ServiceDown",
+        "components": [],
+        "created": "2026-08-21T18:09:17.526+0530",
+        "description": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 2
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "AI-discovered incident"
+                }
+              ]
+            },
+            {
+              "type": "bulletList",
+              "content": [
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Service: kaiops-remediation-engine"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Environment: prod"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Category: availability"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Final severity: critical"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Confidence: 0.8"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 2
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Initial hypothesis"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "The kaiops-remediation-engine signal is likely caused by a application-error condition."
+                }
+              ]
+            },
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 2
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Business impact"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Customers may be unable to complete the affected business journey."
+                }
+              ]
+            },
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 2
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Evidence"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[{\"evidence_id\": \"alert:fa7ff609-42e5-40b5-ad26-3f1e105c81aa\", \"source\": \"prometheus\", \"uri\": \"http://ccac90a23862:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1\", \"summary\": \"Endpoint kaiops-remediation-engine is unreachable.\", \"observed_at\": \"2026-08-21T12:27:42.465638Z\", \"confidence\": 1.0, \"attributes\": {\"service\": \"kaiops-remediation-engine\", \"environment\": \"prod\", \"occurrence_count\": \"1\", \"log_level\": \"\"}}]"
+                }
+              ]
+            }
+          ]
+        },
+        "reporter": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/user?accountId=712020%3Adf3b29b4-6c2d-46f9-9b7f-4a3f2ba557c8",
+          "accountId": "712020:df3b29b4-6c2d-46f9-9b7f-4a3f2ba557c8",
+          "emailAddress": "arati.joshi@datamatics.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/4c3dfb86d185a75deefded88063ffdd3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FA-1.png",
+            "24x24": "https://secure.gravatar.com/avatar/4c3dfb86d185a75deefded88063ffdd3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FA-1.png",
+            "16x16": "https://secure.gravatar.com/avatar/4c3dfb86d185a75deefded88063ffdd3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FA-1.png",
+            "32x32": "https://secure.gravatar.com/avatar/4c3dfb86d185a75deefded88063ffdd3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FA-1.png"
+          },
+          "displayName": "Arati",
+          "active": true,
+          "timeZone": "Asia/Calcutta",
+          "accountType": "atlassian"
+        },
+        "assignee": null,
+        "priority": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/priority/3",
+          "iconUrl": "https://kaiops-test.atlassian.net/images/icons/priorities/medium_new.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "updated": "2026-08-21T18:09:20.097+0530",
+        "status": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/status/10004",
+          "description": "",
+          "iconUrl": "https://kaiops-test.atlassian.net/images/icons/statuses/generic.png",
+          "name": "To Do",
+          "id": "10004",
+          "statusCategory": {
+            "self": "https://kaiops-test.atlassian.net/rest/api/3/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "labels": [
+          "kaiops-candidate-a6c9db99f529c3539e21173ef6c74a89",
+          "kaiops-severity-critical",
+          "kaiops_incident_3d01d08f_b096_43f5_883f_f7cca25dc913",
+          "managed_by_kaiops"
+        ]
+      }
+    },
+    "event_origin": "jira"
+  }
+}

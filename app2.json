@@ -1,0 +1,14 @@
+﻿{
+  "name": "payment-gateway",
+  "owner_team": "payments",
+  "owner_email": "admin@kaiops.example.com",
+  "environment": "prod",
+  "namespace": "payments",
+  "region": "us-east-1",
+  "technology": "java",
+  "monitoring_platform": "prometheus",
+  "metrics_endpoint": "http://prometheus:9090",
+  "labels": {
+    "project": "payment-gateway"
+  }
+}

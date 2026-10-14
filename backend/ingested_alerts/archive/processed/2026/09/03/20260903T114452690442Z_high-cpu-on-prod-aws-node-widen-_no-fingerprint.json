@@ -1,0 +1,59 @@
+{
+  "received_at": "2026-09-03T11:44:52.690442+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "High CPU on prod-aws-node-widen-test",
+    "service": "SEC",
+    "environment": "prod",
+    "severity": "high",
+    "description": "CoreStack alert: CPU > 95% for 10m on prod-aws-node-widen-test",
+    "tenant_id": "prod-aws",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "SEC-9400",
+      "jira_issue_id": "90400",
+      "jira_status": "Open",
+      "jira_priority": "High",
+      "jira_reporter": "CoreStack Bot",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "High CPU on prod-aws-node-widen-test",
+      "description": "CoreStack alert: CPU > 95% for 10m on prod-aws-node-widen-test"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "id": "90400",
+      "key": "SEC-9400",
+      "fields": {
+        "summary": "High CPU on prod-aws-node-widen-test",
+        "description": "CoreStack alert: CPU > 95% for 10m on prod-aws-node-widen-test",
+        "priority": {
+          "name": "High"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "SEC"
+        },
+        "labels": [
+          "kaiops-tenant-prod-aws"
+        ],
+        "reporter": {
+          "displayName": "CoreStack Bot"
+        }
+      }
+    }
+  }
+}

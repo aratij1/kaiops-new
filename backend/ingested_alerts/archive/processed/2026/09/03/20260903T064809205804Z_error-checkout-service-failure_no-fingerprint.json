@@ -1,0 +1,35 @@
+{
+  "received_at": "2026-09-03T06:48:09.205804+00:00",
+  "source": "email",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "email",
+    "name": "[ERROR] Checkout Service Failure",
+    "service": "checkout",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "Project: Online Boutique\r\n\r\nApplication: Checkout Service\r\n\r\nSeverity: High\r\n\r\nIssue:\r\nCheckout service is returning HTTP 500 errors.\r\n\r\nException:\r\nInternal Server Error\r\n\r\nImpact:\r\nCustomers are unable to place orders.",
+    "labels": {
+      "alert_status": "firing",
+      "origin_system": "email",
+      "ingestion_channel": "email",
+      "email_from": "Arati Joshi <joshiarati190@gmail.com>",
+      "email_message_id": "<CAKQQRyJabZZa-za+Cqr=j3FkW9U1u5GW-ssYF0yYxbAMgY4Jwg@mail.gmail.com>",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "[ERROR] Checkout Service Failure",
+      "body": "Project: Online Boutique\r\n\r\nApplication: Checkout Service\r\n\r\nSeverity: High\r\n\r\nIssue:\r\nCheckout service is returning HTTP 500 errors.\r\n\r\nException:\r\nInternal Server Error\r\n\r\nImpact:\r\nCustomers are unable to place orders.",
+      "received_at": "2026-07-29T18:58:00+05:30"
+    }
+  },
+  "raw": {
+    "message_id": "<CAKQQRyJabZZa-za+Cqr=j3FkW9U1u5GW-ssYF0yYxbAMgY4Jwg@mail.gmail.com>",
+    "subject": "[ERROR] Checkout Service Failure",
+    "from": "Arati Joshi <joshiarati190@gmail.com>",
+    "to": "\"pihu40381@gmail.com\" <pihu40381@gmail.com>",
+    "received_at": "2026-07-29T18:58:00+05:30",
+    "body": "Project: Online Boutique\r\n\r\nApplication: Checkout Service\r\n\r\nSeverity: High\r\n\r\nIssue:\r\nCheckout service is returning HTTP 500 errors.\r\n\r\nException:\r\nInternal Server Error\r\n\r\nImpact:\r\nCustomers are unable to place orders."
+  }
+}

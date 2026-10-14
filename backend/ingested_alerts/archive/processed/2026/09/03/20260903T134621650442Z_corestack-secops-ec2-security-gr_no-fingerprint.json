@@ -1,0 +1,62 @@
+{
+  "received_at": "2026-09-03T13:46:21.650442+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "CoreStack SecOps: EC2 Security Group allows 0.0.0.0/0 on port 22",
+    "service": "SEC",
+    "environment": "prod",
+    "severity": "high",
+    "description": "Violation Rule: SEC-RULE-009\nCloud Provider: AWS\nCloud Account ID: 123456789012\nRegion: us-east-1\nResource ID: sg-08ab34c78d\nDetails: Ingress rule permits unrestricted SSH access from the public internet.\nRemediation: Restrict CIDR block to corporate VPN gateway.",
+    "tenant_id": "prod-aws",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "SEC-1042",
+      "jira_issue_id": "10042",
+      "jira_status": "Open",
+      "jira_priority": "High",
+      "jira_reporter": "CoreStack Service Account",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "CoreStack SecOps: EC2 Security Group allows 0.0.0.0/0 on port 22",
+      "description": "Violation Rule: SEC-RULE-009\nCloud Provider: AWS\nCloud Account ID: 123456789012\nRegion: us-east-1\nResource ID: sg-08ab34c78d\nDetails: Ingress rule permits unrestricted SSH access from the public internet.\nRemediation: Restrict CIDR block to corporate VPN gateway."
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "id": "10042",
+      "key": "SEC-1042",
+      "fields": {
+        "summary": "CoreStack SecOps: EC2 Security Group allows 0.0.0.0/0 on port 22",
+        "description": "Violation Rule: SEC-RULE-009\nCloud Provider: AWS\nCloud Account ID: 123456789012\nRegion: us-east-1\nResource ID: sg-08ab34c78d\nDetails: Ingress rule permits unrestricted SSH access from the public internet.\nRemediation: Restrict CIDR block to corporate VPN gateway.",
+        "priority": {
+          "name": "High"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "SEC",
+          "name": "Security Operations"
+        },
+        "reporter": {
+          "displayName": "CoreStack Service Account"
+        },
+        "labels": [
+          "corestack-governance",
+          "kaiops-tenant-prod-aws",
+          "secops-p1"
+        ]
+      }
+    }
+  }
+}

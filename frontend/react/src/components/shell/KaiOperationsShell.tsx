@@ -182,8 +182,8 @@ export function KaiOperationsShell({
       <aside className={`kai-navigation ${mobileNavigationOpen ? "is-open" : ""}`} aria-label="Primary navigation">
         <div className="kai-brand-lockup">
           <button type="button" onClick={() => selectNavigation(navigationGroups[0]?.items[0] ?? currentItem)} aria-label="KaiMS operations overview">
-            <span className="kai-brand-mark" aria-hidden="true">K</span>
-            <span><strong>KaiMS</strong><small>AI Operations Command Center</small></span>
+            <span className="kai-brand-logo"><img src="/datamatics-kaims-logo.png" alt="Datamatics KaiMS" /></span>
+            <small className="kai-brand-tagline">AI Operations Command Center</small>
           </button>
           <button className="kai-mobile-close" type="button" aria-label="Close navigation" onClick={() => setMobileNavigationOpen(false)}><X /></button>
         </div>

@@ -1,0 +1,58 @@
+{
+  "received_at": "2026-09-03T11:32:16.756429+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "CoreStack alert: disk space low",
+    "service": "KAN",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Disk usage exceeded threshold on prod-aws-node-2",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-2002",
+      "jira_issue_id": "90002",
+      "jira_status": "Open",
+      "jira_priority": "Critical",
+      "jira_reporter": "CoreStack Bot",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "CoreStack alert: disk space low",
+      "description": "Disk usage exceeded threshold on prod-aws-node-2"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "id": "90002",
+      "key": "KAN-2002",
+      "fields": {
+        "summary": "CoreStack alert: disk space low",
+        "description": "Disk usage exceeded threshold on prod-aws-node-2",
+        "priority": {
+          "name": "Critical"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "KAN"
+        },
+        "labels": [
+          "kaiops-tenant-prod-aws"
+        ],
+        "reporter": {
+          "displayName": "CoreStack Bot"
+        }
+      }
+    }
+  }
+}

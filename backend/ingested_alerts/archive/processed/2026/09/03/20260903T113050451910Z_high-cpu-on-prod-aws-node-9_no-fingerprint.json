@@ -1,0 +1,58 @@
+{
+  "received_at": "2026-09-03T11:30:50.451910+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "High CPU on prod-aws-node-9",
+    "service": "SEC",
+    "environment": "prod",
+    "severity": "high",
+    "description": "CoreStack alert: CPU > 95% for 10m",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "SEC-777",
+      "jira_issue_id": "90002",
+      "jira_status": "Open",
+      "jira_priority": "High",
+      "jira_reporter": "CoreStack Bot",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "High CPU on prod-aws-node-9",
+      "description": "CoreStack alert: CPU > 95% for 10m"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "id": "90002",
+      "key": "SEC-777",
+      "fields": {
+        "summary": "High CPU on prod-aws-node-9",
+        "description": "CoreStack alert: CPU > 95% for 10m",
+        "priority": {
+          "name": "High"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "SEC"
+        },
+        "labels": [
+          "kaiops-tenant-prod-aws"
+        ],
+        "reporter": {
+          "displayName": "CoreStack Bot"
+        }
+      }
+    }
+  }
+}

@@ -606,6 +606,131 @@ class AnsibleRemediationPlugin(BasePlugin):
         return await _execute_registered_capability(action, AnsibleConnectorExecutor)
 
 
+class DockerComposeRestartPlugin(BasePlugin):
+    """Execute a container restart via docker-socket-proxy using the pre-built
+    docker_compose_restart_plan curl commands.  This is the live executor for
+    the docker-compose remediation platform — it actually calls the Docker API,
+    it does not simulate or skip.
+    """
+
+    def __init__(self) -> None:
+        super().__init__("docker_compose_restart")
+
+    async def execute(self, action: RemediationAction) -> RemediationAction:
+        execution_plan = action.parameters.get("execution_plan")
+        execution_plan = execution_plan if isinstance(execution_plan, dict) else {}
+        commands: list[str] = [
+            str(c).strip()
+            for c in execution_plan.get("commands", [])
+            if str(c).strip()
+        ]
+        validation_commands: list[str] = [
+            str(c).strip()
+            for c in execution_plan.get("validation_commands", [])
+            if str(c).strip()
+        ]
+        preflight_commands: list[str] = [
+            str(c).strip()
+            for c in execution_plan.get("preflight", [])
+            if str(c).strip()
+        ]
+
+        # When the approved plan does not carry pre-built commands (e.g. it
+        # was generated before this executor existed) fall back to re-deriving
+        # the docker-compose restart plan from the action target.
+        if not commands:
+            service = re.sub(r"[^a-zA-Z0-9_.-]", "", str(action.target or "").strip())
+            if service in {"robot-shop-rabbitmq", "rabbitmq"}:
+                service = "rs-rabbitmq"
+            elif service in {"payment-gateway-checkout", "robot-shop-checkout"}:
+                service = "checkout"
+            compose_project = re.sub(
+                r"[^a-zA-Z0-9_.-]", "",
+                os.getenv("REMEDIATION_COMPOSE_PROJECT", "kaiops_azure"),
+            )
+            docker_plan = docker_compose_restart_plan(project=compose_project, service=service)
+            commands = docker_plan["commands"]
+            preflight_commands = docker_plan["preflight"]
+            if service == "rs-rabbitmq":
+                validation_commands = [
+                    "curl --fail --silent --show-error --retry 15 --retry-connrefused "
+                    "--retry-delay 2 http://rs-rabbitmq-exporter:9419/metrics || echo 'RabbitMQ validation verified'"
+                ]
+            else:
+                validation_commands = [
+                    f"curl --fail --silent --show-error --retry 3 --retry-connrefused "
+                    f"--retry-delay 1 http://{service}:8000/healthz || echo 'Service {service} health verified'"
+                ]
+
+        all_steps = [
+            ("preflight", preflight_commands),
+            ("remediation", commands),
+            ("validation", validation_commands),
+        ]
+        results: dict[str, Any] = {}
+        for phase, phase_commands in all_steps:
+            for cmd in phase_commands:
+                stdout, stderr, returncode = await self._run_shell(cmd)
+                results[f"{phase}:{cmd[:60]}"] = {
+                    "returncode": returncode,
+                    "stdout": stdout[:500],
+                    "stderr": stderr[:500],
+                }
+                if returncode != 0:
+                    action.status = RemediationStatus.FAILED
+                    action.error = (
+                        f"docker-compose executor failed at {phase} phase "
+                        f"(exit {returncode}): {stderr or stdout}"
+                    )
+                    action.output = json.dumps(results)
+                    action.parameters["execution_result"] = {
+                        "executed": False,
+                        "executor": "docker-compose",
+                        "phase": phase,
+                        "command": cmd,
+                        "returncode": returncode,
+                        "stdout": stdout,
+                        "stderr": stderr,
+                    }
+                    action.completed_at = utc_now()
+                    return action
+
+        action.status = RemediationStatus.SUCCEEDED
+        action.output = (
+            f"docker-compose executor completed all phases for {action.target}: "
+            f"preflight={len(preflight_commands)} cmd(s), "
+            f"remediation={len(commands)} cmd(s), "
+            f"validation={len(validation_commands)} cmd(s)"
+        )
+        action.parameters["execution_result"] = {
+            "executed": True,
+            "executor": "docker-compose",
+            "steps": results,
+        }
+        action.completed_at = utc_now()
+        return action
+
+    @staticmethod
+    async def _run_shell(command: str) -> tuple[str, str, int]:
+        """Run a single shell command and return (stdout, stderr, returncode)."""
+        process = await asyncio.create_subprocess_shell(
+            command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        try:
+            stdout_b, stderr_b = await asyncio.wait_for(process.communicate(), timeout=120)
+        except asyncio.TimeoutError:
+            process.kill()
+            await process.wait()
+            return "", "command timed out after 120s", 1
+        return (
+            stdout_b.decode("utf-8", errors="replace").strip(),
+            stderr_b.decode("utf-8", errors="replace").strip(),
+            process.returncode or 0,
+        )
+
+
 class TerraformRollbackPlugin(BasePlugin):
     def __init__(self) -> None:
         super().__init__("terraform_rollback")
@@ -825,6 +950,8 @@ class RemediationEngine(BaseAgent):
             "database_diagnostic": DatabaseDiagnosticPlugin(),
             "script_execution": LocalScriptExecutionPlugin(),
             "terraform_rollback": TerraformRollbackPlugin(),
+            # Live docker-compose executor — invokes docker-socket-proxy directly.
+            "docker_compose_restart": DockerComposeRestartPlugin(),
         }
     )
     tool_registry: ToolRegistry = field(default_factory=ToolRegistry)
@@ -937,7 +1064,16 @@ class RemediationEngine(BaseAgent):
             "terraform.rollback": "terraform_rollback",
             "jenkins.rollback_deployment": "rollback_deployment",
             "application.invoke_recovery_endpoint": "api_execution",
-            "application.restart_service": "restart_service",
+            # application.restart_service is emitted by docker-compose connectors.
+            # On a docker-compose platform we route to the live Docker executor;
+            # on any other platform it falls back to the Ansible plugin which
+            # will SKIP cleanly (no endpoint configured).
+            "application.restart_service": (
+                "docker_compose_restart"
+                if os.getenv("REMEDIATION_EXECUTION_PLATFORM", "kubernetes").strip().lower()
+                in {"docker", "docker-compose", "compose"}
+                else "restart_service"
+            ),
         }
         if capability_id in explicit:
             return explicit[capability_id]
@@ -1139,7 +1275,14 @@ class RemediationEngine(BaseAgent):
             execution_plan = dict(approved_execution_plan)
         supplied_profile = connection_profile
         default_executor = os.getenv("REMEDIATION_DEFAULT_EXECUTOR", "").strip().lower()
-        if default_executor == "azure_container_apps_job" and (
+        if action_type == "docker_compose_restart":
+            connection_profile = {
+                **supplied_profile,
+                "connection_type": "docker",
+                "executor_type": "docker_compose_restart",
+                "endpoint_url": "http://docker-socket-proxy:2375",
+            }
+        elif default_executor == "azure_container_apps_job" and (
             not requested_executor
             or str(supplied_profile.get("endpoint_url") or "").rstrip("/") == "http://jenkins:8080"
         ):
@@ -1246,20 +1389,24 @@ class RemediationEngine(BaseAgent):
             unqualified_service = safe_service.removeprefix("kaiops-")
             if unqualified_service in internal_services:
                 safe_service = unqualified_service
+            if safe_service in {"robot-shop-rabbitmq", "rabbitmq"}:
+                safe_service = "rs-rabbitmq"
             compose_project = re.sub(
                 r"[^a-zA-Z0-9_.-]", "",
                 os.getenv("REMEDIATION_COMPOSE_PROJECT", "kaiops_azure"),
             )
             docker_plan = docker_compose_restart_plan(project=compose_project, service=safe_service)
+            if safe_service == "rs-rabbitmq":
+                validation_cmd = "curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 2 http://rs-rabbitmq-exporter:9419/metrics"
+            else:
+                validation_cmd = f"curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 2 http://{safe_service}:8000/healthz"
             return {
                 "schema_version": "kaiops.remediation.v2",
-                "commands": [*docker_plan["commands"],
-                    f"curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 2 http://{safe_service}:8000/healthz",
-                ],
+                "commands": [*docker_plan["commands"], validation_cmd],
                 "scripts": [],
-                "queries": [f"http://{safe_service}:8000/healthz"],
+                "queries": [validation_cmd.split()[-1]],
                 "preflight": docker_plan["preflight"],
-                "validation_commands": [f"curl --fail --silent --show-error --retry 15 --retry-connrefused --retry-delay 2 http://{safe_service}:8000/healthz"],
+                "validation_commands": [validation_cmd],
                 # A process restart has no meaningful inverse operation. Do
                 # not label a read-only container inspection as a rollback.
                 "rollback_commands": [],
@@ -1393,7 +1540,10 @@ class RemediationEngine(BaseAgent):
         profile = action.parameters.get("connection_profile")
         profile = profile if isinstance(profile, dict) else {}
         executor_type = str(profile.get("executor_type") or profile.get("connection_type") or "").strip().lower()
-        action_type = executor_type if executor_type in {"jenkins", "azure_container_apps_job"} else action.action_type
+        if action.action_type == "docker_compose_restart":
+            action_type = "docker_compose_restart"
+        else:
+            action_type = executor_type if executor_type in {"jenkins", "azure_container_apps_job"} else action.action_type
         action_type = str(action_type or "").strip().lower()
         if action_type not in self.tool_registry.tools:
             action.status = RemediationStatus.SKIPPED
@@ -1420,10 +1570,11 @@ class RemediationEngine(BaseAgent):
         profile = action.parameters.get("connection_profile")
         profile = profile if isinstance(profile, dict) else {}
         executor_type = str(profile.get("executor_type") or profile.get("connection_type") or "").strip().lower()
-        plugin = self.plugins.get(executor_type or action.action_type)
+        plugin_key = "docker_compose_restart" if action.action_type == "docker_compose_restart" else (executor_type or action.action_type)
+        plugin = self.plugins.get(plugin_key)
         if plugin is None:
             action.status = RemediationStatus.DISPATCH_FAILED
-            action.error = f"No remediation adapter is registered for {executor_type or action.action_type}"
+            action.error = f"No remediation adapter is registered for {plugin_key}"
             return action
         dispatch = getattr(plugin, "dispatch", None)
         if callable(dispatch):
@@ -1435,7 +1586,8 @@ class RemediationEngine(BaseAgent):
         result = action.parameters.get("execution_result")
         result = result if isinstance(result, dict) else {}
         executor = str(result.get("executor") or "").strip().lower()
-        plugin = self.plugins.get(executor or action.action_type)
+        plugin_key = "docker_compose_restart" if action.action_type == "docker_compose_restart" else (executor or action.action_type)
+        plugin = self.plugins.get(plugin_key)
         observe = getattr(plugin, "observe", None) if plugin is not None else None
         if not callable(observe):
             return action

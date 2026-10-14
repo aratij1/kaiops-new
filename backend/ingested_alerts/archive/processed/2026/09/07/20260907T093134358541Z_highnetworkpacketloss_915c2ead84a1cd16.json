@@ -1,0 +1,69 @@
+{
+  "received_at": "2026-09-07T09:31:34.358541+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "HighNetworkPacketLoss",
+    "service": "opentelemetry-demo",
+    "environment": "public-internet",
+    "severity": "critical",
+    "description": "HTTP probe success ratio dropped below 95% for target https://opentelemetry.io/.",
+    "labels": {
+      "alertname": "HighNetworkPacketLoss",
+      "application": "KaiOps",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://opentelemetry.io/",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "opentelemetry-demo",
+      "severity": "critical",
+      "synthetic": "false",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "915c2ead84a1cd16",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "pipeline_outcome": "discover",
+      "pipeline_reason": "admitted for Discovery",
+      "source_event_id": "915c2ead84a1cd16",
+      "discovery_fingerprint": "915c2ead84a1cd16",
+      "occurrence_count": "1",
+      "pipeline_stage": "pre_discovery_admission"
+    },
+    "annotations": {
+      "description": "HTTP probe success ratio dropped below 95% for target https://opentelemetry.io/.",
+      "summary": "High network packet loss",
+      "startsAt": "2026-09-07T09:31:20.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=avg_over_time%28probe_success%7Bjob%3D%22blackbox%22%7D%5B5m%5D%29+%3C+0.95&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "HighNetworkPacketLoss",
+      "application": "opentelemetry-demo",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://opentelemetry.io/",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "opentelemetry-demo",
+      "severity": "critical",
+      "synthetic": "false"
+    },
+    "annotations": {
+      "description": "HTTP probe success ratio dropped below 95% for target https://opentelemetry.io/.",
+      "summary": "High network packet loss"
+    },
+    "startsAt": "2026-09-07T09:31:20.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=avg_over_time%28probe_success%7Bjob%3D%22blackbox%22%7D%5B5m%5D%29+%3C+0.95&g0.tab=1",
+    "fingerprint": "915c2ead84a1cd16"
+  }
+}

@@ -56,3 +56,36 @@ def test_recognized_internal_service_still_gets_real_docker_compose_commands(mon
         "curl --fail --silent --show-error --retry 15 --retry-all-errors "
         "--retry-connrefused --retry-delay 2 http://model-router:8000/healthz"
     ]
+
+
+def test_rs_rabbitmq_gets_real_docker_compose_commands(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("REMEDIATION_EXECUTION_PLATFORM", "docker-compose")
+    monkeypatch.setenv("REMEDIATION_COMPOSE_PROJECT", "kaims-latest")
+    plan = _plan("rs-rabbitmq")
+
+    assert plan["execution_ready"] is True
+    assert plan["readiness_blocks"] == []
+    assert plan["commands"]
+    assert all("docker-socket-proxy" in command for command in plan["commands"])
+    assert "com.docker.compose.service%3Drs-rabbitmq" in plan["commands"][0]
+    assert plan["validation_commands"] == [
+        "curl --fail --silent --show-error --retry 15 --retry-all-errors "
+        "--retry-connrefused --retry-delay 2 http://rs-rabbitmq-exporter:9419/metrics"
+    ]
+
+
+def test_robot_shop_rabbitmq_maps_to_rs_rabbitmq_docker_compose_commands(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("REMEDIATION_EXECUTION_PLATFORM", "docker-compose")
+    monkeypatch.setenv("REMEDIATION_COMPOSE_PROJECT", "kaims-latest")
+    plan = _plan("robot-shop-rabbitmq")
+
+    assert plan["execution_ready"] is True
+    assert plan["readiness_blocks"] == []
+    assert plan["commands"]
+    assert all("docker-socket-proxy" in command for command in plan["commands"])
+    assert "com.docker.compose.service%3Drs-rabbitmq" in plan["commands"][0]
+    assert plan["validation_commands"] == [
+        "curl --fail --silent --show-error --retry 15 --retry-all-errors "
+        "--retry-connrefused --retry-delay 2 http://rs-rabbitmq-exporter:9419/metrics"
+    ]
+

@@ -7657,3 +7657,7 @@ th{color:#64748b;background:#f8fafc}tbody tr:hover{background:#f7faff}
 
 .ui-update-notice { position: fixed; inset: 8px 16px auto; z-index: 10000; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; padding: 12px; border: 1px solid #2563eb; border-radius: 8px; background: #eff6ff; color: #102c4b; box-shadow: 0 4px 16px #102c4b22; }
 .ui-update-notice button { padding: 8px 12px; background: #174fb5; color: white; border: 0; border-radius: 6px; cursor: pointer; }
+
+.kaims-brand-logo { display: inline-block; background: #fff; border-radius: 8px; padding: 6px 12px; }
+.kaims-brand-logo img { display: block; width: 150px; height: auto; }
+.kaims-brand.is-compact .kaims-brand-logo img { width: 110px; }

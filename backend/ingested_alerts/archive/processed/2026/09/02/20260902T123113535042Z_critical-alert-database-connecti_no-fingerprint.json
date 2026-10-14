@@ -1,0 +1,35 @@
+{
+  "received_at": "2026-09-02T12:31:13.535042+00:00",
+  "source": "email",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "email",
+    "name": "Critical Alert: Database Connection Pool Exhausted",
+    "service": "payments-db-connection",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Service: payments-db-connection\r\nEnvironment: prod\r\nSeverity: critical\r\n\r\nDatabase pool has run out of connections.\r\nHigh response latency observed across all payments API routes.",
+    "labels": {
+      "alert_status": "firing",
+      "origin_system": "email",
+      "ingestion_channel": "email",
+      "email_from": "pihu40381@gmail.com",
+      "email_message_id": "<6a7d81a4.824e11a6.39d87d.712e@mx.google.com>",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "Critical Alert: Database Connection Pool Exhausted",
+      "body": "Service: payments-db-connection\r\nEnvironment: prod\r\nSeverity: critical\r\n\r\nDatabase pool has run out of connections.\r\nHigh response latency observed across all payments API routes.",
+      "received_at": "2026-08-13T01:34:44-07:00"
+    }
+  },
+  "raw": {
+    "message_id": "<6a7d81a4.824e11a6.39d87d.712e@mx.google.com>",
+    "subject": "Critical Alert: Database Connection Pool Exhausted",
+    "from": "pihu40381@gmail.com",
+    "to": "pihu40381@gmail.com",
+    "received_at": "2026-08-13T01:34:44-07:00",
+    "body": "Service: payments-db-connection\r\nEnvironment: prod\r\nSeverity: critical\r\n\r\nDatabase pool has run out of connections.\r\nHigh response latency observed across all payments API routes."
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "received_at": "2026-09-02T04:41:47.580147+00:00",
+  "source": "robot-shop",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "robot-shop",
+    "name": "RobotShopServiceDown",
+    "service": "robot-shop-rabbitmq",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Prometheus cannot scrape robot-shop-rabbitmq for more than 20s.",
+    "labels": {
+      "alertname": "RobotShopServiceDown",
+      "severity": "critical",
+      "source": "robot-shop",
+      "instance": "rs-rabbitmq-exporter:9419",
+      "job": "robot-shop-rabbitmq",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "828fb68ba743cb7a",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "pipeline_outcome": "discover",
+      "pipeline_reason": "admitted for Discovery",
+      "project_name": "KaiOps",
+      "application": "KaiOps",
+      "source_event_id": "828fb68ba743cb7a",
+      "discovery_fingerprint": "828fb68ba743cb7a",
+      "occurrence_count": "1",
+      "pipeline_stage": "pre_discovery_admission"
+    },
+    "annotations": {
+      "description": "Prometheus cannot scrape robot-shop-rabbitmq for more than 20s.",
+      "summary": "Robot Shop dependency robot-shop-rabbitmq is unreachable",
+      "startsAt": "2026-09-02T03:36:44.928Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=up%7Bjob%3D~%22robot-shop-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "RobotShopServiceDown",
+      "instance": "rs-rabbitmq-exporter:9419",
+      "job": "robot-shop-rabbitmq",
+      "severity": "critical",
+      "source": "robot-shop"
+    },
+    "annotations": {
+      "description": "Prometheus cannot scrape robot-shop-rabbitmq for more than 20s.",
+      "summary": "Robot Shop dependency robot-shop-rabbitmq is unreachable"
+    },
+    "startsAt": "2026-09-02T03:36:44.928Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=up%7Bjob%3D~%22robot-shop-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "828fb68ba743cb7a"
+  }
+}

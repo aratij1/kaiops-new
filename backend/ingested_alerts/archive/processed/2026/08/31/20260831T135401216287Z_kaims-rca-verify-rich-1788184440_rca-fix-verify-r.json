@@ -1,0 +1,89 @@
+{
+  "received_at": "2026-08-31T13:54:01.216287+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "KAIMS-RCA-VERIFY-RICH-1788184440",
+    "service": "payment-service",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "High memory consumption and payment gateway thread exhaustion leading to 504 timeouts",
+    "labels": {
+      "alertname": "KAIMS-RCA-VERIFY-RICH-1788184440",
+      "service": "payment-service",
+      "application": "ecommerce-platform",
+      "environment": "prod",
+      "severity": "critical",
+      "test_marker": "kaims-rca-fix-verification",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "rca-fix-verify-rich-1788184440",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "project": "ecommerce-platform",
+      "project_name": "ecommerce-platform"
+    },
+    "annotations": {
+      "summary": "Payment Service 504 Gateway Timeouts during checkout processing",
+      "description": "High memory consumption and payment gateway thread exhaustion leading to 504 timeouts",
+      "startsAt": "2026-08-31T13:54:00.000Z",
+      "generatorURL": "http://prometheus/graph",
+      "root_cause": "",
+      "business_impact": "",
+      "resolution_steps": "Execute runbook steps and validate service recovery.",
+      "preventive_action": "",
+      "validation_criteria": "",
+      "kaiops_context": "{\"application\": \"ecommerce-platform\", \"correlation_id\": \"\", \"description\": \"High memory consumption and payment gateway thread exhaustion leading to 504 timeouts\", \"environment\": \"prod\", \"evidence\": \"\", \"project\": \"ecommerce-platform\", \"service\": \"payment-service\", \"source\": \"prometheus\", \"summary\": \"Payment Service 504 Gateway Timeouts during checkout processing\"}",
+      "kaiops_resolution": "{\"impact\": \"\", \"recommended_action\": \"Execute runbook steps and validate service recovery.\", \"root_cause\": \"\"}",
+      "kaiops_remediation": "{\"preventive_action\": \"\", \"runbook_id\": \"\", \"steps\": \"\", \"target\": \"payment-service\", \"validation\": \"\"}"
+    },
+    "application": "ecommerce-platform",
+    "project": "ecommerce-platform",
+    "context": {
+      "source": "prometheus",
+      "application": "ecommerce-platform",
+      "project": "ecommerce-platform",
+      "service": "payment-service",
+      "environment": "prod",
+      "summary": "Payment Service 504 Gateway Timeouts during checkout processing",
+      "description": "High memory consumption and payment gateway thread exhaustion leading to 504 timeouts",
+      "evidence": "",
+      "correlation_id": ""
+    },
+    "resolution": {
+      "root_cause": "",
+      "impact": "",
+      "recommended_action": "Execute runbook steps and validate service recovery."
+    },
+    "remediation": {
+      "runbook_id": "",
+      "target": "payment-service",
+      "steps": "",
+      "preventive_action": "",
+      "validation": ""
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "KAIMS-RCA-VERIFY-RICH-1788184440",
+      "service": "payment-service",
+      "application": "ecommerce-platform",
+      "environment": "prod",
+      "severity": "critical",
+      "test_marker": "kaims-rca-fix-verification"
+    },
+    "annotations": {
+      "summary": "Payment Service 504 Gateway Timeouts during checkout processing",
+      "description": "High memory consumption and payment gateway thread exhaustion leading to 504 timeouts"
+    },
+    "startsAt": "2026-08-31T13:54:00.000Z",
+    "endsAt": null,
+    "generatorURL": "http://prometheus/graph",
+    "fingerprint": "rca-fix-verify-rich-1788184440"
+  }
+}

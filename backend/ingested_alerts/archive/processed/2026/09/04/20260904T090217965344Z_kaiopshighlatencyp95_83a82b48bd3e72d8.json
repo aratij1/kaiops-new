@@ -1,0 +1,59 @@
+{
+  "received_at": "2026-09-04T09:02:17.965344+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "KaiOpsHighLatencyP95",
+    "service": "api-gateway",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "Service api-gateway operation /incidents/metadata?limit=120&include_enrichment=true&tenant_id=default&status=closed p95 latency is above 2s.",
+    "labels": {
+      "alertname": "KaiOpsHighLatencyP95",
+      "application": "KaiOps",
+      "category": "latency",
+      "landing_pad": "realtime",
+      "operation": "/incidents/metadata?limit=120&include_enrichment=true&tenant_id=default&status=closed",
+      "project_name": "KaiOps",
+      "service": "api-gateway",
+      "severity": "warning",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "resolved",
+      "alert_fingerprint": "83a82b48bd3e72d8",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "Service api-gateway operation /incidents/metadata?limit=120&include_enrichment=true&tenant_id=default&status=closed p95 latency is above 2s.",
+      "summary": "High p95 latency in KaiOps service",
+      "startsAt": "2026-09-04T09:01:44.854Z",
+      "endsAt": "2026-09-04T09:01:59.854Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=histogram_quantile%280.95%2C+sum+by+%28le%2C+service%2C+operation%29+%28rate%28kaiops_request_latency_seconds_bucket%5B5m%5D%29%29%29+%3E+2&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "resolved",
+    "labels": {
+      "alertname": "KaiOpsHighLatencyP95",
+      "application": "KaiOps",
+      "category": "latency",
+      "landing_pad": "realtime",
+      "operation": "/incidents/metadata?limit=120&include_enrichment=true&tenant_id=default&status=closed",
+      "project_name": "KaiOps",
+      "service": "api-gateway",
+      "severity": "warning"
+    },
+    "annotations": {
+      "description": "Service api-gateway operation /incidents/metadata?limit=120&include_enrichment=true&tenant_id=default&status=closed p95 latency is above 2s.",
+      "summary": "High p95 latency in KaiOps service"
+    },
+    "startsAt": "2026-09-04T09:01:44.854Z",
+    "endsAt": "2026-09-04T09:01:59.854Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=histogram_quantile%280.95%2C+sum+by+%28le%2C+service%2C+operation%29+%28rate%28kaiops_request_latency_seconds_bucket%5B5m%5D%29%29%29+%3E+2&g0.tab=1",
+    "fingerprint": "83a82b48bd3e72d8"
+  }
+}

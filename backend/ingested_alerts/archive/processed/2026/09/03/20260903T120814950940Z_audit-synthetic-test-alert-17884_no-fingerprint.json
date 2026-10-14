@@ -1,0 +1,60 @@
+{
+  "received_at": "2026-09-03T12:08:14.950940+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "Audit synthetic test alert 1788437280",
+    "service": "jira-tickets",
+    "environment": "prod",
+    "severity": "high",
+    "description": "Synthetic audit test payload created by configuration audit session.",
+    "tenant_id": "audit-test-1788437280",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-AUDIT-1788437280",
+      "jira_issue_id": "",
+      "jira_status": "Open",
+      "jira_priority": "High",
+      "jira_reporter": "Audit Test",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "Audit synthetic test alert 1788437280",
+      "description": "Synthetic audit test payload created by configuration audit session."
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "key": "KAN-AUDIT-1788437280",
+      "fields": {
+        "summary": "Audit synthetic test alert 1788437280",
+        "description": "Synthetic audit test payload created by configuration audit session.",
+        "priority": {
+          "name": "High"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "reporter": {
+          "emailAddress": "audit-test@example.com",
+          "displayName": "Audit Test"
+        },
+        "labels": [
+          "corestack-governance",
+          "kaiops-tenant-audit-test-1788437280"
+        ],
+        "issuetype": {
+          "name": "Incident"
+        }
+      }
+    }
+  }
+}

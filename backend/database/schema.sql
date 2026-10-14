@@ -114,7 +114,8 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     KEY idx_audit_logs_tenant (tenant_id),
     KEY idx_audit_logs_actor (actor),
     KEY idx_audit_logs_action (action),
-    KEY idx_audit_logs_resource (resource_type, resource_id)
+    KEY idx_audit_logs_resource (resource_type, resource_id),
+    KEY idx_audit_logs_created_at (created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS onboarding_state (

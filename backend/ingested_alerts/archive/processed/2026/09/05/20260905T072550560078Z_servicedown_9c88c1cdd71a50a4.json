@@ -1,0 +1,61 @@
+{
+  "received_at": "2026-09-05T07:25:50.560078+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "ServiceDown",
+    "service": "kaiops-api-gateway",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Endpoint kaiops-api-gateway is unreachable.",
+    "labels": {
+      "alertname": "ServiceDown",
+      "application": "KaiOps",
+      "project_name": "KaiOps",
+      "severity": "critical",
+      "instance": "api-gateway:8000",
+      "job": "kaiops-api-gateway",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "9c88c1cdd71a50a4",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "pipeline_outcome": "discover",
+      "pipeline_reason": "admitted for Discovery",
+      "source_event_id": "9c88c1cdd71a50a4",
+      "discovery_fingerprint": "9c88c1cdd71a50a4",
+      "occurrence_count": "1",
+      "pipeline_stage": "pre_discovery_admission"
+    },
+    "annotations": {
+      "summary": "Service down",
+      "description": "Endpoint kaiops-api-gateway is unreachable.",
+      "startsAt": "2026-09-05T07:25:35.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "ServiceDown",
+      "application": "KaiOps",
+      "instance": "api-gateway:8000",
+      "job": "kaiops-api-gateway",
+      "project_name": "KaiOps",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "Endpoint kaiops-api-gateway is unreachable.",
+      "summary": "Service down"
+    },
+    "startsAt": "2026-09-05T07:25:35.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "9c88c1cdd71a50a4"
+  }
+}

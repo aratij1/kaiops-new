@@ -1,0 +1,61 @@
+{
+  "received_at": "2026-09-07T06:20:38.748090+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "ServiceDown",
+    "service": "kaiops-fault-lab",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Endpoint kaiops-fault-lab is unreachable.",
+    "labels": {
+      "alertname": "ServiceDown",
+      "application": "KaiOps",
+      "instance": "fault-lab:8080",
+      "project_name": "KaiOps",
+      "severity": "critical",
+      "job": "kaiops-fault-lab",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "a4690d9b2455e64c",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "pipeline_outcome": "discover",
+      "pipeline_reason": "admitted for Discovery",
+      "source_event_id": "a4690d9b2455e64c",
+      "discovery_fingerprint": "a4690d9b2455e64c",
+      "occurrence_count": "1",
+      "pipeline_stage": "pre_discovery_admission"
+    },
+    "annotations": {
+      "summary": "Service down",
+      "description": "Endpoint kaiops-fault-lab is unreachable.",
+      "startsAt": "2026-09-07T03:59:50.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "ServiceDown",
+      "application": "KaiOps",
+      "instance": "fault-lab:8080",
+      "job": "kaiops-fault-lab",
+      "project_name": "KaiOps",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "Endpoint kaiops-fault-lab is unreachable.",
+      "summary": "Service down"
+    },
+    "startsAt": "2026-09-07T03:59:50.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "a4690d9b2455e64c"
+  }
+}

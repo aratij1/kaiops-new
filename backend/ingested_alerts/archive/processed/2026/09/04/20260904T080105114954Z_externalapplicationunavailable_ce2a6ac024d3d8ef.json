@@ -1,0 +1,65 @@
+{
+  "received_at": "2026-09-04T08:01:05.114954+00:00",
+  "source": "public-internet-blackbox",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "public-internet-blackbox",
+    "name": "ExternalApplicationUnavailable",
+    "service": "httpbin-failure-lab",
+    "environment": "public-internet",
+    "severity": "critical",
+    "description": "HTTPS probe failed for https://httpbin.org/status/503 in public-internet. Synthetic=true.",
+    "labels": {
+      "alertname": "ExternalApplicationUnavailable",
+      "application": "httpbin-failure-lab",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://httpbin.org/status/503",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "httpbin-failure-lab",
+      "severity": "critical",
+      "source": "public-internet-blackbox",
+      "synthetic": "true",
+      "origin_system": "public-internet-blackbox",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "ce2a6ac024d3d8ef",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "HTTPS probe failed for https://httpbin.org/status/503 in public-internet. Synthetic=true.",
+      "summary": "External application httpbin-failure-lab is unavailable",
+      "startsAt": "2026-09-04T04:34:35.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=probe_success%7Bexternal%3D%22true%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "ExternalApplicationUnavailable",
+      "application": "httpbin-failure-lab",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://httpbin.org/status/503",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "httpbin-failure-lab",
+      "severity": "critical",
+      "source": "public-internet-blackbox",
+      "synthetic": "true"
+    },
+    "annotations": {
+      "description": "HTTPS probe failed for https://httpbin.org/status/503 in public-internet. Synthetic=true.",
+      "summary": "External application httpbin-failure-lab is unavailable"
+    },
+    "startsAt": "2026-09-04T04:34:35.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=probe_success%7Bexternal%3D%22true%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "ce2a6ac024d3d8ef"
+  }
+}

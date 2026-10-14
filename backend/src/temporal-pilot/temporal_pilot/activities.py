@@ -104,6 +104,10 @@ async def dispatch_remediation_action(approval: dict[str, Any]) -> dict[str, Any
                 detail = str(body.get("detail") or body)
             except (ValueError, AttributeError):
                 detail = str(exc.response.text or "").strip()
+            # A busy target lock is transient contention, not a policy decision. Let the
+            # activity retry policy re-attempt instead of recording a final policy_blocked.
+            if exc.response.status_code == 409 and ("target execution is busy" in detail.lower() or "target_execution_busy" in detail.lower()):
+                raise
             return await _post(
                 settings.remediation_engine_url,
                 "/execution-failed",

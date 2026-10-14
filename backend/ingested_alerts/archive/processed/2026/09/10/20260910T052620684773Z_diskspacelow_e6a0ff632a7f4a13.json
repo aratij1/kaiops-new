@@ -1,0 +1,65 @@
+{
+  "received_at": "2026-09-10T05:26:20.684773+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "DiskSpaceLow",
+    "service": "node-exporter",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Disk utilization is above 90% on node-exporter:9100 mount /run/desktop/mnt/host/d.",
+    "labels": {
+      "alertname": "DiskSpaceLow",
+      "device": "D:\\134",
+      "fstype": "9p",
+      "instance": "node-exporter:9100",
+      "job": "node-exporter",
+      "severity": "critical",
+      "mountpoint": "/run/desktop/mnt/host/d",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "e6a0ff632a7f4a13",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "pipeline_outcome": "discover",
+      "pipeline_reason": "admitted for Discovery",
+      "project_name": "unassigned",
+      "application": "unassigned",
+      "source_event_id": "e6a0ff632a7f4a13",
+      "discovery_fingerprint": "e6a0ff632a7f4a13",
+      "occurrence_count": "1",
+      "pipeline_stage": "pre_discovery_admission"
+    },
+    "annotations": {
+      "summary": "Disk space low",
+      "description": "Disk utilization is above 90% on node-exporter:9100 mount /run/desktop/mnt/host/d.",
+      "startsAt": "2026-09-10T05:26:05.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=%28%281+-+%28node_filesystem_avail_bytes%7Bfstype%21~%22tmpfs%7Coverlay%22%7D+%2F+node_filesystem_size_bytes%7Bfstype%21~%22tmpfs%7Coverlay%22%7D%29%29+%2A+100%29+%3E+90&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "DiskSpaceLow",
+      "device": "D:\\134",
+      "fstype": "9p",
+      "instance": "node-exporter:9100",
+      "job": "node-exporter",
+      "mountpoint": "/run/desktop/mnt/host/d",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "Disk utilization is above 90% on node-exporter:9100 mount /run/desktop/mnt/host/d.",
+      "summary": "Disk space low"
+    },
+    "startsAt": "2026-09-10T05:26:05.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=%28%281+-+%28node_filesystem_avail_bytes%7Bfstype%21~%22tmpfs%7Coverlay%22%7D+%2F+node_filesystem_size_bytes%7Bfstype%21~%22tmpfs%7Coverlay%22%7D%29%29+%2A+100%29+%3E+90&g0.tab=1",
+    "fingerprint": "e6a0ff632a7f4a13"
+  }
+}

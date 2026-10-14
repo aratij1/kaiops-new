@@ -1,0 +1,58 @@
+{
+  "received_at": "2026-09-03T11:42:13.131863+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "Plain CoreStack ticket, no loop markers",
+    "service": "KAN",
+    "environment": "prod",
+    "severity": "high",
+    "description": "CoreStack alert: memory leak on prod-aws-node-loop",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-9301",
+      "jira_issue_id": "90301",
+      "jira_status": "Open",
+      "jira_priority": "High",
+      "jira_reporter": "CoreStack Bot",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "Plain CoreStack ticket, no loop markers",
+      "description": "CoreStack alert: memory leak on prod-aws-node-loop"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "id": "90301",
+      "key": "KAN-9301",
+      "fields": {
+        "summary": "Plain CoreStack ticket, no loop markers",
+        "description": "CoreStack alert: memory leak on prod-aws-node-loop",
+        "priority": {
+          "name": "High"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "KAN"
+        },
+        "labels": [
+          "kaiops-tenant-prod-aws"
+        ],
+        "reporter": {
+          "displayName": "CoreStack Bot"
+        }
+      }
+    }
+  }
+}

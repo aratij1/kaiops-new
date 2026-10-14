@@ -1,0 +1,55 @@
+{
+  "received_at": "2026-09-04T11:04:59.269242+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "KaiOpsServiceDown",
+    "service": "kaiops-resolution-agent",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Service kaiops-resolution-agent is not reachable by Prometheus for more than 1 minute.",
+    "labels": {
+      "alertname": "KaiOpsServiceDown",
+      "application": "KaiOps",
+      "project_name": "KaiOps",
+      "severity": "critical",
+      "instance": "resolution-agent:8000",
+      "job": "kaiops-resolution-agent",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "2c274d38a16594a3",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "summary": "KaiOps service is down",
+      "description": "Service kaiops-resolution-agent is not reachable by Prometheus for more than 1 minute.",
+      "startsAt": "2026-09-04T11:00:59.854Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "KaiOpsServiceDown",
+      "application": "KaiOps",
+      "instance": "resolution-agent:8000",
+      "job": "kaiops-resolution-agent",
+      "project_name": "KaiOps",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "Service kaiops-resolution-agent is not reachable by Prometheus for more than 1 minute.",
+      "summary": "KaiOps service is down"
+    },
+    "startsAt": "2026-09-04T11:00:59.854Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "2c274d38a16594a3"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "received_at": "2026-09-02T03:39:30.257736+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "KaiOpsServiceDown",
+    "service": "kaiops-alert-intelligence",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Service kaiops-alert-intelligence is not reachable by Prometheus for more than 1 minute.",
+    "labels": {
+      "alertname": "KaiOpsServiceDown",
+      "application": "KaiOps",
+      "project_name": "KaiOps",
+      "severity": "critical",
+      "instance": "alert-intelligence:8000",
+      "job": "kaiops-alert-intelligence",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "resolved",
+      "alert_fingerprint": "895c65066f4d109b",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "summary": "KaiOps service is down",
+      "description": "Service kaiops-alert-intelligence is not reachable by Prometheus for more than 1 minute.",
+      "startsAt": "2026-09-02T03:37:14.854Z",
+      "endsAt": "2026-09-02T03:39:14.854Z",
+      "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "resolved",
+    "labels": {
+      "alertname": "KaiOpsServiceDown",
+      "application": "KaiOps",
+      "instance": "alert-intelligence:8000",
+      "job": "kaiops-alert-intelligence",
+      "project_name": "KaiOps",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "Service kaiops-alert-intelligence is not reachable by Prometheus for more than 1 minute.",
+      "summary": "KaiOps service is down"
+    },
+    "startsAt": "2026-09-02T03:37:14.854Z",
+    "endsAt": "2026-09-02T03:39:14.854Z",
+    "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "895c65066f4d109b"
+  }
+}

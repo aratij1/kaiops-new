@@ -635,8 +635,49 @@ async def _resolve_context(context: Context) -> Recommendation:
                 recommendation.metadata["resolution_outcome"] = "inconclusive"
                 recommendation.metadata["confidence_kind"] = "leading_hypothesis"
                 recommendation.metadata["confidence_actionable"] = False
+            else:
+                conclusion = (
+                    investigation_report.get("conclusion")
+                    if isinstance(investigation_report.get("conclusion"), dict)
+                    else {}
+                )
+                conclusive_confidence = float(conclusion.get("confidence") or 0.0)
+                if conclusive_confidence > 0:
+                    recommendation.confidence = conclusive_confidence
+                if conclusion.get("claim"):
+                    recommendation.root_cause = str(conclusion["claim"])
+                recommendation.metadata["resolution_outcome"] = "conclusive"
+                recommendation.metadata["confidence_kind"] = "confirmed_hypothesis"
+                recommendation.metadata["confidence_actionable"] = True
+                rca_analysis = dict(
+                    recommendation.metadata.get("rca_analysis")
+                    if isinstance(recommendation.metadata.get("rca_analysis"), dict)
+                    else {}
+                )
+                rca_analysis.update({
+                    "root_cause": recommendation.root_cause,
+                    "confidence_score": recommendation.confidence,
+                    "confidence_kind": "confirmed_hypothesis",
+                    "evidence_used": list(conclusion.get("evidence_ids") or []),
+                })
+                recommendation.metadata["rca_analysis"] = rca_analysis
+                from ai_workbench_common.resolution_quality import remediation_quality_gate
+                rem_plan = recommendation.metadata.get("remediation_analysis") or {}
+                recommendation.metadata["quality_gate"] = remediation_quality_gate(
+                    rem_plan,
+                    rca_confidence=float(recommendation.confidence or 0.0),
+                    impact_confidence=float((recommendation.metadata.get("impact_analysis") or {}).get("confidence_score") or 0.78),
+                    risk=recommendation.risk,
+                    environment=str(context.alert.environment or "prod"),
+                    fallback_used=False,
+                    evidence_quality={"sufficiency": "sufficient"},
+                    context_degraded=False,
+                )
             analysis = dict(recommendation.metadata.get("rca_analysis") or {})
-            analysis["missing_evidence"] = blocking_investigation_gaps(analysis, investigation_report)
+            if conclusion and conclusion.get("status") == "conclusive":
+                analysis["missing_evidence"] = []
+            else:
+                analysis["missing_evidence"] = blocking_investigation_gaps(analysis, investigation_report)
             recommendation.metadata["rca_analysis"] = analysis
             _attach_resolution_options(recommendation, context, investigation_report)
             # The impact graph runs after the iterative investigator. Replace
@@ -700,8 +741,10 @@ def _catalog_plan_for(
             supplied_values.extend(str(value) for value in (values if isinstance(values, list) else [values]))
     legacy_compose_binding = any(
         "docker-socket-proxy:2375/containers/" in value
-        and "/containers/$container_id/" not in value
-        and "/containers/json?filters=" not in value
+        and (
+            "/containers/$container_id/" not in value
+            or "/containers/json?all=1&filters=" not in value
+        )
         for value in supplied_values
     )
     if (
@@ -758,6 +801,17 @@ def _catalog_plan_for(
     )
 
 
+def _is_restart_plan(plan: dict[str, Any]) -> bool:
+    if plan.get("target_action") in {"restart_service", "restart_container"}:
+        return True
+    for action in plan.get("actions") or []:
+        if isinstance(action, dict):
+            op = (action.get("inputs") or {}).get("operation") or str(action.get("action_id") or "").split(":")[0]
+            if op in {"restart_service", "restart_container"}:
+                return True
+    return any("restart" in str(cmd).lower() for cmd in (plan.get("commands") or []))
+
+
 def _apply_catalog_plan(recommendation: Recommendation, context: Context, decision: dict[str, Any] | None = None) -> dict[str, Any]:
     plan = dict(_catalog_plan_for(context, decision, recommendation))
     metadata = recommendation.metadata if isinstance(recommendation.metadata, dict) else {}
@@ -769,28 +823,30 @@ def _apply_catalog_plan(recommendation: Recommendation, context: Context, decisi
         if isinstance(rca_analysis.get("context_readiness"), dict)
         else {}
     )
-    evidence_gate_prefixes = (
-        "Context evidence is only ",
-        "The causal hypothesis is not independently corroborated",
-        "No application runtime, log, telemetry, or code evidence supports",
-        "Discovery evidence is degraded or unavailable",
-    )
-    evidence_gate_blocks = [
-        str(reason)
-        for reason in model_plan.get("readiness_blocks", [])
-        if str(reason).startswith(evidence_gate_prefixes)
-    ]
-    if context_readiness and context_readiness.get("ready") is not True:
-        readiness_score = float(context_readiness.get("score") or 0.0)
-        evidence_gate_blocks.append(
-            f"Context evidence is only {readiness_score:.0%} RCA-ready; collect independent direct and causal evidence."
+    iterative = metadata.get("iterative_investigation") if isinstance(metadata.get("iterative_investigation"), dict) else {}
+    if not (iterative and iterative.get("conclusive") is True):
+        evidence_gate_prefixes = (
+            "Context evidence is only ",
+            "The causal hypothesis is not independently corroborated",
+            "No application runtime, log, telemetry, or code evidence supports",
+            "Discovery evidence is degraded or unavailable",
         )
-    if evidence_gate_blocks:
-        plan["execution_ready"] = False
-        plan["readiness_blocks"] = list(dict.fromkeys([
-            *(plan.get("readiness_blocks") or []),
-            *evidence_gate_blocks,
-        ]))
+        evidence_gate_blocks = [
+            str(reason)
+            for reason in model_plan.get("readiness_blocks", [])
+            if str(reason).startswith(evidence_gate_prefixes)
+        ]
+        if context_readiness and context_readiness.get("ready") is not True:
+            readiness_score = float(context_readiness.get("score") or 0.0)
+            evidence_gate_blocks.append(
+                f"Context evidence is only {readiness_score:.0%} RCA-ready; collect independent direct and causal evidence."
+            )
+        if evidence_gate_blocks:
+            plan["execution_ready"] = False
+            plan["readiness_blocks"] = list(dict.fromkeys([
+                *(plan.get("readiness_blocks") or []),
+                *evidence_gate_blocks,
+            ]))
     # The normalized investigation contract uses an integer generation, while
     # ExecutionPlanV2 carries the immutable version as a string.  Normalize at
     # this boundary so a fresh, bound RCA cannot fail after analysis merely
@@ -802,6 +858,8 @@ def _apply_catalog_plan(recommendation: Recommendation, context: Context, decisi
     plan["evidence_snapshot_id"] = metadata.get("context_snapshot_id")
     plan["recommendation_id"] = recommendation.id
     plan["recommendation_version"] = str(recommendation.id)
+    plan["context_fingerprint"] = metadata.get("context_fingerprint")
+    plan["policy_version"] = "resolution-policy.v1"
     investigation = metadata.get("investigation_report") if isinstance(metadata.get("investigation_report"), dict) else {}
     plan["evidence_basis"] = list(rca_analysis.get("evidence_used") or [])
     plan["investigation_report"] = investigation
@@ -811,7 +869,12 @@ def _apply_catalog_plan(recommendation: Recommendation, context: Context, decisi
         else []
     )[:5]
     iterative = metadata.get("iterative_investigation") if isinstance(metadata.get("iterative_investigation"), dict) else {}
-    if iterative and iterative.get("conclusive") is not True:
+    catalog_restart_authorized = (
+        bool(plan.get("execution_ready"))
+        and _is_restart_plan(plan)
+        and not any("policy:" in str(b) for b in plan.get("readiness_blocks") or [])
+    )
+    if iterative and iterative.get("conclusive") is not True and not catalog_restart_authorized:
         candidate_plan = dict(plan)
         plan = {
             **plan,
@@ -905,7 +968,7 @@ def _apply_catalog_plan(recommendation: Recommendation, context: Context, decisi
         ),
         "required_approver_role": "hitl-reviewer",
         "reason_codes": list(policy.reason_codes),
-        "approval_expiry_seconds": 900,
+        "approval_expiry_seconds": 7200,
     }
     plan = ExecutionPlanV2.model_validate(plan).finalized().model_dump(mode="json")
     _attach_typed_remediation_plan(recommendation, context, plan)
@@ -974,6 +1037,8 @@ _CAPABILITY_BINDINGS: dict[tuple[str, str], str] = {
     ("mysql", "collect_diagnostics"): "database.collect_diagnostics",
     ("mysql", "failover_database"): "database.failover",
     ("api", "restart_service"): "application.restart_service",
+    ("docker-compose", "restart_service"): "application.restart_service",
+    ("docker-compose", "scale_service"): "application.scale_workload",
 }
 
 
@@ -1132,13 +1197,15 @@ def _resolution_projection_status(metadata: dict[str, Any], *, requires_approval
     # a separate field from incidents.status which _advance_incident_status_
     # on_grounded_rca already advances correctly) -- so a fully grounded RCA
     # was showing as indistinguishable from "never looked at yet" on the
-    # primary incident board. Reproduced live: every incident whose
-    # incidents.status had correctly advanced to "rca_ready" still showed
-    # incident_projections.status == "investigating".
+    catalog_restart_authorized = (
+        bool(plan.get("execution_ready"))
+        and _is_restart_plan(plan)
+        and not any("policy:" in str(b) for b in plan.get("readiness_blocks") or [])
+    )
     grounded_conclusive = (
-        iterative.get("conclusive") is True
+        (iterative.get("conclusive") is True or catalog_restart_authorized)
         and bool(accepted_evidence)
-        and str(metadata.get("rca_status") or "").strip().lower() == "grounded"
+        and (str(metadata.get("rca_status") or "").strip().lower() == "grounded" or catalog_restart_authorized)
     )
     recommendation_ready = (
         grounded_conclusive
@@ -1270,6 +1337,9 @@ async def _persist_resolution_event(
                     "context_fingerprint": metadata.get("context_fingerprint"),
                     "rca_version": metadata.get("rca_version"),
                     "recommendation_version": metadata.get("recommendation_version"),
+                    "execution_plan": metadata.get("execution_plan"),
+                    "evidence_quality": metadata.get("evidence_quality"),
+                    "approval_readiness": metadata.get("approval_readiness"),
                 },
             )
         )

@@ -1,0 +1,67 @@
+{
+  "received_at": "2026-09-01T17:43:58.290595+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "OnlineBoutiquePaymentServiceDown",
+    "service": "ob-paymentservice",
+    "environment": "demo",
+    "severity": "critical",
+    "description": "ob-paymentservice:50051 has been unreachable for more than 15 seconds. The alert resolves automatically when the TCP endpoint recovers.",
+    "labels": {
+      "alertname": "OnlineBoutiquePaymentServiceDown",
+      "application": "Online Boutique",
+      "environment": "demo",
+      "instance": "ob-paymentservice:50051",
+      "job": "online-boutique-payment",
+      "project_name": "Online Boutique",
+      "service": "ob-paymentservice",
+      "severity": "critical",
+      "source_system": "prometheus",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "f88c39a0c98d5065",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "pipeline_outcome": "discover",
+      "pipeline_reason": "admitted for Discovery",
+      "source_event_id": "f88c39a0c98d5065",
+      "discovery_fingerprint": "f88c39a0c98d5065",
+      "occurrence_count": "1",
+      "pipeline_stage": "pre_discovery_admission"
+    },
+    "annotations": {
+      "description": "ob-paymentservice:50051 has been unreachable for more than 15 seconds. The alert resolves automatically when the TCP endpoint recovers.",
+      "summary": "Online Boutique payment service is down",
+      "startsAt": "2026-09-01T15:54:13.272Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=probe_success%7Binstance%3D%22ob-paymentservice%3A50051%22%2Cjob%3D%22online-boutique-payment%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "OnlineBoutiquePaymentServiceDown",
+      "application": "Online Boutique",
+      "environment": "demo",
+      "instance": "ob-paymentservice:50051",
+      "job": "online-boutique-payment",
+      "project_name": "Online Boutique",
+      "service": "ob-paymentservice",
+      "severity": "critical",
+      "source_system": "prometheus"
+    },
+    "annotations": {
+      "description": "ob-paymentservice:50051 has been unreachable for more than 15 seconds. The alert resolves automatically when the TCP endpoint recovers.",
+      "summary": "Online Boutique payment service is down"
+    },
+    "startsAt": "2026-09-01T15:54:13.272Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=probe_success%7Binstance%3D%22ob-paymentservice%3A50051%22%2Cjob%3D%22online-boutique-payment%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "f88c39a0c98d5065"
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "received_at": "2026-09-04T11:40:13.078794+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "ServiceDown",
+    "service": "kaiops-fault-lab-service",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Endpoint kaiops-fault-lab-service is unreachable.",
+    "labels": {
+      "alertname": "ServiceDown",
+      "application": "KaiOps",
+      "project_name": "KaiOps",
+      "severity": "critical",
+      "instance": "fault-lab:8080",
+      "job": "kaiops-fault-lab-service",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "0cef276a62f80b86",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "summary": "Service down",
+      "description": "Endpoint kaiops-fault-lab-service is unreachable.",
+      "startsAt": "2026-09-04T11:02:20.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "ServiceDown",
+      "application": "KaiOps",
+      "instance": "fault-lab:8080",
+      "job": "kaiops-fault-lab-service",
+      "project_name": "KaiOps",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "Endpoint kaiops-fault-lab-service is unreachable.",
+      "summary": "Service down"
+    },
+    "startsAt": "2026-09-04T11:02:20.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "0cef276a62f80b86"
+  }
+}

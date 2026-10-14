@@ -1,0 +1,73 @@
+{
+  "received_at": "2026-09-07T05:21:21.239435+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "HighNetworkLatency",
+    "service": "parabank-web",
+    "environment": "public-demo",
+    "severity": "warning",
+    "description": "HTTP probe duration is above 200ms for target https://parabank.parasoft.com/parabank/index.htm.",
+    "labels": {
+      "alertname": "HighNetworkLatency",
+      "application": "ParaBank Public Demo",
+      "environment": "public-demo",
+      "external": "true",
+      "instance": "https://parabank.parasoft.com/parabank/index.htm",
+      "job": "blackbox",
+      "load_test_allowed": "false",
+      "owner_team": "banking-platform",
+      "project_name": "ParaBank Public Demo",
+      "service": "parabank-web",
+      "severity": "warning",
+      "synthetic": "true",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "0c4d4c08118a5e29",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "pipeline_outcome": "discover",
+      "pipeline_reason": "admitted for Discovery",
+      "source_event_id": "0c4d4c08118a5e29",
+      "discovery_fingerprint": "0c4d4c08118a5e29",
+      "occurrence_count": "1",
+      "pipeline_stage": "pre_discovery_admission"
+    },
+    "annotations": {
+      "description": "HTTP probe duration is above 200ms for target https://parabank.parasoft.com/parabank/index.htm.",
+      "summary": "High network latency",
+      "startsAt": "2026-09-07T04:02:35.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=probe_duration_seconds%7Bjob%3D%22blackbox%22%7D+%3E+0.2&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "HighNetworkLatency",
+      "application": "parabank-public-demo",
+      "environment": "public-demo",
+      "external": "true",
+      "instance": "https://parabank.parasoft.com/parabank/index.htm",
+      "job": "blackbox",
+      "load_test_allowed": "false",
+      "owner_team": "banking-platform",
+      "project_name": "ParaBank Public Demo",
+      "service": "parabank-web",
+      "severity": "warning",
+      "synthetic": "true"
+    },
+    "annotations": {
+      "description": "HTTP probe duration is above 200ms for target https://parabank.parasoft.com/parabank/index.htm.",
+      "summary": "High network latency"
+    },
+    "startsAt": "2026-09-07T04:02:35.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=probe_duration_seconds%7Bjob%3D%22blackbox%22%7D+%3E+0.2&g0.tab=1",
+    "fingerprint": "0c4d4c08118a5e29"
+  }
+}

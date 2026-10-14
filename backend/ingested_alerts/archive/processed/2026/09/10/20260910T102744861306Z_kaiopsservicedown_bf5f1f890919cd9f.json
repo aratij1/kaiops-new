@@ -1,0 +1,55 @@
+{
+  "received_at": "2026-09-10T10:27:44.861306+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "KaiOpsServiceDown",
+    "service": "kaiops-monitoring-adapter",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Service kaiops-monitoring-adapter is not reachable by Prometheus for more than 1 minute.",
+    "labels": {
+      "alertname": "KaiOpsServiceDown",
+      "application": "KaiOps",
+      "project_name": "KaiOps",
+      "severity": "critical",
+      "instance": "monitoring-adapter:8000",
+      "job": "kaiops-monitoring-adapter",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "bf5f1f890919cd9f",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "summary": "KaiOps service is down",
+      "description": "Service kaiops-monitoring-adapter is not reachable by Prometheus for more than 1 minute.",
+      "startsAt": "2026-09-10T10:25:14.854Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "KaiOpsServiceDown",
+      "application": "KaiOps",
+      "instance": "monitoring-adapter:8000",
+      "job": "kaiops-monitoring-adapter",
+      "project_name": "KaiOps",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "Service kaiops-monitoring-adapter is not reachable by Prometheus for more than 1 minute.",
+      "summary": "KaiOps service is down"
+    },
+    "startsAt": "2026-09-10T10:25:14.854Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=up%7Bjob%3D~%22kaiops-.%2A%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "bf5f1f890919cd9f"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "received_at": "2026-09-10T05:59:46.716675+00:00",
+  "source": "telemetry",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "telemetry",
+    "name": "KaiOpsDeadLettersIncreasing",
+    "service": "kaiops-platform",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "1.026019863744562 events entered a dead-letter path in the last ten minutes.",
+    "labels": {
+      "alertname": "KaiOpsDeadLettersIncreasing",
+      "component": "message-bus",
+      "severity": "critical",
+      "source_system": "telemetry",
+      "origin_system": "telemetry",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "c7954b9097fa2f00",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "1.026019863744562 events entered a dead-letter path in the last ten minutes.",
+      "summary": "KaiOps events are entering dead-letter queues",
+      "startsAt": "2026-09-10T05:56:17.209Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=sum%28increase%28kaiops_dead_letter_events_total%5B10m%5D%29%29+%3E+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "KaiOpsDeadLettersIncreasing",
+      "component": "message-bus",
+      "severity": "critical",
+      "source_system": "telemetry"
+    },
+    "annotations": {
+      "description": "1.026019863744562 events entered a dead-letter path in the last ten minutes.",
+      "summary": "KaiOps events are entering dead-letter queues"
+    },
+    "startsAt": "2026-09-10T05:56:17.209Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=sum%28increase%28kaiops_dead_letter_events_total%5B10m%5D%29%29+%3E+0&g0.tab=1",
+    "fingerprint": "c7954b9097fa2f00"
+  }
+}

@@ -155,7 +155,7 @@ class KaiOpsRemediationWorkflow:
                 initial_interval=timedelta(seconds=5),
                 backoff_coefficient=2.0,
                 maximum_interval=timedelta(seconds=30),
-                maximum_attempts=3,
+                maximum_attempts=6,
             ),
         )
         status = str(action.get("status") or "dispatch_failed").lower()

@@ -1,0 +1,62 @@
+{
+  "received_at": "2026-09-04T09:42:28.311299+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "CoreStack CostOps: Unattached EBS Volume vol-09c4812a",
+    "service": "KAN",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "Violation Rule: COST-RULE-003\nCloud Provider: AWS\nCloud Account ID: 123456789012\nRegion: us-east-1\nResource ID: vol-09c4812a\nDetails: EBS volume has been unattached for > 30 days.\nRemediation: Create snapshot and delete unattached volume.",
+    "tenant_id": "sandbox",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-2098",
+      "jira_issue_id": "12098",
+      "jira_status": "Open",
+      "jira_priority": "Medium",
+      "jira_reporter": "CoreStack Service Account",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "CoreStack CostOps: Unattached EBS Volume vol-09c4812a",
+      "description": "Violation Rule: COST-RULE-003\nCloud Provider: AWS\nCloud Account ID: 123456789012\nRegion: us-east-1\nResource ID: vol-09c4812a\nDetails: EBS volume has been unattached for > 30 days.\nRemediation: Create snapshot and delete unattached volume."
+    }
+  },
+  "raw": {
+    "issue": {
+      "key": "KAN-2098",
+      "id": "12098",
+      "fields": {
+        "description": "Violation Rule: COST-RULE-003\nCloud Provider: AWS\nCloud Account ID: 123456789012\nRegion: us-east-1\nResource ID: vol-09c4812a\nDetails: EBS volume has been unattached for > 30 days.\nRemediation: Create snapshot and delete unattached volume.",
+        "reporter": {
+          "displayName": "CoreStack Service Account"
+        },
+        "labels": [
+          "corestack-governance",
+          "kaiops-tenant-sandbox",
+          "costops-cleanup"
+        ],
+        "priority": {
+          "name": "Medium"
+        },
+        "summary": "CoreStack CostOps: Unattached EBS Volume vol-09c4812a",
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "KAN",
+          "name": "Kanban Project"
+        }
+      }
+    },
+    "webhookEvent": "jira:issue_created"
+  }
+}

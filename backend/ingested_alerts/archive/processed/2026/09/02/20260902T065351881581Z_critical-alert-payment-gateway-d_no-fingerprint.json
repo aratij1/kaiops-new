@@ -1,0 +1,35 @@
+{
+  "received_at": "2026-09-02T06:53:51.881581+00:00",
+  "source": "email",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "email",
+    "name": "Critical Alert: Payment Gateway DB Connections Exhausted [E2E Security Fix Test]",
+    "service": "payments-worker-pool",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Service: payments-worker-pool\r\nEnvironment: prod\r\nSeverity: critical\r\n\r\nThreadPool size threshold exceeded.\r\nHigh response latency observed across all payments consumer routes.",
+    "labels": {
+      "alert_status": "firing",
+      "origin_system": "email",
+      "ingestion_channel": "email",
+      "email_from": "pihu40381@gmail.com",
+      "email_message_id": "<6a7d8b9e.c4d3d80a.be954.3994@mx.google.com>",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "Critical Alert: Payment Gateway DB Connections Exhausted [E2E Security Fix Test]",
+      "body": "Service: payments-worker-pool\r\nEnvironment: prod\r\nSeverity: critical\r\n\r\nThreadPool size threshold exceeded.\r\nHigh response latency observed across all payments consumer routes.",
+      "received_at": "2026-08-13T02:17:18-07:00"
+    }
+  },
+  "raw": {
+    "message_id": "<6a7d8b9e.c4d3d80a.be954.3994@mx.google.com>",
+    "subject": "Critical Alert: Payment Gateway DB Connections Exhausted [E2E Security Fix Test]",
+    "from": "pihu40381@gmail.com",
+    "to": "pihu40381@gmail.com",
+    "received_at": "2026-08-13T02:17:18-07:00",
+    "body": "Service: payments-worker-pool\r\nEnvironment: prod\r\nSeverity: critical\r\n\r\nThreadPool size threshold exceeded.\r\nHigh response latency observed across all payments consumer routes."
+  }
+}

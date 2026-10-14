@@ -1,0 +1,69 @@
+{
+  "received_at": "2026-09-02T05:33:49.572398+00:00",
+  "source": "public-internet-blackbox",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "public-internet-blackbox",
+    "name": "ExternalApplicationUnavailable",
+    "service": "parabank-web",
+    "environment": "public-demo",
+    "severity": "critical",
+    "description": "HTTPS probe failed for https://parabank.parasoft.com/parabank/index.htm in public-demo. Synthetic=true.",
+    "labels": {
+      "alertname": "ExternalApplicationUnavailable",
+      "application": "parabank-public-demo",
+      "environment": "public-demo",
+      "external": "true",
+      "instance": "https://parabank.parasoft.com/parabank/index.htm",
+      "job": "blackbox",
+      "load_test_allowed": "false",
+      "owner_team": "banking-platform",
+      "project_name": "ParaBank Public Demo",
+      "service": "parabank-web",
+      "severity": "critical",
+      "source": "public-internet-blackbox",
+      "synthetic": "true",
+      "origin_system": "public-internet-blackbox",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "resolved",
+      "alert_fingerprint": "45b07041228dc16a",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "HTTPS probe failed for https://parabank.parasoft.com/parabank/index.htm in public-demo. Synthetic=true.",
+      "summary": "External application parabank-public-demo is unavailable",
+      "startsAt": "2026-09-02T05:32:05.276Z",
+      "endsAt": "2026-09-02T05:33:35.276Z",
+      "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=probe_success%7Bexternal%3D%22true%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "resolved",
+    "labels": {
+      "alertname": "ExternalApplicationUnavailable",
+      "application": "parabank-public-demo",
+      "environment": "public-demo",
+      "external": "true",
+      "instance": "https://parabank.parasoft.com/parabank/index.htm",
+      "job": "blackbox",
+      "load_test_allowed": "false",
+      "owner_team": "banking-platform",
+      "project_name": "ParaBank Public Demo",
+      "service": "parabank-web",
+      "severity": "critical",
+      "source": "public-internet-blackbox",
+      "synthetic": "true"
+    },
+    "annotations": {
+      "description": "HTTPS probe failed for https://parabank.parasoft.com/parabank/index.htm in public-demo. Synthetic=true.",
+      "summary": "External application parabank-public-demo is unavailable"
+    },
+    "startsAt": "2026-09-02T05:32:05.276Z",
+    "endsAt": "2026-09-02T05:33:35.276Z",
+    "generatorURL": "http://094c0091a2bd:9090/graph?g0.expr=probe_success%7Bexternal%3D%22true%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "45b07041228dc16a"
+  }
+}

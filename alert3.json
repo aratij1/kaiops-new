@@ -1,0 +1,21 @@
+﻿{
+  "receiver": "webhook",
+  "status": "firing",
+  "alerts": [
+    {
+      "labels": {
+        "alertname": "PaymentGatewayLatencyHigh",
+        "project": "payment-gateway",
+        "service": "payment-gateway",
+        "environment": "prod",
+        "severity": "critical"
+      },
+      "annotations": {
+        "summary": "Payment gateway latency critical",
+        "description": "API latency is > 2000ms, failing SLA."
+      },
+      "startsAt": "2026-10-11T14:41:00Z",
+      "status": "firing"
+    }
+  ]
+}

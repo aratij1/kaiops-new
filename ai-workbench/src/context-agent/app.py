@@ -693,6 +693,9 @@ async def _persist_context_event(
         return enqueued
 
 
+_INCIDENT_PERSIST_LOCKS: dict[str, asyncio.Lock] = {}
+
+
 async def _context_enrichment_worker(app: FastAPI) -> None:
     """Execute durable read-only gap jobs and hand fresh context back to RCA."""
     connector_aliases = {"opensearch": "discovery-mcp", "jaeger": "discovery-mcp", "jira": "discovery-mcp"}
@@ -830,7 +833,11 @@ async def _context_enrichment_worker(app: FastAPI) -> None:
                                 )
                         return persisted
                     from common.enrichment_scheduler import persist_collected_evidence
-                    persisted = await persist_collected_evidence(app.state.session_factory, persist_result)
+                    # Jobs of one incident run concurrently in a batch and all rewrite the same
+                    # incident evidence/snapshot rows; persisting them in parallel deadlocks.
+                    incident_lock = _INCIDENT_PERSIST_LOCKS.setdefault(str(job["incident_id"]), asyncio.Lock())
+                    async with incident_lock:
+                        persisted = await persist_collected_evidence(app.state.session_factory, persist_result)
                     if persisted["accepted"]:
                         logger.info(
                             "context enrichment persisted for outbox delivery job_id=%s event_id=%s",
@@ -844,9 +851,15 @@ async def _context_enrichment_worker(app: FastAPI) -> None:
                         current = await session.get(ContextEnrichmentJobRecord, UUID(job["job_id"]))
                         if current is not None and current.status == "collecting" and current.lease_owner == worker_id:
                             from common.enrichment_scheduler import CollectionPersistenceBusy, transient_collection_database_error
-                            if isinstance(exc, CollectionPersistenceBusy) or transient_collection_database_error(exc):
+                            busy_payload = dict(current.query_payload or {})
+                            busy_retries = int(busy_payload.get("busy_retries") or 0)
+                            if (isinstance(exc, CollectionPersistenceBusy) or transient_collection_database_error(exc)) and busy_retries < 5:
                                 # Contention is infrastructure failure, not a failed evidence source.
                                 # Return the lease without exhausting connector attempts or requesting a human.
+                                # The free retries are bounded: an unbounded loop kept poison jobs at the
+                                # head of the queue and starved every newer incident of evidence.
+                                busy_payload["busy_retries"] = busy_retries + 1
+                                current.query_payload = busy_payload
                                 current.attempt_count = max(0, current.attempt_count - 1)
                                 current.status = "retry"
                                 current.available_at = datetime.now(UTC) + timedelta(seconds=15)

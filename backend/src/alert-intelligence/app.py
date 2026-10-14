@@ -329,7 +329,15 @@ async def _merge_duplicate_into_canonical(alert: Alert, incident: Any) -> Any | 
     )
     # Candidate idempotency identifies a correlation family; occurrence
     # idempotency must identify the immutable source event within that family.
-    idempotency_key = f"alert-occurrence:{source_event_id}"
+    starts_at = (
+        alert.annotations.get("startsAt")
+        or (alert.starts_at.isoformat() if getattr(alert, "starts_at", None) else "")
+    )
+    starts_at_token = str(starts_at or "").strip()
+    if starts_at_token and starts_at_token not in source_event_id:
+        idempotency_key = f"alert-occurrence:{source_event_id}:{starts_at_token}"
+    else:
+        idempotency_key = f"alert-occurrence:{source_event_id}"
     window_minutes = int(
         (deduplication.get("window_minutes") if isinstance(deduplication, dict) else None)
         or agent.deduplication_window_minutes

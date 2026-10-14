@@ -1,0 +1,65 @@
+{
+  "received_at": "2026-09-04T11:40:19.587021+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "KaiOpsHighLatencyP95",
+    "service": "api-gateway",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "Service api-gateway operation /alerts/all?limit=150&tenant_id=default&compact=true p95 latency is above 2s.",
+    "labels": {
+      "alertname": "KaiOpsHighLatencyP95",
+      "application": "KaiOps",
+      "category": "latency",
+      "landing_pad": "realtime",
+      "operation": "/alerts/all?limit=150&tenant_id=default&compact=true",
+      "project_name": "KaiOps",
+      "service": "api-gateway",
+      "severity": "warning",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "4c625a4ddb7d2de7",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "pipeline_outcome": "suppressed",
+      "pipeline_reason": "Discovery cooldown active",
+      "source_event_id": "4c625a4ddb7d2de7",
+      "discovery_fingerprint": "4c625a4ddb7d2de7",
+      "occurrence_count": "7",
+      "pipeline_stage": "pre_discovery_admission"
+    },
+    "annotations": {
+      "description": "Service api-gateway operation /alerts/all?limit=150&tenant_id=default&compact=true p95 latency is above 2s.",
+      "summary": "High p95 latency in KaiOps service",
+      "startsAt": "2026-09-04T11:37:59.854Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=histogram_quantile%280.95%2C+sum+by+%28le%2C+service%2C+operation%29+%28rate%28kaiops_request_latency_seconds_bucket%5B5m%5D%29%29%29+%3E+2&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "KaiOpsHighLatencyP95",
+      "application": "KaiOps",
+      "category": "latency",
+      "landing_pad": "realtime",
+      "operation": "/alerts/all?limit=150&tenant_id=default&compact=true",
+      "project_name": "KaiOps",
+      "service": "api-gateway",
+      "severity": "warning"
+    },
+    "annotations": {
+      "description": "Service api-gateway operation /alerts/all?limit=150&tenant_id=default&compact=true p95 latency is above 2s.",
+      "summary": "High p95 latency in KaiOps service"
+    },
+    "startsAt": "2026-09-04T11:37:59.854Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=histogram_quantile%280.95%2C+sum+by+%28le%2C+service%2C+operation%29+%28rate%28kaiops_request_latency_seconds_bucket%5B5m%5D%29%29%29+%3E+2&g0.tab=1",
+    "fingerprint": "4c625a4ddb7d2de7"
+  }
+}

@@ -1,0 +1,246 @@
+{
+  "received_at": "2026-09-01T04:10:54.359156+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "parabank-web: ExternalApplicationUnavailable",
+    "service": "jira-tickets",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "{'type': 'doc', 'version': 1, 'content': [{'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'AI-discovered incident'}]}, {'type': 'bulletList', 'content': [{'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Service: parabank-web'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Environment: public-demo'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Category: availability'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Final severity: critical'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Confidence: 0.9087'}]}]}]}, {'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'Initial hypothesis'}]}, {'type': 'paragraph', 'content': [{'type': 'text', 'text': 'The parabank-web signal is likely caused by a application-error condition.'}]}, {'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'Business impact'}]}, {'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Customers may be unable to complete the affected business journey.'}]}, {'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'Evidence'}]}, {'type': 'paragraph', 'content': [{'type': 'text', 'text': '[{\"evidence_id\": \"alert:488e88d8-deaf-4f0f-a69a-28d4308117a3\", \"source\": \"public-internet-blackbox\", \"uri\": \"http://ccac90a23862:9090/graph?g0.expr=probe_success%7Bexternal%3D%22true%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1\", \"summary\": \"HTTPS probe failed for https://parabank.parasoft.com/parabank/index.htm in public-demo. Synthetic=true.\", \"observed_at\": \"2026-08-21T11:42:59.241665Z\", \"confidence\": 1.0, \"attributes\": {\"service\": \"parabank-web\", \"environment\": \"public-demo\", \"occurrence_count\": \"1\", \"log_level\": \"\"}}]'}]}]}",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "KAN-1784",
+      "jira_issue_id": "13490",
+      "jira_status": "To Do",
+      "jira_priority": "Medium",
+      "jira_reporter": "Arati",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:poll",
+      "managed_by_kaiops": "true",
+      "kaiops_incident_id": "0c32e65c-f3ed-4bfa-ba9c-1c033ffab82c",
+      "event_origin": "kaiops",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "parabank-web: ExternalApplicationUnavailable",
+      "description": "{'type': 'doc', 'version': 1, 'content': [{'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'AI-discovered incident'}]}, {'type': 'bulletList', 'content': [{'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Service: parabank-web'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Environment: public-demo'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Category: availability'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Final severity: critical'}]}]}, {'type': 'listItem', 'content': [{'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Confidence: 0.9087'}]}]}]}, {'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'Initial hypothesis'}]}, {'type': 'paragraph', 'content': [{'type': 'text', 'text': 'The parabank-web signal is likely caused by a application-error condition.'}]}, {'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'Business impact'}]}, {'type': 'paragraph', 'content': [{'type': 'text', 'text': 'Customers may be unable to complete the affected business journey.'}]}, {'type': 'heading', 'attrs': {'level': 2}, 'content': [{'type': 'text', 'text': 'Evidence'}]}, {'type': 'paragraph', 'content': [{'type': 'text', 'text': '[{\"evidence_id\": \"alert:488e88d8-deaf-4f0f-a69a-28d4308117a3\", \"source\": \"public-internet-blackbox\", \"uri\": \"http://ccac90a23862:9090/graph?g0.expr=probe_success%7Bexternal%3D%22true%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1\", \"summary\": \"HTTPS probe failed for https://parabank.parasoft.com/parabank/index.htm in public-demo. Synthetic=true.\", \"observed_at\": \"2026-08-21T11:42:59.241665Z\", \"confidence\": 1.0, \"attributes\": {\"service\": \"parabank-web\", \"environment\": \"public-demo\", \"occurrence_count\": \"1\", \"log_level\": \"\"}}]'}]}]}"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:poll",
+    "issue": {
+      "expand": "renderedFields,names,schema,operations,editmeta,changelog,versionedRepresentations",
+      "id": "13490",
+      "self": "https://kaiops-test.atlassian.net/rest/api/3/issue/13490",
+      "key": "KAN-1784",
+      "fields": {
+        "summary": "parabank-web: ExternalApplicationUnavailable",
+        "components": [],
+        "created": "2026-08-21T17:15:21.181+0530",
+        "description": {
+          "type": "doc",
+          "version": 1,
+          "content": [
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 2
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "AI-discovered incident"
+                }
+              ]
+            },
+            {
+              "type": "bulletList",
+              "content": [
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Service: parabank-web"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Environment: public-demo"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Category: availability"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Final severity: critical"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "listItem",
+                  "content": [
+                    {
+                      "type": "paragraph",
+                      "content": [
+                        {
+                          "type": "text",
+                          "text": "Confidence: 0.9087"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 2
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Initial hypothesis"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "The parabank-web signal is likely caused by a application-error condition."
+                }
+              ]
+            },
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 2
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Business impact"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Customers may be unable to complete the affected business journey."
+                }
+              ]
+            },
+            {
+              "type": "heading",
+              "attrs": {
+                "level": 2
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Evidence"
+                }
+              ]
+            },
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "[{\"evidence_id\": \"alert:488e88d8-deaf-4f0f-a69a-28d4308117a3\", \"source\": \"public-internet-blackbox\", \"uri\": \"http://ccac90a23862:9090/graph?g0.expr=probe_success%7Bexternal%3D%22true%22%2Cjob%3D%22blackbox%22%7D+%3D%3D+0&g0.tab=1\", \"summary\": \"HTTPS probe failed for https://parabank.parasoft.com/parabank/index.htm in public-demo. Synthetic=true.\", \"observed_at\": \"2026-08-21T11:42:59.241665Z\", \"confidence\": 1.0, \"attributes\": {\"service\": \"parabank-web\", \"environment\": \"public-demo\", \"occurrence_count\": \"1\", \"log_level\": \"\"}}]"
+                }
+              ]
+            }
+          ]
+        },
+        "reporter": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/user?accountId=712020%3Adf3b29b4-6c2d-46f9-9b7f-4a3f2ba557c8",
+          "accountId": "712020:df3b29b4-6c2d-46f9-9b7f-4a3f2ba557c8",
+          "emailAddress": "arati.joshi@datamatics.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/4c3dfb86d185a75deefded88063ffdd3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FA-1.png",
+            "24x24": "https://secure.gravatar.com/avatar/4c3dfb86d185a75deefded88063ffdd3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FA-1.png",
+            "16x16": "https://secure.gravatar.com/avatar/4c3dfb86d185a75deefded88063ffdd3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FA-1.png",
+            "32x32": "https://secure.gravatar.com/avatar/4c3dfb86d185a75deefded88063ffdd3?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FA-1.png"
+          },
+          "displayName": "Arati",
+          "active": true,
+          "timeZone": "Asia/Calcutta",
+          "accountType": "atlassian"
+        },
+        "assignee": null,
+        "priority": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/priority/3",
+          "iconUrl": "https://kaiops-test.atlassian.net/images/icons/priorities/medium_new.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "updated": "2026-08-21T17:15:25.838+0530",
+        "status": {
+          "self": "https://kaiops-test.atlassian.net/rest/api/3/status/10004",
+          "description": "",
+          "iconUrl": "https://kaiops-test.atlassian.net/images/icons/statuses/generic.png",
+          "name": "To Do",
+          "id": "10004",
+          "statusCategory": {
+            "self": "https://kaiops-test.atlassian.net/rest/api/3/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "labels": [
+          "kaiops-candidate-2c385adab0ef65343e7c36c961dffb16",
+          "kaiops-severity-critical",
+          "kaiops_incident_0c32e65c_f3ed_4bfa_ba9c_1c033ffab82c",
+          "managed_by_kaiops"
+        ]
+      }
+    },
+    "event_origin": "jira"
+  }
+}

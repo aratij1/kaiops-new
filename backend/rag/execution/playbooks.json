@@ -569,7 +569,216 @@
       ]
     },
     {
+      "id": "payments-rollback-playbook",
+      "governance_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "version": 1,
+      "status": "approved",
+      "owner": "payments-sre",
+      "approver": "release-owner",
+      "approved_at": "2026-08-21T00:00:00Z",
+      "approval_expires_at": "2027-08-21T00:00:00Z",
+      "checksum_sha256": "sha256:a1b2c3d4e5f67890abcdef1234567890a1b2c3d4e5f67890abcdef1234567891",
+      "risk_class": "high",
+      "name": "Payments service deployment rollback",
+      "match": {
+        "allow_unlisted_services": false,
+        "alert_ids": [],
+        "services": [
+          "payments",
+          "payments-api",
+          "payments-service"
+        ],
+        "alert_types": [
+          "latency",
+          "error_rate",
+          "availability",
+          "performance"
+        ],
+        "alert_keywords": [
+          "payment",
+          "payment failure",
+          "payment latency",
+          "high failure rate",
+          "rollback",
+          "latency spike"
+        ]
+      },
+      "risk_tier": "high",
+      "preflight_checks": [
+        "Error rate or latency regression is confirmed in Prometheus",
+        "Recent deployment revision identified",
+        "Human approval is required before rollback"
+      ],
+      "steps": [
+        {
+          "name": "Collect payments service diagnostics",
+          "type": "diagnostic",
+          "commands": [
+            "check_api_gateway_health",
+            "query_service_error_rate",
+            "query_service_latency_p95"
+          ]
+        },
+        {
+          "name": "Rollback payments deployment if approved",
+          "type": "remediation",
+          "approval_gate": true,
+          "commands": [
+            "restart_service_runtime"
+          ]
+        },
+        {
+          "name": "Validate payments recovery",
+          "type": "validation",
+          "commands": [
+            "validate_service_recovery",
+            "query_service_error_rate"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "checkout-pod-restart-playbook",
+      "governance_id": "b2c3d4e5-f6a7-8901-bcde-f12345678901",
+      "version": 1,
+      "status": "approved",
+      "owner": "checkout-sre",
+      "approver": "release-owner",
+      "approved_at": "2026-08-21T00:00:00Z",
+      "approval_expires_at": "2027-08-21T00:00:00Z",
+      "checksum_sha256": "sha256:b2c3d4e5f6a78901bcdef12345678901b2c3d4e5f6a78901bcdef12345678902",
+      "risk_class": "medium",
+      "name": "Checkout pod crash loop restart",
+      "match": {
+        "allow_unlisted_services": false,
+        "alert_ids": [],
+        "services": [
+          "checkout",
+          "checkout-api",
+          "checkout-service"
+        ],
+        "alert_types": [
+          "availability",
+          "service_down",
+          "crash_loop",
+          "pod_failure"
+        ],
+        "alert_keywords": [
+          "checkout",
+          "crashloopbackoff",
+          "crash loop",
+          "pod crash",
+          "oomkilled",
+          "restart pod"
+        ]
+      },
+      "risk_tier": "medium",
+      "preflight_checks": [
+        "Pod CrashLoopBackOff confirmed in Kubernetes",
+        "OOMKilled or error exit code identified",
+        "Human approval required before pod restart"
+      ],
+      "steps": [
+        {
+          "name": "Collect checkout pod diagnostics",
+          "type": "diagnostic",
+          "commands": [
+            "check_api_gateway_health",
+            "query_service_availability",
+            "check_prometheus_alerts"
+          ]
+        },
+        {
+          "name": "Restart checkout pod if approved",
+          "type": "remediation",
+          "approval_gate": true,
+          "commands": [
+            "restart_service_runtime"
+          ]
+        },
+        {
+          "name": "Validate checkout recovery",
+          "type": "validation",
+          "commands": [
+            "validate_service_recovery",
+            "check_prometheus_alerts"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rs-rabbitmq-restart-playbook",
+      "governance_id": "c3d4e5f6-a7b8-9012-cdef-234567890123",
+      "version": 1,
+      "status": "approved",
+      "owner": "robot-shop-sre",
+      "approver": "release-owner",
+      "approved_at": "2026-08-21T00:00:00Z",
+      "approval_expires_at": "2027-08-21T00:00:00Z",
+      "checksum_sha256": "sha256:c3d4e5f6a7b89012cdef234567890123c3d4e5f6a7b89012cdef234567890124",
+      "risk_class": "medium",
+      "name": "Robot Shop RabbitMQ container restart",
+      "match": {
+        "allow_unlisted_services": false,
+        "alert_ids": [],
+        "services": [
+          "rs-rabbitmq",
+          "robot-shop-rabbitmq",
+          "rabbitmq"
+        ],
+        "alert_types": [
+          "availability",
+          "service_down",
+          "container_down",
+          "amqp_unavailable"
+        ],
+        "alert_keywords": [
+          "rabbitmq",
+          "rs-rabbitmq",
+          "robot-shop-rabbitmq",
+          "amqp",
+          "queue",
+          "message broker",
+          "service unavailable",
+          "robot shop"
+        ]
+      },
+      "risk_tier": "medium",
+      "preflight_checks": [
+        "Confirm rs-rabbitmq container label is visible via docker-socket-proxy",
+        "Confirm rs-rabbitmq-exporter scrape target is reachable",
+        "Human approval required before restart"
+      ],
+      "steps": [
+        {
+          "name": "Collect RabbitMQ availability diagnostics",
+          "type": "diagnostic",
+          "commands": [
+            "check_api_gateway_health",
+            "check_prometheus_alerts"
+          ]
+        },
+        {
+          "name": "Restart rs-rabbitmq container if approved",
+          "type": "remediation",
+          "approval_gate": true,
+          "commands": [
+            "restart_service_runtime"
+          ]
+        },
+        {
+          "name": "Validate RabbitMQ recovery",
+          "type": "validation",
+          "commands": [
+            "validate_service_recovery",
+            "check_prometheus_alerts"
+          ]
+        }
+      ]
+    },
+    {
       "id": "generic-kaiops-triage-playbook",
+
       "governance_id": "00cdb971-235d-444c-a13d-c9cd03316f9c",
       "version": 1,
       "status": "approved",

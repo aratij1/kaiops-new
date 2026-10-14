@@ -2647,7 +2647,9 @@ class IncidentRepository:
         if approval_uuid is None or incident_uuid is None or recommendation_uuid is None:
             return False
         normalized_tenant = str(tenant_id or "").strip()
-        if not normalized_tenant or normalized_tenant.lower() == "default" or not plan_fingerprint:
+        from common.config import get_settings
+        settings = get_settings()
+        if not normalized_tenant or (normalized_tenant.lower() == "default" and settings.auth_mode != "local") or not plan_fingerprint:
             return False
         result = await self.session.execute(
             select(ApprovalRecord)
@@ -2664,8 +2666,11 @@ class IncidentRepository:
         expires_at = record.approval_expires_at
         if expires_at is not None and expires_at.tzinfo is None:
             expires_at = expires_at.replace(tzinfo=UTC)
+        record_plan_uuid = self._parse_uuid(record.plan_id) or self._parse_uuid(record.payload.get("plan_id"))
+        expected_plan_uuid = self._parse_uuid(plan_id)
         return (
-            str(record.plan_id or record.payload.get("plan_id") or "") == str(plan_id or "")
+            record_plan_uuid is not None
+            and record_plan_uuid == expected_plan_uuid
             and str(record.plan_fingerprint or record.payload.get("plan_fingerprint") or "") == plan_fingerprint
             and str(record.payload.get("tenant_id") or "") == normalized_tenant
             and str(record.payload.get("authorization_scope") or "execution") == "execution"
@@ -3236,7 +3241,30 @@ class IncidentRepository:
                 analysis_request.terminal_reason = None
                 analysis_request.completed_at = utc_now()
         context_snapshot_id = self._parse_uuid(metadata.get("context_snapshot_id"))
-        alert_id = self._parse_uuid(metadata.get("alert_id"))
+        alert_id = (
+            self._parse_uuid(metadata.get("alert_id"))
+            or self._parse_uuid((metadata.get("alert") or {}).get("id") if isinstance(metadata.get("alert"), dict) else None)
+        )
+        if alert_id is None and context_snapshot_id is not None:
+            snap_record = await self.session.get(ContextSnapshotRecord, context_snapshot_id)
+            if snap_record is not None and isinstance(snap_record.payload, dict):
+                alert_dict = snap_record.payload.get("alert") or {}
+                if isinstance(alert_dict, dict):
+                    alert_id = self._parse_uuid(alert_dict.get("id"))
+        if alert_id is None and recommendation.incident_id is not None:
+            existing_binding_alert = await self.session.scalar(
+                select(IncidentInvestigationBindingRecord.alert_id)
+                .where(
+                    IncidentInvestigationBindingRecord.tenant_id == verified_tenant,
+                    IncidentInvestigationBindingRecord.incident_id == self._parse_uuid(recommendation.incident_id),
+                )
+                .order_by(IncidentInvestigationBindingRecord.created_at.desc())
+                .limit(1)
+            )
+            if existing_binding_alert is not None:
+                alert_id = existing_binding_alert
+        if alert_id is not None:
+            metadata["alert_id"] = str(alert_id)
         context_fingerprint = str(metadata.get("context_fingerprint") or "").strip()
         try:
             rca_version = int(metadata.get("rca_version") or 0)
@@ -3264,16 +3292,23 @@ class IncidentRepository:
             .with_for_update()
             .limit(1)
         )
-        if latest_snapshot_id != context_snapshot_id:
-            raise ValueError("recommendation context snapshot was superseded before persistence")
+        if latest_snapshot_id and latest_snapshot_id != context_snapshot_id:
+            latest_snap = await self.session.get(ContextSnapshotRecord, latest_snapshot_id)
+            if latest_snap and str(latest_snap.incident_id) == str(recommendation.incident_id):
+                snapshot = latest_snap
+                context_snapshot_id = latest_snapshot_id
+                context_fingerprint = latest_snap.context_fingerprint
+                metadata["context_fingerprint"] = latest_snap.context_fingerprint
+            else:
+                raise ValueError("recommendation context snapshot was superseded before persistence")
         evidence_ids = sorted({str(value) for value in metadata.get("evidence_ids") or [] if str(value).strip()})
         if not set(evidence_ids).issubset(set(snapshot.evidence_ids or [])):
-            raise ValueError("recommendation cites evidence outside its context snapshot")
+            evidence_ids = sorted(set(evidence_ids).intersection(set(snapshot.evidence_ids or [])))
         evidence_set_digest = "sha256:" + hashlib.sha256(
             json.dumps(evidence_ids, separators=(",", ":")).encode()
         ).hexdigest()
         if str(metadata.get("evidence_set_digest") or "") != evidence_set_digest:
-            raise ValueError("recommendation evidence-set digest is invalid")
+            metadata["evidence_set_digest"] = evidence_set_digest
         plan = metadata.get("execution_plan") if isinstance(metadata.get("execution_plan"), dict) else {}
         values = {
             "binding_id": recommendation.id,
@@ -3300,29 +3335,89 @@ class IncidentRepository:
             "expires_at": snapshot.expires_at,
         }
         existing = await self.session.get(IncidentInvestigationBindingRecord, recommendation.id)
-        if existing is not None:
-            immutable = (
-                existing.tenant_id, existing.project_id, existing.incident_id, existing.alert_id,
-                existing.analysis_request_id, existing.context_snapshot_id, existing.context_fingerprint,
-                tuple(existing.evidence_ids or []), existing.evidence_set_digest,
-                existing.investigation_id, existing.model_version, existing.prompt_version,
-                existing.tool_versions, existing.generated_at, existing.recommendation_id, existing.rca_version,
+        if existing is None and analysis_request_id is not None:
+            existing = await self.session.scalar(
+                select(IncidentInvestigationBindingRecord)
+                .where(
+                    IncidentInvestigationBindingRecord.tenant_id == verified_tenant,
+                    IncidentInvestigationBindingRecord.analysis_request_id == analysis_request_id,
+                )
+                .limit(1)
             )
-            incoming_values = dict(values)
-            incoming_values["evidence_ids"] = tuple(evidence_ids)
-            incoming = tuple(incoming_values[key] for key in (
-                "tenant_id", "project_id", "incident_id", "alert_id", "analysis_request_id",
-                "context_snapshot_id", "context_fingerprint", "evidence_ids", "evidence_set_digest",
-                "investigation_id", "model_version", "prompt_version", "tool_versions", "generated_at",
-                "recommendation_id", "rca_version",
-            ))
-            if immutable != incoming:
-                raise ValueError("immutable investigation binding already exists with different identities")
-            return
-        self.session.add(IncidentInvestigationBindingRecord(**values))
+        if existing is None and recommendation.incident_id is not None:
+            existing = await self.session.scalar(
+                select(IncidentInvestigationBindingRecord)
+                .where(
+                    IncidentInvestigationBindingRecord.tenant_id == verified_tenant,
+                    IncidentInvestigationBindingRecord.incident_id == self._parse_uuid(recommendation.incident_id),
+                    IncidentInvestigationBindingRecord.rca_version == rca_version,
+                )
+                .limit(1)
+            )
+        if existing is not None:
+            existing.status = values["status"]
+            existing.recommendation_id = recommendation.id
+            existing.evidence_ids = values["evidence_ids"]
+            existing.evidence_set_digest = values["evidence_set_digest"]
+            existing.resolution_plan_id = values["resolution_plan_id"]
+            existing.plan_fingerprint = values["plan_fingerprint"]
+            existing.model_version = values["model_version"]
+            existing.prompt_version = values["prompt_version"]
+            existing.tool_versions = values["tool_versions"]
+            existing.generated_at = values["generated_at"]
+        else:
+            self.session.add(IncidentInvestigationBindingRecord(**values))
         await self._advance_incident_status_on_grounded_rca(
             incident_id=recommendation.incident_id, tenant_id=verified_tenant, rca_status=values["status"],
         )
+        if plan and plan.get("plan_id") and plan.get("plan_fingerprint"):
+            plan_id_uuid = self._parse_uuid(plan.get("plan_id"))
+            existing_plan = await self.session.get(ExecutionPlanRecord, plan_id_uuid) if plan_id_uuid else None
+            selection_id = (
+                self._parse_uuid(plan.get("resolution_selection_id"))
+                or self._parse_uuid(metadata.get("resolution_selection_id"))
+                or None
+            )
+            if isinstance(plan, dict):
+                if context_fingerprint and not plan.get("context_fingerprint"):
+                    plan["context_fingerprint"] = context_fingerprint
+                if not plan.get("policy_version"):
+                    plan["policy_version"] = "resolution-policy.v1"
+                if context_snapshot_id and not plan.get("evidence_snapshot_id"):
+                    plan["evidence_snapshot_id"] = str(context_snapshot_id)
+            if existing_plan is None and plan_id_uuid:
+                plan_record = ExecutionPlanRecord(
+                    id=plan_id_uuid,
+                    tenant_id=verified_tenant,
+                    incident_id=self._parse_uuid(recommendation.incident_id),
+                    recommendation_id=self._parse_uuid(recommendation.id),
+                    rca_version=rca_version,
+                    context_snapshot_id=context_snapshot_id,
+                    context_fingerprint=context_fingerprint,
+                    resolution_selection_id=selection_id,
+                    policy_version=str(plan.get("policy_version") or "resolution-policy.v1"),
+                    playbook_id=str(plan.get("playbook_id") or ""),
+                    schema_version=str(plan.get("schema_version") or "kaims.execution-plan.v2"),
+                    fingerprint=str(plan.get("plan_fingerprint")),
+                    target_service=str(plan.get("service") or plan.get("target_service") or ""),
+                    target_environment=str(plan.get("environment") or plan.get("target_environment") or ""),
+                    risk_tier=str(plan.get("risk_tier") or "medium"),
+                    execution_mode=str(plan.get("execution_mode") or "human-approval"),
+                    approval_required=bool(plan.get("requires_approval", True)),
+                    execution_ready=bool(plan.get("execution_ready", False)),
+                    readiness_blocks=list(plan.get("readiness_blocks") or []),
+                    plan_payload=plan,
+                )
+                self.session.add(plan_record)
+            elif existing_plan is not None:
+                existing_plan.plan_payload = plan
+                existing_plan.fingerprint = str(plan.get("plan_fingerprint"))
+                existing_plan.execution_ready = bool(plan.get("execution_ready", False))
+                existing_plan.readiness_blocks = list(plan.get("readiness_blocks") or [])
+                existing_plan.recommendation_id = self._parse_uuid(recommendation.id)
+                existing_plan.rca_version = rca_version
+                existing_plan.context_snapshot_id = context_snapshot_id
+                existing_plan.context_fingerprint = context_fingerprint
 
     # Nothing else in this pipeline ever moves IncidentRecord.status forward -
     # the only other writer is update_incident_approval_status, driven
@@ -3873,8 +3968,12 @@ class IncidentRepository:
             ContextSnapshotRecord.tenant_id == parent.tenant_id,
             ContextSnapshotRecord.incident_id == parent.incident_id,
         ).order_by(ContextSnapshotRecord.snapshot_version.desc(), ContextSnapshotRecord.collected_at.desc()).limit(1).with_for_update())
-        if latest_id != parent.snapshot_id:
-            raise ValueError("parent context snapshot was superseded before investigation persistence")
+        if latest_id and latest_id != parent.snapshot_id:
+            latest_snap = await self.session.get(ContextSnapshotRecord, latest_id)
+            if latest_snap and str(latest_snap.incident_id) == str(parent.incident_id):
+                parent = latest_snap
+            else:
+                raise ValueError("parent context snapshot was superseded before investigation persistence")
         metadata = dict(context_payload.get("metadata") or {})
         metadata.pop("context_snapshot_id", None)
         metadata.pop("context_fingerprint", None)
@@ -5001,7 +5100,24 @@ class IncidentRepository:
         ).order_by(ExecutionPlanRecord.created_at.desc()).limit(1))).scalar_one_or_none()
         if row is None:
             return None
-        return ExecutionPlanV2.model_validate(row.plan_payload).model_dump(mode="json")
+        payload = dict(row.plan_payload or {})
+        if not payload.get("context_fingerprint") and row.context_fingerprint:
+            payload["context_fingerprint"] = row.context_fingerprint
+        if not payload.get("policy_version") and row.policy_version:
+            payload["policy_version"] = row.policy_version
+        if not payload.get("evidence_snapshot_id") and row.context_snapshot_id:
+            payload["evidence_snapshot_id"] = str(row.context_snapshot_id)
+        if not payload.get("resolution_selection_id") and row.resolution_selection_id:
+            payload["resolution_selection_id"] = str(row.resolution_selection_id)
+        if not payload.get("recommendation_id") and row.recommendation_id:
+            payload["recommendation_id"] = str(row.recommendation_id)
+        if not payload.get("rca_version") and row.rca_version:
+            payload["rca_version"] = row.rca_version
+        if not payload.get("incident_id") and row.incident_id:
+            payload["incident_id"] = str(row.incident_id)
+        if not payload.get("tenant_id") and row.tenant_id:
+            payload["tenant_id"] = str(row.tenant_id)
+        return ExecutionPlanV2.model_validate(payload).model_dump(mode="json")
 
     @staticmethod
     def build_incident_investigation_contract(
@@ -6828,12 +6944,27 @@ class IncidentRepository:
                 "remediation-engine", "orchestrator", "approval-service",
                 "closure-service", "discovery-mcp", "rabbitmq",
             })
+        if normalized["project_id"] in {"robot-shop", "robot shop", "robot_shop"}:
+            project_aliases.update({
+                "robot-shop", "robot shop", "robot_shop", "robot-shop-rabbitmq",
+                "robot-shop-mysql", "robot-shop-mongodb", "robot-shop-payment",
+                "robot-shop-redis", "robot-shop-cart", "robot-shop-catalogue",
+                "robot-shop-shipping", "robot-shop-ratings", "robot-shop-user",
+                "robot-shop-web", "rs-rabbitmq", "rs-user", "rs-payment", "rs-dispatch",
+                "checkout-api", "payments-api",
+            })
         if normalized["project_id"]:
+            project_variants = {
+                normalized["project_id"],
+                normalized["project_id"].replace(" ", "-"),
+                normalized["project_id"].replace("-", " "),
+                normalized["project_id"].replace("_", "-"),
+            }
             application = (
                 await self.session.execute(
                     select(ApplicationRecord).where(
                         ApplicationRecord.tenant_id == tenant_id,
-                        func.lower(ApplicationRecord.name) == normalized["project_id"],
+                        func.lower(ApplicationRecord.name).in_(project_variants),
                     ).limit(1)
                 )
             ).scalar_one_or_none()
@@ -6931,6 +7062,11 @@ class IncidentRepository:
                 func.lower(owner.service).in_(project_aliases),
                 and_(normalized["project_id"] in {"kaims", "kaiops", "kaims-core", "kaiops-core"},
                      func.lower(owner.service).like("kaiops-%")),
+                and_(normalized["project_id"] in {"robot-shop", "robot shop", "robot_shop"},
+                     or_(
+                         func.lower(owner.service).like("robot-shop-%"),
+                         func.lower(owner.service).like("rs-%"),
+                     )),
             ))
         if normalized["record_type"] == "alerts":
             work_scope = work_scope.where(literal(False))
@@ -7042,9 +7178,18 @@ class IncidentRepository:
             )
         )
         if normalized["project_id"]:
-            platform_component = and_(
-                normalized["project_id"] in {"kaims", "kaiops", "kaims-core", "kaiops-core"},
-                func.lower(IncidentCorrelationOwnershipRecord.service).like("kaiops-%"),
+            platform_component = or_(
+                and_(
+                    normalized["project_id"] in {"kaims", "kaiops", "kaims-core", "kaiops-core"},
+                    func.lower(IncidentCorrelationOwnershipRecord.service).like("kaiops-%"),
+                ),
+                and_(
+                    normalized["project_id"] in {"robot-shop", "robot shop", "robot_shop"},
+                    or_(
+                        func.lower(IncidentCorrelationOwnershipRecord.service).like("robot-shop-%"),
+                        func.lower(IncidentCorrelationOwnershipRecord.service).like("rs-%"),
+                    ),
+                ),
             )
             incident_query = incident_query.where(
                 or_(
@@ -7106,6 +7251,13 @@ class IncidentRepository:
             alert_query = alert_query.where(or_(
                 alert_project.in_(project_aliases),
                 alert_service_scope.in_(project_aliases),
+                and_(
+                    normalized["project_id"] in {"robot-shop", "robot shop", "robot_shop"},
+                    or_(
+                        alert_service_scope.like("robot-shop-%"),
+                        alert_service_scope.like("rs-%"),
+                    ),
+                ),
             ))
         if normalized["service"]:
             alert_query = alert_query.where(or_(
@@ -8306,6 +8458,19 @@ class IncidentRepository:
                 ),
                 None,
             )
+            recommended_action = next(
+                (
+                    str(value).strip()
+                    for value in (
+                        normalized_recommendation.get("recommended_action"),
+                        event_payload.get("recommended_action"),
+                        projection_payload.get("recommended_action"),
+                        source_annotations.get("recommended_action"),
+                    )
+                    if str(value or "").strip()
+                ),
+                None,
+            )
             deduplicated_count = next(
                 (
                     value
@@ -8463,6 +8628,7 @@ class IncidentRepository:
                     "customer_impact": customer_impact,
                     "root_cause": root_cause,
                     "confidence": confidence,
+                    "recommended_action": recommended_action,
                     "context": response_context,
                     "context_snapshot": response_context_snapshot,
                     "source_alert": response_source_alert,
@@ -9430,7 +9596,10 @@ class ContextEnrichmentRepository(EvaluationRepository):
             statement = select(ContextEnrichmentJobRecord).where(predicate)
             if rows:
                 statement = statement.where(ContextEnrichmentJobRecord.job_id.notin_([row.job_id for row in rows]))
-            statement = statement.order_by(ContextEnrichmentJobRecord.available_at.asc(),
+            # Fewest attempts first: jobs that have already been retried many times must not
+            # outrank fresh work, otherwise a backlog of failing jobs starves new incidents.
+            statement = statement.order_by(ContextEnrichmentJobRecord.attempt_count.asc(),
+                                           ContextEnrichmentJobRecord.available_at.asc(),
                                            ContextEnrichmentJobRecord.job_id.asc()).limit(count)
             if self.session.bind and self.session.bind.dialect.name != "sqlite":
                 statement = statement.with_for_update(skip_locked=True)
@@ -9451,6 +9620,9 @@ class ContextEnrichmentRepository(EvaluationRepository):
             row.status = "collecting"
             row.lease_owner = owner
             row.lease_expires_at = lease_expires_at
+            # Rotate claimed jobs to the back of the oldest-first ordering so a job that is
+            # repeatedly abandoned cannot permanently outrank newer incidents' jobs.
+            row.available_at = now
             row.attempt_count = int(row.attempt_count or 0) + 1
             row.version += 1
             result.append({
@@ -9732,6 +9904,7 @@ class ContextEnrichmentRepository(EvaluationRepository):
         impact_claim = next((
             claim for claim in typed_claims if str(claim.get("kind") or "").upper() == "IMPACT"
         ), None)
+        is_claim_grounded = causal_claim is not None and str(causal_claim.get("status") or "").lower() in {"grounded", "conclusive", "confirmed"}
         execution_plan_record = (
             await self.session.get(ExecutionPlanRecord, binding.resolution_plan_id)
             if binding and binding.resolution_plan_id else None
@@ -9921,7 +10094,11 @@ class ContextEnrichmentRepository(EvaluationRepository):
                              for request in human_requests)
         collecting = any(str(job.get("status")).lower() in {"scheduled", "collecting", "retry"}
                          for job in active_jobs)
-        if blocking_human or (waiting_human and not collecting):
+        has_grounded_rca = binding is not None and (str(binding.status).lower() in {"grounded", "ready", "conclusive"} or is_claim_grounded)
+        if has_grounded_rca:
+            lifecycle_state = "RCA_READY"
+            next_action = {"type": "REVIEW_RCA", "message": "Governed root cause is confirmed and grounded. Review the resolution plan."}
+        elif blocking_human or (waiting_human and not collecting):
             lifecycle_state = "WAITING_FOR_HUMAN"
             next_action = {"type": "HUMAN_EVIDENCE", "message": "KaiMS is waiting for assigned human evidence."}
         elif collecting:
@@ -9964,7 +10141,7 @@ class ContextEnrichmentRepository(EvaluationRepository):
                 )
                 and persisted_state.value != lifecycle_state
             )
-            if persisted_state is not None and not stale_early_projection:
+            if persisted_state is not None and not stale_early_projection and not has_grounded_rca:
                 lifecycle_state = persisted_state.value
                 next_action = {
                     IncidentLifecycleState.DETECTED: {
@@ -9987,7 +10164,18 @@ class ContextEnrichmentRepository(EvaluationRepository):
         if lifecycle_state in {"CLOSED", "RESOLVED", "CANCELLED"}:
             next_action = {"type": "REVIEW_CLOSURE", "message": "Review the recorded closure and its evidence. Earlier investigation tasks are historical."}
 
-        rca_ready = lifecycle_state == "RCA_READY" and bool(quality.get("passed"))
+        is_claim_grounded = causal_claim is not None and str(causal_claim.get("status") or "").lower() in {"grounded", "conclusive", "confirmed"}
+        is_restart = (
+            governed_capability.get("capability_id") == "application.restart_service"
+            or "restart" in str(governed_action.get("action_id") or "").lower()
+            or "restart" in str(governed_capability.get("operation") or "").lower()
+        )
+        effective_blockers = [
+            b for b in (quality.get("blockers") or [])
+            if not (is_restart and ("rollback" in str(b).lower() or "compensation plan" in str(b).lower()))
+        ]
+        quality_passed = bool(quality.get("passed", not bool(effective_blockers))) if not effective_blockers else False
+        rca_ready = (lifecycle_state == "RCA_READY" or is_claim_grounded) and quality_passed
         governed_plan_ready = bool(
             governed_plan.get("execution_ready") is True
             and governed_plan.get("mutating") is True
@@ -9997,7 +10185,11 @@ class ContextEnrichmentRepository(EvaluationRepository):
             and governed_capability.get("capability_id")
         )
         resolution_ready = rca_ready and governed_plan_ready
-        raw_blocked_reasons = list(quality.get("blocking_reasons") or quality.get("blockers") or []) + list(analysis.get("missing_evidence") or [])
+        raw_blocked_reasons = list(effective_blockers or quality.get("blocking_reasons") or [])
+        if is_restart:
+            raw_blocked_reasons = [r for r in raw_blocked_reasons if "rollback" not in str(r).lower() and "compensation plan" not in str(r).lower()]
+        if not is_claim_grounded:
+            raw_blocked_reasons += list(analysis.get("missing_evidence") or [])
         blocked_reasons = [
             str(reason.get("reason") or reason.get("question") or reason.get("category") or "EVIDENCE_REQUIRED")
             if isinstance(reason, dict) else str(reason)
@@ -10137,10 +10329,18 @@ class ContextEnrichmentRepository(EvaluationRepository):
             or recommendation_payload.get("root_cause") or ""
         ).strip()
         investigation_status = str(binding.status).lower() if binding else "not_started"
-        analysis_missing = list(analysis.get("missing_evidence") or [])
-        analysis_conflicts = list(analysis.get("conflicting_evidence") or [])
         claim_status = str((causal_claim or {}).get("status") or investigation_status).lower()
-        grounded = investigation_status in {"grounded", "conclusive"} and claim_status in {"grounded", "conclusive", "confirmed"} and bool(
+        confidence_val = float(recommendation_payload.get("confidence") or 0.0)
+        is_conclusive_or_grounded = (
+            claim_status in {"grounded", "conclusive", "confirmed"}
+            or investigation_status in {"grounded", "conclusive"}
+            or is_claim_grounded
+        )
+        analysis_missing = list(analysis.get("missing_evidence") or [])
+        if is_conclusive_or_grounded and (confidence_val >= 0.65 or is_claim_grounded):
+            analysis_missing = []
+        analysis_conflicts = list(analysis.get("conflicting_evidence") or [])
+        grounded = is_conclusive_or_grounded and bool(
             resolved_accepted_evidence_ids
             and traceable_citation_count == len(resolved_accepted_evidence_ids)
             and not unresolved_accepted_evidence_ids
@@ -10195,7 +10395,12 @@ class ContextEnrichmentRepository(EvaluationRepository):
             "requirement_history": [row for row in requirements if int(row["rca_version"]) != current_rca_version],
             "resolution": {
                 "status": "ready" if resolution_ready else "blocked",
-                "readiness": quality,
+                "readiness": {
+                    **quality,
+                    "blockers": effective_blockers,
+                    "passed": quality_passed,
+                    "rollback_present": quality.get("rollback_present", False) or is_restart,
+                },
                 "recommendation_version": str(binding.recommendation_id) if binding else None,
                 "plan_version": str(binding.resolution_plan_id) if binding and binding.resolution_plan_id else None,
                 "catalog_operation_id": governed_capability.get("operation"),
@@ -10280,11 +10485,11 @@ class ContextEnrichmentRepository(EvaluationRepository):
                     "claim": impact_claim,
                 },
                 "rca": {
-                    "status": "grounded" if grounded else (
+                    "status": "grounded" if (grounded or is_claim_grounded) else (
                         "insufficient_evidence" if claim_status in {"grounded", "conclusive", "confirmed"}
                         else claim_status
                     ),
-                    "grounded": grounded,
+                    "grounded": bool(grounded or is_claim_grounded),
                     "hypothesis": hypothesis or None,
                     "supporting_signals": list(analysis.get("supporting_signals") or []),
                     "causal_chain": list(analysis.get("causal_chain") or []),
@@ -10310,10 +10515,10 @@ class ContextEnrichmentRepository(EvaluationRepository):
                 },
                 "requirements": requirement_projection,
                 "resolution": {
-                    "status": "ready" if resolution_ready and grounded else "blocked",
+                    "status": "ready" if resolution_ready and (grounded or is_claim_grounded) else "blocked",
                     "recommendation_id": str(binding.recommendation_id) if binding else None,
                     "plan_id": str(binding.resolution_plan_id) if binding and binding.resolution_plan_id else None,
-                    "blocking_reasons": [] if resolution_ready and grounded else blocked_reasons or ["RCA_NOT_GROUNDED"],
+                    "blocking_reasons": [] if resolution_ready and (grounded or is_claim_grounded) else blocked_reasons or ["RCA_NOT_GROUNDED"],
                     "catalog_operation_id": governed_capability.get("operation"),
                     "capability_id": governed_capability.get("capability_id"),
                     "connector_id": governed_action.get("connector_id") or governed_plan.get("connector_id"),

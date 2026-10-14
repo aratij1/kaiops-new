@@ -1,0 +1,51 @@
+{
+  "received_at": "2026-09-04T13:47:00.254437+00:00",
+  "source": "telemetry",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "telemetry",
+    "name": "KaiOpsSSEDisconnected",
+    "service": "kaiops-platform",
+    "environment": "prod",
+    "severity": "warning",
+    "description": "No authenticated SSE connection has been observed for 15 minutes; clients may be using polling fallback.",
+    "labels": {
+      "alertname": "KaiOpsSSEDisconnected",
+      "component": "sse",
+      "severity": "warning",
+      "source_system": "telemetry",
+      "origin_system": "telemetry",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "8b350a3dd31ea3a4",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "No authenticated SSE connection has been observed for 15 minutes; clients may be using polling fallback.",
+      "summary": "No KaiOps live-update clients are connected",
+      "startsAt": "2026-09-04T13:31:02.209Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=sum%28kaiops_sse_connections%29+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "KaiOpsSSEDisconnected",
+      "component": "sse",
+      "severity": "warning",
+      "source_system": "telemetry"
+    },
+    "annotations": {
+      "description": "No authenticated SSE connection has been observed for 15 minutes; clients may be using polling fallback.",
+      "summary": "No KaiOps live-update clients are connected"
+    },
+    "startsAt": "2026-09-04T13:31:02.209Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=sum%28kaiops_sse_connections%29+%3D%3D+0&g0.tab=1",
+    "fingerprint": "8b350a3dd31ea3a4"
+  }
+}

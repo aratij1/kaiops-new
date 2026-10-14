@@ -1,0 +1,69 @@
+{
+  "received_at": "2026-09-10T08:36:37.273894+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "HighNetworkLatency",
+    "service": "httpbin-failure-lab",
+    "environment": "public-internet",
+    "severity": "warning",
+    "description": "HTTP probe duration is above 200ms for target https://httpbin.org/status/503.",
+    "labels": {
+      "alertname": "HighNetworkLatency",
+      "application": "KaiOps",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://httpbin.org/status/503",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "httpbin-failure-lab",
+      "severity": "warning",
+      "synthetic": "true",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "02af5af21b5e5c12",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed",
+      "pipeline_outcome": "discover",
+      "pipeline_reason": "admitted for Discovery",
+      "source_event_id": "02af5af21b5e5c12",
+      "discovery_fingerprint": "02af5af21b5e5c12",
+      "occurrence_count": "1",
+      "pipeline_stage": "pre_discovery_admission"
+    },
+    "annotations": {
+      "description": "HTTP probe duration is above 200ms for target https://httpbin.org/status/503.",
+      "summary": "High network latency",
+      "startsAt": "2026-09-10T06:00:35.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=probe_duration_seconds%7Bjob%3D%22blackbox%22%7D+%3E+0.2&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "HighNetworkLatency",
+      "application": "httpbin-failure-lab",
+      "environment": "public-internet",
+      "external": "true",
+      "instance": "https://httpbin.org/status/503",
+      "job": "blackbox",
+      "project_name": "KaiOps",
+      "service": "httpbin-failure-lab",
+      "severity": "warning",
+      "synthetic": "true"
+    },
+    "annotations": {
+      "description": "HTTP probe duration is above 200ms for target https://httpbin.org/status/503.",
+      "summary": "High network latency"
+    },
+    "startsAt": "2026-09-10T06:00:35.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://211beb1a0aef:9090/graph?g0.expr=probe_duration_seconds%7Bjob%3D%22blackbox%22%7D+%3E+0.2&g0.tab=1",
+    "fingerprint": "02af5af21b5e5c12"
+  }
+}

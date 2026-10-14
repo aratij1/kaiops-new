@@ -40,7 +40,10 @@ from common.database import (
     MonitoringConnectionHealthRecord,
 )
 from common.event_publishers import build_agent_event_contract, build_orchestration_envelope
-from common.incident_command_contract import build_incident_command_workspace
+from common.incident_command_contract import (
+    build_incident_command_workspace,
+    normalize_incident_id,
+)
 from common.kafka import normalize_payload
 from common.models import Alert, GatewayAuditEvent, Incident, SafetyDecision
 from common.repository import IncidentRepository
@@ -3977,7 +3980,8 @@ async def get_incident_command_workspace(
     x_trace_id: str | None = Header(default=None),
     tenant_id: str = Depends(current_tenant_id),
 ) -> dict[str, Any]:
-    encoded_incident_id = quote(incident_id, safe="")
+    canonical_incident_id = normalize_incident_id(incident_id)
+    encoded_incident_id = quote(canonical_incident_id, safe="")
     trace_id = trace_id_from_header(x_trace_id)
     incident, operations = await asyncio.gather(
         guarded_proxy(
@@ -4003,7 +4007,7 @@ async def get_incident_command_workspace(
     operations_payload = operations.get("data") if isinstance(operations.get("data"), dict) else operations
     try:
         return build_incident_command_workspace(
-            incident_id=incident_id,
+            incident_id=canonical_incident_id,
             incident=incident_payload,
             operations=operations_payload,
         ).model_dump(mode="json")

@@ -38,12 +38,20 @@ function Invoke-DockerCommand {
 }
 Push-Location $workspace
 try {
-    & (Join-Path $workspace "deploy/monitoring/start.ps1")
+    $monitoringStart = Join-Path $workspace "deploy/monitoring/start.ps1"
+    if (Test-Path $monitoringStart) {
+        & $monitoringStart
+    }
     $env:DOCKER_BUILDKIT = "1"
     $env:COMPOSE_BAKE = "false"
     $env:COMPOSE_PARALLEL_LIMIT = "1"
     docker version --format "Docker engine {{.Server.Version}}"
     if ($LASTEXITCODE -ne 0) { throw "Docker Desktop Linux engine is unavailable." }
+
+    $existingNetworks = docker network ls --format "{{.Name}}"
+    if ($existingNetworks -notcontains "kaims_default") {
+        docker network create kaims_default | Out-Null
+    }
 
     $optionalServices = @(
         "zookeeper", "kafka", "kafka-exporter", "fault-lab",
@@ -68,7 +76,7 @@ try {
     }
     $leanServices = @(
         "mysql", "temporal", "redis", "rabbitmq",
-        "mysql-exporter", "node-exporter",
+        "mysql-exporter", "node-exporter", "blackbox-exporter", "alertmanager", "prometheus",
         "monitoring-adapter", "monitoring-ingestion-worker", "application-onboarding", "connector-hub",
         "discovery-service", "metrics-validation-agent", "rule-generation-agent",
         "prometheus-config-service", "validation-agent", "dashboard-generator",

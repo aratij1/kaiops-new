@@ -1,0 +1,49 @@
+{
+  "received_at": "2026-09-04T04:26:05.269205+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "PolicyEngineUnavailable",
+    "service": "orchestrator",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "No orchestrator event-processing metric is present.",
+    "labels": {
+      "alertname": "PolicyEngineUnavailable",
+      "service": "orchestrator",
+      "severity": "critical",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "14ca85e537b70e33",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "No orchestrator event-processing metric is present.",
+      "summary": "Policy engine unavailable",
+      "startsAt": "2026-09-04T04:25:50.276Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://623098a351f8:9090/graph?g0.expr=absent%28kaiops_events_processed_total%7Bservice%3D%22orchestrator%22%7D%29&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "PolicyEngineUnavailable",
+      "service": "orchestrator",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "No orchestrator event-processing metric is present.",
+      "summary": "Policy engine unavailable"
+    },
+    "startsAt": "2026-09-04T04:25:50.276Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://623098a351f8:9090/graph?g0.expr=absent%28kaiops_events_processed_total%7Bservice%3D%22orchestrator%22%7D%29&g0.tab=1",
+    "fingerprint": "14ca85e537b70e33"
+  }
+}

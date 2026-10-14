@@ -1,0 +1,59 @@
+{
+  "received_at": "2026-09-03T11:47:58.311943+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "Duplicate delivery test alert",
+    "service": "DUP",
+    "environment": "prod",
+    "severity": "info",
+    "description": "Testing dedup on identical webhook delivered twice",
+    "tenant_id": "dup-test",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "DUP-5001",
+      "jira_issue_id": "90005",
+      "jira_status": "Open",
+      "jira_priority": "Low",
+      "jira_reporter": "CoreStack Bot",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L1"
+    },
+    "annotations": {
+      "summary": "Duplicate delivery test alert",
+      "description": "Testing dedup on identical webhook delivered twice"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "id": "90005",
+      "key": "DUP-5001",
+      "fields": {
+        "summary": "Duplicate delivery test alert",
+        "description": "Testing dedup on identical webhook delivered twice",
+        "priority": {
+          "name": "Low"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "DUP"
+        },
+        "labels": [
+          "kaiops-tenant-dup-test"
+        ],
+        "reporter": {
+          "displayName": "CoreStack Bot"
+        }
+      }
+    }
+  }
+}

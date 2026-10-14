@@ -589,5 +589,24 @@
     "execution_plan": "Archive old partitions job",
     "deployment": "Not explicitly documented.",
     "source": "rag-incident"
+  },
+  {
+    "id": "rabbitmq-failure",
+    "alert_id": "RABBITMQ-FAILURE",
+    "alert_name": "RobotShopServiceDown — rs-rabbitmq unavailable",
+    "alert_type": "availability",
+    "title": "Robot Shop RabbitMQ service unavailable",
+    "service": "rs-rabbitmq",
+    "severity": "CRITICAL",
+    "summary": "The rs-rabbitmq container is not running. Robot Shop AMQP broker unreachable.",
+    "description": "rs-rabbitmq container stopped or crashed. Prometheus alert RobotShopServiceDown is firing. Dependent services (rs-payment, rs-dispatch, rs-shipping) cannot publish or consume AMQP messages.",
+    "root_cause": "rs-rabbitmq container stopped or crashed causing AMQP broker unavailability for the Robot Shop demo environment",
+    "impact": "Robot Shop order processing and payment dispatch are degraded. Downstream services accumulate undeliverable messages and report connection errors to the AMQP broker at rabbitmq:5672.",
+    "recommended_action": "Restart the rs-rabbitmq container via the docker-compose executor using docker-socket-proxy. After restart validate that rs-rabbitmq-exporter reports metrics at :9419/metrics and that Prometheus alert RobotShopServiceDown has cleared.",
+    "execution_plan": "1. Confirm rs-rabbitmq container label visible via docker-socket-proxy; 2. POST /containers/<id>/restart?t=30 via docker-socket-proxy; 3. Validate http://rs-rabbitmq-exporter:9419/metrics returns HTTP 200; 4. Confirm Prometheus RobotShopServiceDown cleared",
+    "deployment": "Robot Shop demo — docker-compose profile demo-robot-shop",
+    "connector": "rs-rabbitmq-docker-compose",
+    "playbook_id": "rs-rabbitmq-restart-playbook",
+    "source": "rag-runbook"
   }
 ]

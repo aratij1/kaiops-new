@@ -1,0 +1,55 @@
+{
+  "received_at": "2026-09-02T13:32:07.634080+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "ServiceDown-E2E-20260902132204",
+    "service": "kaiops-discovery-mcp",
+    "environment": "review-20260902132204",
+    "severity": "critical",
+    "description": "kaiops-discovery-mcp is unreachable; endpoint down",
+    "labels": {
+      "alertname": "ServiceDown-E2E-20260902132204",
+      "application": "KaiOps",
+      "environment": "review-20260902132204",
+      "project_name": "KaiOps",
+      "service": "kaiops-discovery-mcp",
+      "severity": "critical",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "resolved",
+      "alert_fingerprint": "410abbcb4fab37f6",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "kaiops-discovery-mcp is unreachable; endpoint down",
+      "summary": "ServiceDown-E2E-20260902132204",
+      "startsAt": "2026-09-02T13:22:04.372497Z",
+      "endsAt": "2026-09-02T13:32:04.372497Z",
+      "generatorURL": "http://prometheus:9090/graph?g0.expr=vector(1)"
+    }
+  },
+  "raw": {
+    "status": "resolved",
+    "labels": {
+      "alertname": "ServiceDown-E2E-20260902132204",
+      "application": "KaiOps",
+      "environment": "review-20260902132204",
+      "project_name": "KaiOps",
+      "service": "kaiops-discovery-mcp",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "kaiops-discovery-mcp is unreachable; endpoint down",
+      "summary": "ServiceDown-E2E-20260902132204"
+    },
+    "startsAt": "2026-09-02T13:22:04.372497Z",
+    "endsAt": "2026-09-02T13:32:04.372497Z",
+    "generatorURL": "http://prometheus:9090/graph?g0.expr=vector(1)",
+    "fingerprint": "410abbcb4fab37f6"
+  }
+}

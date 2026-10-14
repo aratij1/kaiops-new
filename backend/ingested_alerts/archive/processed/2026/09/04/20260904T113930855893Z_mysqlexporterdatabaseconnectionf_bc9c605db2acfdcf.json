@@ -1,0 +1,59 @@
+{
+  "received_at": "2026-09-04T11:39:30.855893+00:00",
+  "source": "prometheus",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "prometheus",
+    "name": "MySQLExporterDatabaseConnectionFailed",
+    "service": "mysql-exporter",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "mysql-exporter is reachable, but its MySQL connection check is failing. Verify exporter credentials, grants, and the mysql:3306 endpoint.",
+    "labels": {
+      "alertname": "MySQLExporterDatabaseConnectionFailed",
+      "application": "KaiOps",
+      "environment": "prod",
+      "instance": "mysql-exporter:9104",
+      "job": "mysql-exporter",
+      "project_name": "KaiOps",
+      "service": "mysql-exporter",
+      "severity": "critical",
+      "origin_system": "prometheus",
+      "ingestion_channel": "monitoring",
+      "transport": "alertmanager",
+      "alert_status": "firing",
+      "alert_fingerprint": "bc9c605db2acfdcf",
+      "event_mode": "real",
+      "event_authenticity": "internal-observed"
+    },
+    "annotations": {
+      "description": "mysql-exporter is reachable, but its MySQL connection check is failing. Verify exporter credentials, grants, and the mysql:3306 endpoint.",
+      "summary": "MySQL exporter cannot connect to MySQL",
+      "startsAt": "2026-09-04T11:28:32.581Z",
+      "endsAt": "0001-01-01T00:00:00Z",
+      "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=mysql_up%7Bjob%3D%22mysql-exporter%22%7D+%3D%3D+0&g0.tab=1"
+    }
+  },
+  "raw": {
+    "status": "firing",
+    "labels": {
+      "alertname": "MySQLExporterDatabaseConnectionFailed",
+      "application": "KaiOps",
+      "environment": "prod",
+      "instance": "mysql-exporter:9104",
+      "job": "mysql-exporter",
+      "project_name": "KaiOps",
+      "service": "mysql-exporter",
+      "severity": "critical"
+    },
+    "annotations": {
+      "description": "mysql-exporter is reachable, but its MySQL connection check is failing. Verify exporter credentials, grants, and the mysql:3306 endpoint.",
+      "summary": "MySQL exporter cannot connect to MySQL"
+    },
+    "startsAt": "2026-09-04T11:28:32.581Z",
+    "endsAt": "0001-01-01T00:00:00Z",
+    "generatorURL": "http://f30e6980452e:9090/graph?g0.expr=mysql_up%7Bjob%3D%22mysql-exporter%22%7D+%3D%3D+0&g0.tab=1",
+    "fingerprint": "bc9c605db2acfdcf"
+  }
+}

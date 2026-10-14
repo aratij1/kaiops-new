@@ -1,0 +1,59 @@
+{
+  "received_at": "2026-09-03T11:48:55.516712+00:00",
+  "source": "jira",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "jira",
+    "name": "Database connection pool exhausted on orders-db",
+    "service": "OPS",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "CoreStack detected connection pool saturation causing latency spikes",
+    "tenant_id": "orders-prod",
+    "labels": {
+      "alert_status": "firing",
+      "ticket_id": "OPS-6001",
+      "jira_issue_id": "90006",
+      "jira_status": "Open",
+      "jira_priority": "Critical",
+      "jira_reporter": "CoreStack Bot",
+      "jira_assignee": "",
+      "jira_webhook_event": "jira:issue_created",
+      "managed_by_kaiops": "false",
+      "kaiops_incident_id": "",
+      "event_origin": "jira",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "Database connection pool exhausted on orders-db",
+      "description": "CoreStack detected connection pool saturation causing latency spikes"
+    }
+  },
+  "raw": {
+    "webhookEvent": "jira:issue_created",
+    "issue": {
+      "id": "90006",
+      "key": "OPS-6001",
+      "fields": {
+        "summary": "Database connection pool exhausted on orders-db",
+        "description": "CoreStack detected connection pool saturation causing latency spikes",
+        "priority": {
+          "name": "Critical"
+        },
+        "status": {
+          "name": "Open"
+        },
+        "project": {
+          "key": "OPS"
+        },
+        "labels": [
+          "kaiops-tenant-orders-prod"
+        ],
+        "reporter": {
+          "displayName": "CoreStack Bot"
+        }
+      }
+    }
+  }
+}

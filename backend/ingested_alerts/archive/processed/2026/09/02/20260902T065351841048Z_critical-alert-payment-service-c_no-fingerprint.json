@@ -1,0 +1,35 @@
+{
+  "received_at": "2026-09-02T06:53:51.841048+00:00",
+  "source": "email",
+  "status": "processed",
+  "error": null,
+  "alert": {
+    "source": "email",
+    "name": "Critical Alert: Payment Service Connection Refused",
+    "service": "robot-shop-payment",
+    "environment": "prod",
+    "severity": "critical",
+    "description": "Service: robot-shop-payment\r\nEnvironment: prod\r\nSeverity: critical\r\n\r\nPayment service is unreachable.\r\nConnection refused while connecting to the payment gateway.\r\n\r\nTimestamp: 2026-08-13T08:48:34.223196+00:00",
+    "labels": {
+      "alert_status": "firing",
+      "origin_system": "email",
+      "ingestion_channel": "email",
+      "email_from": "testtrubot@gmail.com",
+      "email_message_id": "<6a7d841a.46c6f052.3b745d.7faf@mx.google.com>",
+      "support_tier": "L2/L3"
+    },
+    "annotations": {
+      "summary": "Critical Alert: Payment Service Connection Refused",
+      "body": "Service: robot-shop-payment\r\nEnvironment: prod\r\nSeverity: critical\r\n\r\nPayment service is unreachable.\r\nConnection refused while connecting to the payment gateway.\r\n\r\nTimestamp: 2026-08-13T08:48:34.223196+00:00",
+      "received_at": "2026-08-13T01:45:14-07:00"
+    }
+  },
+  "raw": {
+    "message_id": "<6a7d841a.46c6f052.3b745d.7faf@mx.google.com>",
+    "subject": "Critical Alert: Payment Service Connection Refused",
+    "from": "testtrubot@gmail.com",
+    "to": "pihu40381@gmail.com",
+    "received_at": "2026-08-13T01:45:14-07:00",
+    "body": "Service: robot-shop-payment\r\nEnvironment: prod\r\nSeverity: critical\r\n\r\nPayment service is unreachable.\r\nConnection refused while connecting to the payment gateway.\r\n\r\nTimestamp: 2026-08-13T08:48:34.223196+00:00"
+  }
+}
