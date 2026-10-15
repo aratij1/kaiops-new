@@ -10,7 +10,15 @@ conn = pymysql.connect(
     cursorclass=pymysql.cursors.DictCursor
 )
 
-incident_id = '2dceba0f3ab84feead821bd73d76a723'
+import sys
+
+with conn.cursor() as cur:
+    if len(sys.argv) > 1:
+        incident_id = sys.argv[1]
+    else:
+        cur.execute("SELECT id FROM incidents WHERE service LIKE '%rabbit%' ORDER BY created_at DESC LIMIT 1")
+        row = cur.fetchone()
+        incident_id = row['id'] if row else '92a4da4f664e4b1fbff251d92bb4966b'
 
 with conn.cursor() as cur:
     print(f"=== FULL INVESTIGATION FOR INCIDENT {incident_id} ===")

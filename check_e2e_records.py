@@ -46,7 +46,7 @@ with conn.cursor() as cur:
         print("Recovery evidence:", cur.fetchall())
 
         # Jira ticket links
-        cur.execute("SELECT * FROM jira_ticket_links WHERE incident_id=%s", (latest_id,))
+        cur.execute("SELECT * FROM jira_ticket_links ORDER BY created_at DESC LIMIT 3")
         print("Jira links:", cur.fetchall())
         
         # Investigations / RCA

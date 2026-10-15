@@ -46,9 +46,14 @@ def docker_compose_restart_plan(*, project: str, service: str) -> dict[str, list
     # all=1 includes stopped containers — the restart target may be in Exited
     # state (that is the whole point of this remediation).
     list_url = f"http://docker-socket-proxy:2375/containers/json?all=1&filters={filters}"
+    fallback_filters = quote(json.dumps({"label": [
+        f"com.docker.compose.service={service}",
+    ]}, separators=(",", ":")), safe="")
+    fallback_url = f"http://docker-socket-proxy:2375/containers/json?all=1&filters={fallback_filters}"
     id_lookup = (
-        f"curl --fail --silent --show-error '{list_url}' "
-        "| grep -o '\"Id\":\"[^\"]*\"' | head -n 1 | cut -d'\"' -f4"
+        f"cid=$(curl --fail --silent --show-error '{list_url}' | grep -o '\"Id\":\"[^\"]*\"' | head -n 1 | cut -d'\"' -f4); "
+        f"if [ -z \"$cid\" ]; then cid=$(curl --fail --silent --show-error '{fallback_url}' | grep -o '\"Id\":\"[^\"]*\"' | head -n 1 | cut -d'\"' -f4); fi; "
+        "echo \"$cid\""
     )
     return {
         "preflight": [f"{id_lookup} | grep --quiet . || echo 'Preflight container lookup simulated for {service}'"],
